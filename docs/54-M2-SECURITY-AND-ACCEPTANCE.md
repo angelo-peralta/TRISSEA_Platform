@@ -132,8 +132,8 @@ never real enrollment QR seeds, OTPs, tokens or identity images.
 
 ## Release/rollback and M2 definition of done
 
-1. M1 merge `553c5d7` and owner M2 directive verified. M2.0/M2.1 are authorized;
-   review approval is required before M2.2. No publication/deployment authorization.
+1. M1 merge `553c5d7` and owner M2 directive verified. M2.0/M2.1 local evidence was
+   reviewed and the owner approved M2.2. Stop before M2.3; no publication/deployment authorization.
 2. Schema/tenancy ADR and authority boundaries approved; contract and migration
    changes reviewed before execution. Every slice has a clear feature gate.
 3. Required unit/integration/concurrency/authorization/contract checks pass on
@@ -178,3 +178,8 @@ not production approvals. Gate A live SMS, Gate B real documents/privacy, Gate C
 real operational verification, Gate D recovery/privileged delegation and Gate E
 public deployment remain closed. See doc 56 for exact interfaces and Keycloak
 requirements. M2.1 evidence is recorded separately in doc 57.
+
+M2.2 acceptance is tracked in [doc 58](58-M2-AUTHORIZATION.md). It tests real DB
+authorization and synthetic server-only credential proofs. This is not a claim
+of JWT signature validation, live SMS or real Keycloak MFA integration; those
+adapters remain fail-closed and require their actual slice acceptance.

@@ -49,7 +49,7 @@ authority and mock transport locally/CI. It does not authorize real sending.
 Account endpoint/sender/route pricing, carrier/portability, privacy and live
 activation remain gated; Supabase is not assumed to own mobile OTP under this ADR.
 
-## M2.0 owner architecture decision ? 2026-11-05
+## M2.0 owner architecture decision - 2026-11-05
 
 The explicit M2 implementation directive supersedes the provisional D13 Supabase
 proposal (preserved above in doc 41 history). D11/global verified identity + separate
@@ -68,3 +68,20 @@ Gate B notice/legal basis/storage/retention/incident/access; Gate C authorized
 permit/vehicle/TODA/capacity/jurisdiction policy; Gate D bootstrap ownership, all
 recovery and privileged delegation; Gate E deployment. No real driver documents,
 real operator approval, recovery endpoint, implicit superuser or live SMS.
+
+## M2.2 authorization review scope - 2026-11-05
+
+Owner approved continuing after M2.1 local evidence. Work stays on a separate
+stacked feature branch, with another review stop before M2.3. Current DB grants
+and exact city/TODA/resource/assurance checks are authoritative; no caller role,
+scope header, provider metadata or implicit platform PII bypass is accepted.
+Conservative existing-vocabulary catalog edges are listed in doc 37 / doc 58.
+
+| ID | Unresolved detail | Status | Until decided |
+| --- | --- | --- | --- |
+| M2-A01 | Narrow metadata-only permission for SECURITY_AUDITOR; future fare activation and GPS permission assignments | REQUIRES_SECURITY | No new audit-read permission or public endpoint; fare.activate/gps.read.live remain unassigned; no operational handler |
+| M2-A02 | Current Keycloak factor assurance method and out-of-band revocation bounds | REQUIRES_SECURITY | M2.5 must prove it; default proof verifier denies, synthetic tests are not a live MFA pass |
+
+M2.2 does not approve Gate D role delegation/bootstrap/recovery, or any Gate A/B/C/E
+activation. Synthetic assigned-case/fare resources test policy only; they are not
+verification/fare features or legal approval.

@@ -2,7 +2,8 @@ import type { Principal } from './identity-provider';
 
 export interface ResourceScope { cityId: string; todaId?: string }
 
-/** The caller must obtain resource scope from authoritative server records. */
+/** @deprecated M1 example only, not the current-record M2 policy engine.
+ * The caller must obtain resource scope from authoritative server records. */
 export function isAuthorized(principal: Principal, scope: ResourceScope, permission: string, admin = true): boolean {
   if (admin && !principal.mfa) return false;
   return principal.grants.some(grant =>

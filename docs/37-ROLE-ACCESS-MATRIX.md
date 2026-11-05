@@ -38,5 +38,30 @@ merely by catalog presence. Recovery/privileged delegation remain Gate D closed.
 - Append-only audit trail for fare approvals, identity decisions, ride exceptions and privileged reads; isolate and protect logs.
 - Admin sessions: SSO or email/password with mandatory TOTP MFA; no shared login accounts; session expiry/reauth on high-risk changes.
 
+## M2.2 conservative catalog mapping
+
+Owner approved continuing after M2.1. Migration `0003_authorization` adds existing
+permission identifiers only, with no user assignments or delegation API. Policies
+also require current session/membership, matching role and the same grant scope.
+
+| Role | Catalog permissions | Additional policy boundary |
+| --- | --- | --- |
+| CITY_OPERATIONS_ADMIN | config.manage | Explicit city configuration; fresh admin proof |
+| CITY_FARE_EDITOR | fare.draft | City scope; no fare handler in M2 |
+| CITY_FARE_APPROVER | fare.approve | City, fresh proof and known different maker; no fare handler |
+| TODA_MANAGER | toda.members.manage | Exact verified TODA and fresh proof |
+| TODA_DISPATCHER | rides.read.masked, rides.assist | Exact TODA; assist catalog-only, no ride operation |
+| VERIFICATION_OFFICER | driver.verify | Assigned case, scope, fresh proof, no self-review; synthetic policy tests |
+| SUPPORT_AGENT | rides.read.masked, incidents.escalate | Assigned support case in grant scope; no identity documents |
+| PRIVACY_OFFICER | privacy.dsr | Assigned purpose-bound privacy case, city scope, fresh proof |
+| PLATFORM_ADMIN | config.manage | Explicit PLATFORM infrastructure scope; no city/TODA/PII wildcard |
+| SECURITY_AUDITOR | None in existing vocabulary | Narrow metadata permission pending M2-A01; own account only |
+| PASSENGER, DRIVER | No administrative edges | Purpose-bound own-account/session access; no operating eligibility |
+
+`fare.activate` and `gps.read.live` stay unassigned. Catalog edges and synthetic
+positives do not activate operational handlers. Missing resource adapters deny.
+See [M2.2 implementation](58-M2-AUTHORIZATION.md).
+
 ## Required tests
+
 Cross-TODA IDOR; wrong-city admin; self-approval of fare; suspended driver accepts offer; support access without case; unauthorized GPS query; missing MFA; stolen token; privilege escalation; bulk export denial; admin creates booking on behalf of passenger only under logged consent/helpdesk case.

@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { after, before, test } from 'node:test';
 import postgres from 'postgres';
-import { runMigrations } from './migration-runner.mjs';
+import { runMigrations as runAllMigrations } from './migration-runner.mjs';
 import { assertLocalDatabase, assertDisposableIdentityDatabase } from './migration-policy.mjs';
 
 const requireApi = createRequire(new URL('../services/api/package.json', import.meta.url));
@@ -22,6 +22,8 @@ const crypto = new IdentityCrypto('test-v1', randomBytes(32), randomBytes(32));
 const sqlOptions = { max: 1, onnotice: () => {}, connection: { timezone: 'UTC', statement_timeout: 15000, lock_timeout: 5000 }, connect_timeout: 5 };
 const dbError = (promise, code) => assert.rejects(promise, error => error.code === code || error.cause?.code === code);
 const fixture = {};
+// Preserve M2.1 acceptance at its exact schema boundary as subsequent slices add migrations.
+const runMigrations = (sql,command,options={}) => runAllMigrations(sql,command,{...options,through:options.through ?? '0002_identity_foundation'});
 
 before(async () => {
   // No default URL: cannot accidentally fall back to M1, user or production data.
@@ -44,8 +46,9 @@ before(async () => {
 
 after(async () => {
   await Promise.allSettled([runtime?.end(), auth?.end(), owner?.end(), control?.end()]);
-  await mkdir(new URL('../evidence/m2/m2-1/', import.meta.url), { recursive: true });
-  await writeFile(new URL('../evidence/m2/m2-1/database-results.json', import.meta.url), `${JSON.stringify(evidence, null, 2)}\n`);
+  // Preserve accepted evidence snapshots; each run writes a fresh ignored report for CI/review.
+  await mkdir(new URL('../.cache/m2-identity/', import.meta.url), { recursive: true });
+  await writeFile(new URL('../.cache/m2-identity/database-results.json', import.meta.url), `${JSON.stringify(evidence, null, 2)}\n`);
 });
 
 test('migration gates reject non-disposable, remote, production and ambiguous targets', () => {

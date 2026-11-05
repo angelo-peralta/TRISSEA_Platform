@@ -177,3 +177,8 @@ capability is enabled. This is not M2 COMPLETE or production readiness.
 GitHub workflow adds isolated DB tests and preserves M1's migration boundary;
 it has not run remotely because this slice is not published. Stop after M2.1 for
 owner review before M2.2. Publication needs separate authorization under doc 50.
+
+M2.2 follow-up: the owner approved continuing. Subsequent M2.1 regression runs
+stay pinned through `0002_identity_foundation` and write their latest report to
+`.cache/m2-identity/database-results.json`; this accepted evidence snapshot is
+preserved. CI uploads that fresh cache report. See doc 58 for M2.2 acceptance.

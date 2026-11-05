@@ -174,8 +174,10 @@ API call or contact/campaign feature is needed to verify payload construction.
    admin identity mapping and audit/outbox in `0002_identity_foundation`. Browser
    token vaults and bounded credential-bearing retry envelopes remain a reviewed
    later auth-slice migration. They are not needed to expose a safe M2.1 schema.
-4. Candidate `0004_verification`: pending driver/vehicle/membership cases and private
-   evidence metadata. Do not provision real document storage before D16/D17 gates.
+4. M2.2 adds `0003_authorization`: conservative role-permission edges, metadata-only
+   SQL resolver roles/RLS and a hardened policy-row-lock function, with no new tables.
+   Later auth/vault/verification migrations take the next available reviewed IDs
+   in their slices. No real document storage before D16/D17 approval.
 5. Each migration gets checksum/order checks, transactional up/down, fresh and
    repeat apply, dedicated rollback/reapply and unrelated-table preservation
    tests. Reuse the local runner; no Drizzle `push`, legacy seed execution or

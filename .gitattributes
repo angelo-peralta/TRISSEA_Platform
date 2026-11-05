@@ -5,3 +5,4 @@ patches/*.patch text eol=lf
 packages/contracts/src/generated/*.ts text eol=lf
 packages/contracts/src/health-client.ts text eol=lf
 database/migrations/0002_*.sql text eol=lf
+database/migrations/0003_*.sql text eol=lf

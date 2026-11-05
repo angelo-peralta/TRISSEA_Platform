@@ -1,0 +1,3 @@
+warning: in the working copy of '.github/workflows/m2-identity.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/57-M2-IDENTITY-FOUNDATION.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/test-identity-database.mjs', LF will be replaced by CRLF the next time Git touches it

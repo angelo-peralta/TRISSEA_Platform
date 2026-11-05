@@ -15,10 +15,18 @@ jobs:
       - run: node scripts/prepare-identity-test.mjs
       - run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml up -d --wait
       - run: pnpm test:identity:db
+      - run: pnpm test:authorization:db
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: m2-identity-database-results
-          path: evidence/m2/m2-1/database-results.json
+          path: .cache/m2-identity/database-results.json
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-authorization-database-results
+          path: .cache/m2-authorization/database-results.json
+          include-hidden-files: true
       - if: always()
         run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml stop

@@ -1,6 +1,6 @@
 # M2 technical implementation plan
 
-Date: 2026-11-05. Status: **M2.0 architecture approved; M2.1 local implementation authorized. Review stop before M2.2.**
+Date: 2026-11-05. Status: **M2.0/M2.1 locally accepted; owner approved continuing with M2.2. Review stop before M2.3.**
 
 ## Prerequisite and scope
 
@@ -277,3 +277,8 @@ must state exactly which provider/environment/device gates were actually met.
 M2.1 introduces only the reviewed identity foundation migration/repositories/tests.
 Later auth, Keycloak infrastructure and verification slices remain unimplemented
 until their review gates. No live messages or real identity provisioning is authorized.
+
+M2.2 update: the owner approved continuing after M2.1 evidence. The authorization
+module now resolves current sessions, grants, ownership, city/TODA and assurance
+inside a transaction. Concrete JWT/Keycloak proof adapters remain denied by
+default until their respective slices. See [M2.2 evidence](58-M2-AUTHORIZATION.md).
