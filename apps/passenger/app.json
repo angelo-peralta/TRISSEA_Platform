@@ -14,7 +14,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-dev-client"
+      "expo-dev-client",
+      [
+        "../../plugins/with-android-short-paths.cjs",
+        {
+          "appKey": "p"
+        }
+      ]
     ],
     "web": {
       "bundler": "metro"

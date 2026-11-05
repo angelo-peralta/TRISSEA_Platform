@@ -1,0 +1,157 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "app": "driver",
+      "state": {
+        "name": "360-normal-light",
+        "density": 480,
+        "font": 1,
+        "night": "no"
+      },
+      "configuration": "config: mcc310-mnc260-en-rUS-ldltr-sw360dp-w360dp-h808dp-normal-long-notround-nowidecg-lowdr-port-notnight-xxhdpi-finger-keysexposed-qwerty-navexposed-dpad-2424x1080-v37\r\nabi: x86_64,arm64-v8a",
+      "fontScale": "1",
+      "tabs": [
+        {
+          "text": "",
+          "description": "Home",
+          "bounds": "[0,2179][270,2352]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "true",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Trips",
+          "bounds": "[270,2179][540,2352]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Earnings",
+          "bounds": "[540,2179][810,2352]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Profile",
+          "bounds": "[810,2179][1080,2352]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "app": "driver",
+      "state": {
+        "name": "600-normal-light",
+        "density": 320,
+        "font": 1,
+        "night": "no",
+        "size": "1200x2000"
+      },
+      "configuration": "config: mcc310-mnc260-en-rUS-ldltr-sw600dp-w600dp-h1000dp-large-long-notround-nowidecg-lowdr-port-notnight-xhdpi-finger-keysexposed-qwerty-navexposed-dpad-2000x1200-v37\r\nabi: x86_64,arm64-v8a",
+      "fontScale": "1",
+      "tabs": [
+        {
+          "text": "",
+          "description": "Home",
+          "bounds": "[0,1821][300,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "true",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Trips",
+          "bounds": "[300,1821][600,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Earnings",
+          "bounds": "[600,1821][900,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Profile",
+          "bounds": "[900,1821][1200,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "app": "driver",
+      "state": {
+        "name": "600-large-dark",
+        "density": 320,
+        "font": 2,
+        "night": "yes",
+        "size": "1200x2000"
+      },
+      "configuration": "config: mcc310-mnc260-en-rUS-ldltr-sw600dp-w600dp-h1000dp-large-long-notround-nowidecg-lowdr-port-night-xhdpi-finger-keysexposed-qwerty-navexposed-dpad-2000x1200-v37\r\nabi: x86_64,arm64-v8a",
+      "fontScale": "2.0",
+      "tabs": [
+        {
+          "text": "",
+          "description": "Home",
+          "bounds": "[0,1737][300,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "true",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Trips",
+          "bounds": "[300,1737][600,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Earnings",
+          "bounds": "[600,1737][900,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        },
+        {
+          "text": "",
+          "description": "Profile",
+          "bounds": "[900,1737][1200,1936]",
+          "clickable": "true",
+          "enabled": "true",
+          "selected": "false",
+          "class": "android.view.View"
+        }
+      ],
+      "result": "PASS"
+    }
+  ]
+}

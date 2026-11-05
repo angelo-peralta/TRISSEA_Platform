@@ -1,0 +1,128 @@
+[
+  {
+    "text": "",
+    "description": "Tools",
+    "bounds": "[937,219][1005,287]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.ImageView"
+  },
+  {
+    "text": "TRISSEA · TUGUEGARAO",
+    "description": "",
+    "bounds": "[63,205][1017,256]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Trips",
+    "description": "",
+    "bounds": "[63,319][1017,419]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Development preview · No live ride services",
+    "description": "",
+    "bounds": "[105,524][975,593]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Not available in M1",
+    "description": "",
+    "bounds": "[107,742][973,813]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "No rides have been loaded. Sign-in will be available in a later milestone.",
+    "description": "",
+    "bounds": "[107,845][973,983]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Home",
+    "bounds": "[0,2210][270,2361]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Home",
+    "description": "",
+    "bounds": "[85,2223][184,2274]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Trips",
+    "bounds": "[270,2210][540,2361]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "true",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Trips",
+    "description": "",
+    "bounds": "[363,2223][446,2274]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "true",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Earnings",
+    "bounds": "[540,2210][810,2361]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Earnings",
+    "description": "",
+    "bounds": "[603,2223][746,2274]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Profile",
+    "bounds": "[810,2210][1080,2361]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Profile",
+    "description": "",
+    "bounds": "[891,2223][998,2274]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  }
+]

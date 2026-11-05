@@ -1,0 +1,22 @@
+import { run, capture, tapLabel, hierarchy } from './m1-android-qa.mjs';
+import { writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const results=[];
+try {
+  for(const [name,serial,other,labels] of [
+    ['driver','emulator-5556','emulator-5554',['Trips','Earnings','Profile','Home']],
+    ['passenger','emulator-5554','emulator-5556',['Activity','Account','Home']],
+  ]){
+    run(other,['emu','avd','stop']);
+    run(serial,['emu','avd','start']);
+    for(const label of labels){tapLabel(serial,label,`${name}-final-nav-${label.toLowerCase()}`);const nodes=capture(serial,`${name}-final-${label.toLowerCase()}`);assert(nodes.some(n=>n.description===label&&n.selected==='true'));}
+    capture(serial,`${name}-final-light`);
+    run(serial,['shell','cmd','uimode','night','yes']);hierarchy(serial);capture(serial,`${name}-final-dark`);
+    run(serial,['shell','cmd','uimode','night','no']);hierarchy(serial);
+    results.push({app:name,tabs:labels,result:'PASS'});
+  }
+} finally {
+  for(const serial of ['emulator-5554','emulator-5556'])run(serial,['emu','avd','start']);
+}
+writeFileSync('evidence/m1/final-navigation-results.json',JSON.stringify({status:'PASS',results},null,2));
+for(const serial of ['emulator-5554','emulator-5556']){assert.equal(run(serial,['shell','getprop','sys.boot_completed']).trim(),'1'); console.log(serial,run(serial,['shell','pidof',serial==='emulator-5554'?'ph.trissea.passenger.dev':'ph.trissea.driver.dev']).trim());}

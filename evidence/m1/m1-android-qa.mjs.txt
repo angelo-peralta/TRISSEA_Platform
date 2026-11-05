@@ -1,0 +1,56 @@
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const adb = join(process.env.LOCALAPPDATA, 'Android', 'Sdk', 'platform-tools', 'adb.exe');
+const output = join(process.cwd(), 'evidence', 'm1');
+mkdirSync(output, { recursive: true });
+export function run(serial, args, binary = false) {
+  if (!['emulator-5554', 'emulator-5556'].includes(serial)) throw Error('Unexpected device');
+  appendFileSync(join(output, 'adb-commands.jsonl'), JSON.stringify({time: new Date().toISOString(), serial, args}) + '\n');
+  return execFileSync(adb, ['-s', serial, ...args], {encoding: binary ? undefined : 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 45000});
+}
+export function hierarchy(serial) {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const remote = `/sdcard/trissea-m1-${Date.now()}.xml`;
+    const dump = run(serial, ['shell', 'uiautomator', 'dump', remote]);
+    if (dump.includes('dumped to:')) return run(serial, ['exec-out', 'cat', remote]);
+  }
+  throw Error('UI hierarchy did not become ready');
+}
+export function capture(serial, name, allowSystem = false) {
+  const xml = hierarchy(serial);
+  const expectedPackage = serial === 'emulator-5554' ? 'ph.trissea.passenger.dev' : 'ph.trissea.driver.dev';
+  if (!allowSystem && !xml.includes(`package="${expectedPackage}"`)) throw Error('Target app is not on screen: ' + serial);
+  writeFileSync(join(output, `${name}.png`), run(serial, ['exec-out', 'screencap', '-p'], true));
+  writeFileSync(join(output, `${name}.xml`), xml);
+  const labels = [...xml.matchAll(/<node\s+([^>]+)/g)].map(([, node]) => {
+    const attrs = Object.fromEntries([...node.matchAll(/([\w-]+)="([^"]*)"/g)].map(([, key, value]) => [key, value]));
+    return {text: attrs.text, description: attrs['content-desc'], bounds: attrs.bounds, clickable: attrs.clickable, enabled: attrs.enabled, selected: attrs.selected, class: attrs.class};
+  }).filter(n => n.text || n.description || n.clickable === 'true');
+  writeFileSync(join(output, `${name}.json`), JSON.stringify(labels, null, 2));
+  console.log(name, JSON.stringify(labels.map(n => n.text || `[${n.description}; enabled=${n.enabled}; ${n.bounds}]`)));
+  return labels;
+}
+export function tapLabel(serial, label, name) {
+  const nodes = capture(serial, name + '-before-tap');
+  const target = nodes.find(n => n.description === label && n.clickable === 'true');
+  if (!target) throw Error('Missing accessible control: ' + label);
+  const [x1,y1,x2,y2] = target.bounds.match(/\d+/g).map(Number);
+  run(serial, ['shell','input','tap',String(Math.round((x1+x2)/2)),String(Math.round((y1+y2)/2))]);
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const xml = hierarchy(serial);
+    const selected = [...xml.matchAll(/<node\s+([^>]+)/g)].some(([, node]) => node.includes(`content-desc="${label}"`) && node.includes('selected="true"'));
+    if (selected) return;
+  }
+  throw Error('Tab did not become selected: ' + label);
+}
+export function waitForText(serial, text, count = 1) {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const xml = hierarchy(serial);
+    if (xml.split(`text="${text}"`).length - 1 >= count) return;
+  }
+  throw Error('Screen did not become ready: ' + text);
+}
+if (process.argv[2] === 'capture') capture(process.argv[3], process.argv[4]);
+if (process.argv[2] === 'raw-capture') capture(process.argv[3], process.argv[4], true);

@@ -2,8 +2,9 @@
 
 **Blueprint edition:** v1.5 · 2026-11-05 · Tuguegarao City pilot. **NOT a functioning application or approved production fare engine.**
 
-**M1 foundation added:** local API and UI shells, shared packages, migration tooling
-and CI are now scaffolded. M1 is **in progress**, with no working booking flow.
+**M1 local foundation complete:** local API and UI shells, shared packages,
+migration tooling and CI configuration have passed local engineering acceptance.
+Android emulator and admin browser evidence is recorded; no booking flow is enabled.
 See [Windows setup and validation record](docs/49-M1-FOUNDATION.md) for commands,
 scope, security boundaries and outstanding checks.
 

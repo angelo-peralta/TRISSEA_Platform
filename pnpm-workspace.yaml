@@ -6,6 +6,25 @@ packages:
 # Expo supports isolated pnpm installs; do not hoist multiple native runtimes.
 minimumReleaseAge: 1440
 strictPeerDependencies: true
+# Running multiple dev servers must not launch competing implicit installations.
+verifyDepsBeforeRun: error
+# Native codegen source paths must also fit Ninja's Windows 260-character limit.
+virtualStoreDirMaxLength: 32
+# Keep native source paths and dependency verification identical in dev and CI.
+enableGlobalVirtualStore: false
+# Nest 11.2.8 pins an older Fastify patch; retain its major and apply the audited fix.
+overrides:
+  '@nestjs/platform-fastify>fastify': 5.12.6
+  'fastify>find-my-way': 9.7.0
+  '@fastify/middie>find-my-way': 9.7.0
+  # Reviewed compatibility overrides; tests/dependency-compatibility.test.mjs
+  # exercises the actual Expo consumers and the patched CommonJS/ESM decoder edge.
+  'query-string>decode-uri-component': 0.5.1
+  '@expo/cli>zod': 4.6.7
+  'glob@>=9.0.0 <14.0.2': 14.0.2
+  'minimatch@>=7.0.0 <11.0.1': 11.0.1
 onlyBuiltDependencies:
   - esbuild
   - '@nestjs/core'
+patchedDependencies:
+  query-string@7.1.3: patches/query-string@7.1.3.patch

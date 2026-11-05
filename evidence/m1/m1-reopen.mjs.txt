@@ -1,0 +1,38 @@
+import { run, capture, waitForText } from './m1-android-qa.mjs';
+import { writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const name=process.argv[2];
+const serial=name==='passenger'?'emulator-5554':'emulator-5556';
+const pkg=`ph.trissea.${name}.dev`;
+const title=name==='passenger'?'Where are you going?':'Driver home';
+const baseline=run(serial,['shell','dumpsys','dropbox','--print','data_app_anr']);
+const count=text=>(text.match(/^Process: ph\.trissea\.(passenger|driver)\.dev/gm)||[]).length;
+const results=[];
+const launch=()=>run(serial,['shell','am','start','-W','-a','android.intent.action.MAIN','-c','android.intent.category.LAUNCHER','-n',`${pkg}/.MainActivity`]);
+assert.equal(run(serial,['shell','getprop','sys.boot_completed']).trim(),'1');
+// Return to the top first; reopening must retain a usable selected Home tab.
+for(let i=0;i<5;i++)run(serial,['shell','input','swipe','540','500','540','1800','350']);
+run(serial,['shell','input','keyevent','3']);
+results.push({test:'background and normal launcher reopen',launch:launch()});
+capture(serial,`${name}-background-reopened`);
+for(let attempt=1;attempt<=2;attempt++){
+  run(serial,['shell','am','force-stop',pkg]);
+  const activity=launch();
+  waitForText(serial,title);
+  const nodes=capture(serial,`${name}-cold-reopened-${attempt}`);
+  assert(nodes.some(n=>n.text===title));
+  const pid=run(serial,['shell','pidof',pkg]).trim();
+  const logs=run(serial,['logcat','-d',`--pid=${pid}`,'-t','800','ReactNativeJS:V','AndroidRuntime:E','*:S']);
+  writeFileSync(`evidence/m1/${name}-reopen-${attempt}-logcat.txt`,logs);
+  assert(logs.includes('Running "main"'));
+  assert(!logs.includes('FATAL EXCEPTION'));
+  assert(!logs.includes(' E ReactNativeJS:'));
+  results.push({test:`cold normal-launcher reopen ${attempt}`,activity,pid,jsMain:true,reactNativeJsErrors:false});
+}
+const after=run(serial,['shell','dumpsys','dropbox','--print','data_app_anr']);
+writeFileSync(`evidence/m1/${name}-anr-after-reopen.txt`,after);
+writeFileSync(`evidence/m1/${name}-exit-history-final.txt`,run(serial,['shell','dumpsys','activity','exit-info',pkg]));
+const final={status:count(after)===count(baseline)?'PASS':'FAIL',historicalAnrEntriesBefore:count(baseline),historicalAnrEntriesAfter:count(after),results};
+writeFileSync(`evidence/m1/${name}-reopen-results.json`,JSON.stringify(final,null,2));
+assert.equal(final.status,'PASS','New ANR recorded during reopening');
+console.log(JSON.stringify(final));

@@ -1,0 +1,19 @@
+Reviewed excerpts from actual Android data_app_anr diagnostics, 2026-11-05.
+Only process IDs, failure subjects and relevant stack frames are included.
+Full raw host/device diagnostics remain local and untracked.
+
+Process: ph.trissea.passenger.dev
+PID: 6952
+Subject: Process ProcessRecord{56ec427 6952:ph.trissea.passenger.dev/u0a235} failed to complete startup
+  at com.facebook.soloader.SoFileLoaderImpl.load(SoFileLoaderImpl.java:64)
+  at com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load(DefaultNewArchitectureEntryPoint.kt:110)
+  at com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load(DefaultNewArchitectureEntryPoint.kt:43)
+  at ph.trissea.passenger.dev.MainApplication.onCreate(MainApplication.kt:37)
+Process: ph.trissea.passenger.dev
+PID: 7161
+Subject: Input dispatching timed out (f4e090b ph.trissea.passenger.dev/ph.trissea.passenger.dev.MainActivity is not responding. Waited 5001ms for MotionEvent).
+  native: #03 pc 00381a3b  /system/lib64/libhwui.so (android::uirenderer::renderthread::DrawFrameTask::drawFrame+379) (BuildId: b61ca0d56819e23e75cb164617ac4f0f)
+  native: #05 pc 0043c35c  [anon_shmem:dalvik-jit-code-cache] (offset 2000000) (android.graphics.HardwareRenderer.syncAndDrawFrame+172)
+  native: #06 pc 0042d359  [anon_shmem:dalvik-jit-code-cache] (offset 2000000) (android.view.ThreadedRenderer.draw+425)
+  at android.graphics.HardwareRenderer.syncAndDrawFrame(HardwareRenderer.java:596)
+  at android.view.ThreadedRenderer.draw(ThreadedRenderer.java:848)

@@ -16,7 +16,7 @@ for f in required:
     if not (root / f).exists():
         errors.append(f'Missing {f}')
 # Skip generated/runtime dependencies once the implementation workspace exists.
-excluded = {'node_modules', '.git', '.pnpm-store', '.cache', '.expo', 'dist', '__pycache__'}
+excluded = {'node_modules', '.git', '.pnpm-store', '.cache', '.c', '.expo', '.gradle', '.cxx', 'dist', '__pycache__'}
 def source_files(directory):
     for p in directory.iterdir():
         if p.name in excluded:
