@@ -1,0 +1,44 @@
+# TRISSEA — Tuguegarao Tricycle Booking Platform
+
+**Blueprint edition:** v1.5 · 2026-11-05 · Tuguegarao City pilot. **NOT a functioning application or approved production fare engine.**
+
+**M1 foundation added:** local API and UI shells, shared packages, migration tooling
+and CI are now scaffolded. M1 is **in progress**, with no working booking flow.
+See [Windows setup and validation record](docs/49-M1-FOUNDATION.md) for commands,
+scope, security boundaries and outstanding checks.
+
+## Read first
+- `docs/00-PILOT-STATUS.md` — current decisions, unresolved legal/transport issues and first read order.
+- `docs/34-TUGUEGARAO-PILOT-CHARTER.md` — city/TODA/vehicle scope and staged ride options.
+- `docs/35-Fare-Matrix-Provenance.md` — user-provided 42 area-rate lines + within-poblacion ₱22/₱18; **NOT auto-approved**.
+- `docs/36-FARE-ENGINE-AND-ADMIN.md` — admin rate edits, independent review, schedule, quote snapshots.
+- `docs/37-ROLE-ACCESS-MATRIX.md` — city, TODA, fare reviewer, support, passenger and driver scopes.
+- `docs/38-BOOKING-MVP.md` — end-to-end initial booking workflow and dispatch.
+- `docs/39-TODA-SERVICE-RULES.md`, `docs/40-TRICYCLE-ROUTING.md` — pickup policy and restricted roads.
+- `docs/41-AUTH-PRIVACY.md` — SMS OTP, driver approval, MFA, retention and Philippine privacy.
+- `docs/42-MVP-IMPLEMENTATION-GATES.md`, `docs/43-DECISION-REGISTER.md` — implementation milestones and sign-off blockers.
+- `AGENTS.md` and `BOOTSTRAP_AGENT_PROMPT.md` — rules to use with coding agents.
+
+## First rollout / priorities
+- **Regular** — direct exclusive on-demand, first real vertical feature to implement.
+- **Special** — whole-unit direct booking, later ordered stops/round trip when legally priced.
+- **Shared** — per-seat shared ride only on approved corridors with verified occupancy, later gated release.
+- **Reservation** — passenger future pickup window at TODA terminal, retained in blueprint but **disabled in the initial pilot**; terminal queue operations similarly deferred unless city authorizes them.
+- TODAs: verified city organizations, not auto-onboarded. All eligible TODAs can be supported in the model.
+- Drivers/passengers: phone SMS OTP; drivers require additional TODA+vehicle verification; admin email/password+MFA; cash first.
+
+## Selected stack
+Two React Native + Expo/TypeScript apps (passenger and driver), React/Vite admin, NestJS/Fastify API, PostgreSQL/PostGIS + Drizzle, Redis/BullMQ worker, Socket.IO realtime, MapLibre map renderer + separately approved tricycle-legal routing engine, Supabase Auth as provisional OTP adapter subject to Philippine SMS provider test.
+
+## Included
+Existing v1.4 docs/design/AGENTS/Cursor/Copilot/Claude rules/OpenAPI/reference SQL retained, plus Tuguegarao domain documents, role policies, reference fare import, 2 original source images, 43-row CSV (42 named areas + 1 poblacion), a separate design-only MVP OpenAPI spec, security/UX/admin/QA requirements and update notes.
+
+## Windows local development
+Start with [M1 setup](docs/49-M1-FOUNDATION.md). `pnpm.cmd infra:up` starts local
+PostGIS and Redis; `pnpm.cmd db:up` applies the isolated M1 foundation migration.
+Use `pnpm.cmd dev:api`, `dev:admin`, `dev:passenger` and `dev:driver` for the shells.
+Use `python scripts/validate_tuguegarao_fares.py` to verify CSV transcription
+**structure**, not official fare approval.
+
+## Release safety
+Screenshot figures alone do not establish a lawful origin→destination price or private vehicle hire tariff. **No production fare activation until signed applicable city/TODA source, road/MTOP service area approval, identity/privacy controls and physical device testing.** Old design docs should be read with the v1.5 status document, which supersedes conflicting launch-order recommendations.

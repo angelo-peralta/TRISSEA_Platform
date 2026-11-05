@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TRISSEA unapproved fare staging record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "destinationLabel",
+    "regularCentavos",
+    "discountCentavos",
+    "sourcePage",
+    "sourceStatus"
+  ],
+  "properties": {
+    "destinationLabel": {
+      "type": "string",
+      "minLength": 1
+    },
+    "regularCentavos": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "discountCentavos": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sourcePage": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "sourceStatus": {
+      "type": "string",
+      "const": "UNVERIFIED_PENDING_CITY_APPROVAL"
+    },
+    "originCode": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effectiveFrom": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    }
+  }
+}

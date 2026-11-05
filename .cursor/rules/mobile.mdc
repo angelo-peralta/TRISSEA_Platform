@@ -1,0 +1,10 @@
+---
+description: Expo / React Native mobile and GPS discipline
+globs: apps/passenger/**, apps/driver/**
+alwaysApply: false
+---
+Read `docs/22-EXPO-IMPLEMENTATION.md`, `docs/23-EXPO-GPS-ACCEPTANCE.md`, `docs/10-MOBILE-OFFLINE-GPS.md` and `design/DESIGN-BIBLE.md`. Driver tracking requires real-device background-service tests and user-visible location disclosure; Expo Go is NOT sufficient for MapLibre or background GPS. Use development builds; no PWA-only background tracking claims. Use TypeScript strict mode and generated API types. Offline mode must never locally confirm assignment/acceptance. On reconnect fetch server state. Ensure Android low-end performance, accessible touch targets, Philippine peso/time localization and controlled cellular data use.
+
+Reservation mobile UI is for passengers only; never create driver future queue-slot booking. See `docs/28-TODA-RESERVATIONS.md`.
+
+For mobile screen visual changes, also apply `design/MOBILE-DESIGN-RULES.md` and `design/MOBILE-COMPONENT-CONTRACTS.md`. Complete `design/MOBILE-REVIEW-CHECKLIST.md` before release. See `.agents/skills/trissea-mobile-design/SKILL.md`.

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TRISSEA TODA passenger reservation policy configuration v1.3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policyVersion",
+    "tenantId",
+    "terminalId",
+    "timezone",
+    "pickupWindowMinutes",
+    "holdTtlSeconds",
+    "checkinOpensMinutesBeforeStart",
+    "checkinClosesMinutesAfterStart",
+    "minLeadMinutes",
+    "maxLeadDays",
+    "maxActivePerPassengerTenant",
+    "capacityUnit",
+    "reservationFeeCentavos",
+    "driverAssignmentMode",
+    "inPersonVerificationRequired",
+    "status"
+  ],
+  "properties": {
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "terminalId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timezone": {
+      "const": "Asia/Manila"
+    },
+    "status": {
+      "enum": [
+        "DRAFT_NOT_APPROVED",
+        "APPROVED_FOR_PILOT",
+        "DISABLED"
+      ]
+    },
+    "pickupWindowMinutes": {
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 120
+    },
+    "holdTtlSeconds": {
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 1800
+    },
+    "checkinOpensMinutesBeforeStart": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 60
+    },
+    "checkinClosesMinutesAfterStart": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 180
+    },
+    "minLeadMinutes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10080
+    },
+    "maxLeadDays": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365
+    },
+    "maxActivePerPassengerTenant": {
+      "const": 1
+    },
+    "capacityUnit": {
+      "const": "BOOKING_PARTY"
+    },
+    "reservationFeeCentavos": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "driverAssignmentMode": {
+      "const": "TERMINAL_FIFO_AFTER_CHECKIN_AND_FARE_CONSENT"
+    },
+    "inPersonVerificationRequired": {
+      "const": true
+    },
+    "walkInAdmittancePolicy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "noShowFeeCentavos": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "legalApprovalReference": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

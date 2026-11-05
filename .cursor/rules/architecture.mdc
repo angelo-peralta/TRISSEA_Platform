@@ -1,0 +1,7 @@
+---
+description: TRISSEA architectural guardrails
+alwaysApply: true
+---
+Read `AGENTS.md` first. Core stack: React Native + Expo + TypeScript mobile, React/Vite admin, NestJS/Fastify API and dedicated worker, PostgreSQL/PostGIS source of truth, Drizzle/parameterized SQL, Redis/BullMQ/Socket.IO only for cache/delivery. Never introduce Next.js, another ORM, or microservices without ADR approval. Keep business logic behind domain modules and versioned contracts.
+
+**v1.5 update:** Read root `AGENTS.md` and `docs/00-PILOT-STATUS.md` FIRST. Tuguegarao tricycle pilot, uploaded 42+1 fare rows in DRAFT only, on-demand Regular first, Special/Shared gated, terminal passenger Reservation deferred, role-based fare approval and legally restricted roads. Do not infer lawful prices or permitted routes.

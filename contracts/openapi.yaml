@@ -1,0 +1,1379 @@
+openapi: 3.1.0
+info:
+  title: TRISSEA Hybrid Ride Platform API (full future scope; see openapi-mvp.yaml)
+  version: 0.3.0
+  description: 'Reference-only contract (no running service). Regular/Shared/Special
+    are rides; Reservation is a passenger TODA terminal pickup window, NEVER a driver
+    queue slot (ADR-008).'
+servers:
+- url: https://api.example.invalid/v1
+  description: Placeholder, replace after hosting decision
+security:
+- bearerAuth: []
+tags:
+- name: Quotes
+- name: Rides
+- name: Driver
+- name: Terminal
+- name: Dispatch
+- name: Operations
+- name: Safety
+- name: Services
+- name: Reservations
+paths:
+  /quotes:
+    post:
+      tags:
+      - Quotes
+      operationId: createQuote
+      summary: Request a tenant-approved fare quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequest'
+      responses:
+        '200':
+          description: Valid quote
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        '422':
+          $ref: '#/components/responses/Error'
+  /rides:
+    post:
+      tags:
+      - Rides
+      operationId: createRide
+      summary: Create a ride from a valid quote
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - quoteId
+              properties:
+                quoteId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Created; initial state REQUESTED or SEARCHING
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '409':
+          $ref: '#/components/responses/Error'
+  /rides/{rideId}:
+    get:
+      tags:
+      - Rides
+      operationId: getRide
+      summary: Canonical ride snapshot for authorized parties
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+      responses:
+        '200':
+          description: Ride snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+  /rides/{rideId}/cancel:
+    post:
+      tags:
+      - Rides
+      operationId: cancelRide
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - reasonCode
+              additionalProperties: false
+              properties:
+                reasonCode:
+                  type: string
+                  maxLength: 64
+                notes:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: Cancelled ride
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '409':
+          $ref: '#/components/responses/Error'
+  /rides/{rideId}/transitions:
+    post:
+      tags:
+      - Rides
+      operationId: transitionRide
+      description: Server enforces legal transition, driver assignment and 
+        pickup verification.
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - action
+              - expectedVersion
+              properties:
+                action:
+                  type: string
+                  enum:
+                  - DRIVER_EN_ROUTE
+                  - DRIVER_ARRIVED
+                  - START_TRIP
+                  - COMPLETE_TRIP
+                expectedVersion:
+                  type: integer
+                  minimum: 1
+                pickupPin:
+                  type:
+                  - string
+                  - 'null'
+                  maxLength: 20
+      responses:
+        '200':
+          description: Updated ride
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '409':
+          $ref: '#/components/responses/Error'
+  /drivers/me/online:
+    post:
+      tags:
+      - Driver
+      operationId: driverOnline
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tenantId
+              - vehicleId
+              - mode
+              properties:
+                tenantId:
+                  type: string
+                  format: uuid
+                vehicleId:
+                  type: string
+                  format: uuid
+                mode:
+                  type: string
+                  enum:
+                  - ON_DEMAND
+                  - TERMINAL
+      responses:
+        '200':
+          description: Driver shift active
+        '403':
+          $ref: '#/components/responses/Error'
+  /drivers/me/offline:
+    post:
+      tags:
+      - Driver
+      operationId: driverOffline
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Shift closed
+        '409':
+          $ref: '#/components/responses/Error'
+  /drivers/me/location:
+    put:
+      tags:
+      - Driver
+      operationId: updateDriverLocation
+      summary: Authenticated position heartbeat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdate'
+      responses:
+        '204':
+          description: Accepted
+        '422':
+          $ref: '#/components/responses/Error'
+  /drivers/me/assignment:
+    get:
+      tags:
+      - Driver
+      operationId: getDriverAssignment
+      responses:
+        '200':
+          description: Active offer and/or ride; null if none
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  offer:
+                    anyOf:
+                    - $ref: '#/components/schemas/Offer'
+                    - type: 'null'
+                  ride:
+                    anyOf:
+                    - $ref: '#/components/schemas/Ride'
+                    - type: 'null'
+  /terminals/{terminalId}/queue:
+    get:
+      tags:
+      - Terminal
+      operationId: getTerminalQueue
+      parameters:
+      - $ref: '#/components/parameters/TerminalId'
+      responses:
+        '200':
+          description: Tenant-safe, permission-filtered queue
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  terminalId:
+                    type: string
+                    format: uuid
+                  waitingCount:
+                    type: integer
+                    minimum: 0
+                  entries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QueueEntry'
+  /terminals/{terminalId}/queue/join:
+    post:
+      tags:
+      - Terminal
+      operationId: joinTerminalQueue
+      parameters:
+      - $ref: '#/components/parameters/TerminalId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                routeId:
+                  type:
+                  - string
+                  - 'null'
+                  format: uuid
+      responses:
+        '200':
+          description: Queue entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueEntry'
+        '409':
+          $ref: '#/components/responses/Error'
+  /terminals/{terminalId}/queue/leave:
+    post:
+      tags:
+      - Terminal
+      operationId: leaveTerminalQueue
+      parameters:
+      - $ref: '#/components/parameters/TerminalId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Queue entry released
+        '409':
+          $ref: '#/components/responses/Error'
+  /offers/{offerId}/accept:
+    post:
+      tags:
+      - Dispatch
+      operationId: acceptOffer
+      parameters:
+      - $ref: '#/components/parameters/OfferId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Atomic acceptance and ride assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '409':
+          $ref: '#/components/responses/Error'
+  /offers/{offerId}/decline:
+    post:
+      tags:
+      - Dispatch
+      operationId: declineOffer
+      parameters:
+      - $ref: '#/components/parameters/OfferId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - reasonCode
+              properties:
+                reasonCode:
+                  type: string
+                  maxLength: 64
+      responses:
+        '200':
+          description: Offer declined
+        '409':
+          $ref: '#/components/responses/Error'
+  /tenants/{tenantId}/operations/rides:
+    get:
+      tags:
+      - Operations
+      operationId: listTenantRides
+      parameters:
+      - $ref: '#/components/parameters/TenantId'
+      - name: cursor
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Paginated tenant ride summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ride'
+                  nextCursor:
+                    type:
+                    - string
+                    - 'null'
+        '403':
+          $ref: '#/components/responses/Error'
+  /tenants/{tenantId}/operations/queue-overrides:
+    post:
+      tags:
+      - Operations
+      operationId: overrideQueueEntry
+      parameters:
+      - $ref: '#/components/parameters/TenantId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - queueEntryId
+              - action
+              - reason
+              properties:
+                queueEntryId:
+                  type: string
+                  format: uuid
+                action:
+                  type: string
+                  enum:
+                  - PAUSE
+                  - RELEASE
+                  - RETURN_TO_TAIL
+                reason:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+      responses:
+        '200':
+          description: Audited queue change
+        '403':
+          $ref: '#/components/responses/Error'
+  /safety/incidents:
+    post:
+      tags:
+      - Safety
+      operationId: createSafetyIncident
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - category
+              - description
+              properties:
+                rideId:
+                  type:
+                  - string
+                  - 'null'
+                  format: uuid
+                category:
+                  type: string
+                  maxLength: 64
+                description:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+      responses:
+        '201':
+          description: Incident recorded
+        '403':
+          $ref: '#/components/responses/Error'
+  /health/live:
+    get:
+      security: []
+      operationId: liveness
+      responses:
+        '200':
+          description: API process responsive
+  /health/ready:
+    get:
+      security: []
+      operationId: readiness
+      responses:
+        '200':
+          description: Critical dependencies healthy
+        '503':
+          description: Not ready
+  /service-options:
+    get:
+      tags:
+      - Services
+      operationId: listServiceOptions
+      description: Tenant-scoped service availability. Only enabled and legally 
+        permitted options can be booked.
+      parameters:
+      - name: tenantId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Service catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceOption'
+  /terminals/{terminalId}/slots:
+    get:
+      tags:
+      - Reservations
+      operationId: listTODASlots
+      description: List authorized passenger TODA terminal pickup windows and 
+        remaining booking-party quota. No driver guaranteed.
+      parameters:
+      - $ref: '#/components/parameters/TerminalId'
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Available slot windows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TODAReservationSlot'
+  /toda/slot-reservations:
+    post:
+      tags:
+      - Reservations
+      operationId: holdTODASlot
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - slotId
+              - partySize
+              - destination
+              - serviceCode
+              additionalProperties: false
+              properties:
+                slotId:
+                  type: string
+                  format: uuid
+                partySize:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                destination:
+                  $ref: '#/components/schemas/GeoPoint'
+                serviceCode:
+                  type: string
+                  minLength: 1
+                pickupLandmark:
+                  type:
+                  - string
+                  - 'null'
+                  maxLength: 200
+      responses:
+        '201':
+          description: Slot held (not ride assigned)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '409':
+          $ref: '#/components/responses/Error'
+      description: Create an expiring passenger-held pickup window. Server 
+        validates tenant, party, destination, quota, and no conflicting live 
+        reservation; not a driver or ride assignment.
+  /toda/slot-reservations/{reservationId}:
+    get:
+      tags:
+      - Reservations
+      operationId: getTODASlotReservation
+      parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      responses:
+        '200':
+          description: Own authorized reservation snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '403':
+          $ref: '#/components/responses/Error'
+      description: Passenger owned reservation; tenant-admin read requires 
+        dedicated admin operation.
+  /toda/slot-reservations/{reservationId}/cancel:
+    post:
+      tags:
+      - Reservations
+      operationId: cancelTODASlotReservation
+      parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Reservation cancellation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '409':
+          $ref: '#/components/responses/Error'
+      description: Passenger cancels under policy. If driver already assigned, 
+        execute linked ride cancellation and reconcile queue state; no 
+        standalone reservation flip.
+  /toda/slot-reservations/me:
+    get:
+      tags:
+      - Reservations
+      operationId: listMyTODASlotReservations
+      description: Return only reservations owned by authenticated passenger; 
+        may include terminal historical records.
+      responses:
+        '200':
+          description: Owned reservations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TODAReservation'
+  /toda/slot-reservations/{reservationId}/confirm:
+    post:
+      tags:
+      - Reservations
+      operationId: confirmTODASlotReservation
+      description: Passenger confirms active, unexpired HELD window after 
+        fare/terms preview. No driver assigned.
+      parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Authoritative reservation snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /toda/slot-reservations/{reservationId}/check-in:
+    post:
+      tags:
+      - Reservations
+      operationId: checkInTODASlotReservation
+      description: 'In-person terminal check-in: validate short-lived terminal verification
+        or authorized dispatcher assistance, permitted time, tenant and passenger.
+        GPS alone is insufficient.'
+      parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Authoritative reservation snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                verificationToken:
+                  type: string
+                  minLength: 8
+                  maxLength: 1024
+                verificationMethod:
+                  type: string
+                  enum:
+                  - TERMINAL_QR
+                  - STAFF_ASSISTED
+              required:
+              - verificationToken
+              - verificationMethod
+  /toda/slot-reservations/{reservationId}/dispatch:
+    post:
+      tags:
+      - Reservations
+      operationId: dispatchTODASlotReservation
+      description: After verified check-in and passenger approval of active fare
+        quote, create exactly one linked TERMINAL Regular ride and attempt 
+        existing TODA FIFO driver dispatch. This may remain DISPATCHING.
+      parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Authoritative reservation snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                quoteId:
+                  type: string
+                  format: uuid
+                consentToFare:
+                  type: boolean
+                  const: true
+              required:
+              - quoteId
+              - consentToFare
+  /toda/slot-reservations/{reservationId}/reschedule:
+    post:
+      tags:
+      - Reservations
+      operationId: rescheduleTODASlotReservation
+      description: Atomically replace an eligible unassigned confirmed/held 
+        window; old record becomes RESCHEDULED only if new slot hold succeeds.
+      parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Authoritative reservation snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservation'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                newSlotId:
+                  type: string
+                  format: uuid
+              required:
+              - newSlotId
+  /tenants/{tenantId}/terminals/{terminalId}/reservation-windows:
+    post:
+      tags:
+      - Operations
+      - Reservations
+      operationId: createPassengerPickupWindow
+      description: Authorized tenant TODA dispatcher creates approved passenger 
+        pickup window. Server checks no overlapping unauthorized window, 
+        approved policy, allowed route/time, audit; cannot run when policy 
+        DRAFT_NOT_APPROVED.
+      parameters:
+      - &id001
+        name: tenantId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - &id002
+        name: terminalId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - startsAt
+              - endsAt
+              - capacity
+              - policyVersion
+              additionalProperties: false
+              properties:
+                startsAt:
+                  type: string
+                  format: date-time
+                endsAt:
+                  type: string
+                  format: date-time
+                capacity:
+                  type: integer
+                  minimum: 1
+                policyVersion:
+                  type: string
+      responses:
+        '201':
+          description: Authorized pickup window created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TODAReservationSlot'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /tenants/{tenantId}/terminals/{terminalId}/reservation-windows/{slotId}/close:
+    post:
+      tags:
+      - Operations
+      - Reservations
+      operationId: closePassengerPickupWindow
+      description: Authorized TODA dispatcher closes pickup window to fresh 
+        holds; confirmed reservations require separately audited 
+        notification/recovery.
+      parameters:
+      - *id001
+      - *id002
+      - name: slotId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - reason
+              additionalProperties: false
+              properties:
+                reason:
+                  type: string
+                  minLength: 5
+                  maxLength: 500
+      responses:
+        '200':
+          description: Window closed to new holds
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 12
+        maxLength: 128
+    RideId:
+      name: rideId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    OfferId:
+      name: offerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TerminalId:
+      name: terminalId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TenantId:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReservationId:
+      name: reservationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Error:
+      description: Structured error; trace ID for support
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      required:
+      - code
+      - message
+      - traceId
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        traceId:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+    GeoPoint:
+      description: GeoJSON order longitude then latitude
+      type: object
+      required:
+      - longitude
+      - latitude
+      additionalProperties: false
+      properties:
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+    QuoteRequest:
+      type: object
+      required:
+      - tenantId
+      - mode
+      - serviceCode
+      - pickup
+      - dropoff
+      - rideOption
+      additionalProperties: false
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum:
+          - ON_DEMAND
+          - TERMINAL
+        serviceCode:
+          type: string
+          maxLength: 64
+        terminalId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        terminalRouteId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        pickup:
+          $ref: '#/components/schemas/GeoPoint'
+        dropoff:
+          $ref: '#/components/schemas/GeoPoint'
+        rideOption:
+          $ref: '#/components/schemas/RideOption'
+        partySize:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 1
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItineraryStop'
+          maxItems: 12
+          description: Intermediate stops for SPECIAL only
+        roundTrip:
+          type: boolean
+          default: false
+          description: SPECIAL only; return leg to approved return point
+    Quote:
+      type: object
+      required:
+      - id
+      - tenantId
+      - mode
+      - totalCentavos
+      - currency
+      - expiresAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum:
+          - ON_DEMAND
+          - TERMINAL
+        totalCentavos:
+          type: integer
+          minimum: 0
+        currency:
+          type: string
+          const: PHP
+        expiresAt:
+          type: string
+          format: date-time
+        breakdown:
+          type: object
+          additionalProperties: true
+        farePolicyVersion:
+          type: integer
+          minimum: 1
+        rideOption:
+          $ref: '#/components/schemas/RideOption'
+    Ride:
+      type: object
+      required:
+      - id
+      - tenantId
+      - mode
+      - status
+      - statusVersion
+      - totalCentavos
+      - currency
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum:
+          - ON_DEMAND
+          - TERMINAL
+        status:
+          type: string
+          enum:
+          - REQUESTED
+          - SEARCHING
+          - DRIVER_ASSIGNED
+          - DRIVER_EN_ROUTE
+          - DRIVER_ARRIVED
+          - IN_PROGRESS
+          - COMPLETED
+          - CANCELLED
+          - EXPIRED
+          - FAILED
+        statusVersion:
+          type: integer
+          minimum: 1
+        driverId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        totalCentavos:
+          type: integer
+          minimum: 0
+        currency:
+          type: string
+          const: PHP
+        createdAt:
+          type: string
+          format: date-time
+        rideOption:
+          $ref: '#/components/schemas/RideOption'
+    Offer:
+      type: object
+      required:
+      - id
+      - rideId
+      - driverId
+      - expiresAt
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        rideId:
+          type: string
+          format: uuid
+        driverId:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ACCEPTED
+          - DECLINED
+          - EXPIRED
+          - REVOKED
+    QueueEntry:
+      type: object
+      required:
+      - id
+      - terminalId
+      - status
+      - enqueuedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        terminalId:
+          type: string
+          format: uuid
+        driverId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - WAITING
+          - RESERVED
+          - CONSUMED
+          - LEFT
+          - PAUSED
+        enqueuedAt:
+          type: string
+          format: date-time
+    LocationUpdate:
+      type: object
+      required:
+      - position
+      - capturedAt
+      - sequence
+      - accuracyMeters
+      additionalProperties: false
+      properties:
+        position:
+          $ref: '#/components/schemas/GeoPoint'
+        capturedAt:
+          type: string
+          format: date-time
+        sequence:
+          type: integer
+          minimum: 0
+        accuracyMeters:
+          type: number
+          minimum: 0
+        headingDegrees:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 360
+        speedMetersPerSecond:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+    RideOption:
+      type: string
+      enum:
+      - REGULAR
+      - SHARED
+      - SPECIAL
+      description: Ride-bearing options; RESERVATION uses TODA slot resource, 
+        not /rides.
+    ServiceOption:
+      type: object
+      required:
+      - code
+      - label
+      - description
+      - enabled
+      properties:
+        code:
+          type: string
+          enum:
+          - REGULAR
+          - SHARED
+          - SPECIAL
+          - RESERVATION
+        label:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        unavailabilityReason:
+          type:
+          - string
+          - 'null'
+    ItineraryStop:
+      type: object
+      required:
+      - sequence
+      - location
+      properties:
+        sequence:
+          type: integer
+          minimum: 1
+        location:
+          $ref: '#/components/schemas/GeoPoint'
+        label:
+          type:
+          - string
+          - 'null'
+          maxLength: 140
+        dwellMinutes:
+          type: integer
+          minimum: 0
+          maximum: 240
+    TODAReservation:
+      type: object
+      required:
+      - id
+      - tenantId
+      - terminalId
+      - slotId
+      - slotKind
+      - status
+      - createdAt
+      - actorUserId
+      - partySize
+      - serviceCode
+      - version
+      - startsAt
+      - endsAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        terminalId:
+          type: string
+          format: uuid
+        slotId:
+          type: string
+          format: uuid
+        slotKind:
+          type: string
+          enum:
+          - PASSENGER_PICKUP_WINDOW
+        status:
+          type: string
+          enum:
+          - HELD
+          - CONFIRMED
+          - CHECKED_IN
+          - DISPATCHING
+          - ASSIGNED
+          - FULFILLED
+          - EXPIRED
+          - CANCELLED
+          - NO_SHOW
+          - UNFULFILLED
+          - REJECTED
+          - RESCHEDULED
+        expiresAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Server-authoritative hold expiration when HELD.
+        createdAt:
+          type: string
+          format: date-time
+        actorUserId:
+          type: string
+          format: uuid
+        partySize:
+          type: integer
+          minimum: 1
+        serviceCode:
+          type: string
+        version:
+          type: integer
+          minimum: 1
+        checkinAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        confirmedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        linkedRideId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+      description: Passenger-owned TODA terminal pickup window, not an assigned 
+        driver or terminal queue rank.
+    TODAReservationSlot:
+      type: object
+      required:
+      - id
+      - terminalId
+      - slotKind
+      - startsAt
+      - endsAt
+      - remainingCapacity
+      - capacityUnit
+      - policyVersion
+      properties:
+        id:
+          type: string
+          format: uuid
+        terminalId:
+          type: string
+          format: uuid
+        slotKind:
+          type: string
+          enum:
+          - PASSENGER_PICKUP_WINDOW
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        remainingCapacity:
+          type: integer
+          minimum: 0
+          description: Remaining passenger booking-party reservations, not 
+            driver slots or seats.
+        policyVersion:
+          type: string
+        capacityUnit:
+          type: string
+          enum:
+          - BOOKING_PARTY

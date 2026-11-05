@@ -1,0 +1,646 @@
+openapi: 3.1.0
+info:
+  title: TRISSEA Tuguegarao MVP API
+  version: 0.5.1
+  description: M1 implements public health only. Other operations remain future design. Requires verified legal fare and operator permission before public use.
+servers:
+- url: https://api.example.invalid/v1
+  description: placeholder
+security:
+- bearerAuth: []
+tags:
+- name: Identity
+- name: Services
+- name: Quotes
+- name: Rides
+- name: Driver
+- name: FareAdmin
+- name: TODAAdmin
+- name: Ops
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    RideId:
+      in: path
+      name: rideId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    OfferId:
+      in: path
+      name: offerId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      schema:
+        type: string
+        minLength: 12
+        maxLength: 128
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, service, milestone, bookingsEnabled]
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          const: trissea-api
+        milestone:
+          type: string
+          const: M1
+        bookingsEnabled:
+          type: boolean
+          const: false
+    Error:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        traceId:
+          type: string
+    Coords:
+      type: object
+      required:
+      - longitude
+      - latitude
+      properties:
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+    QuoteRequest:
+      type: object
+      required:
+      - rideOption
+      - pickup
+      - dropoff
+      properties:
+        rideOption:
+          type: string
+          enum:
+          - REGULAR
+          - SHARED
+          - SPECIAL
+        pickup:
+          $ref: '#/components/schemas/Coords'
+        dropoff:
+          $ref: '#/components/schemas/Coords'
+        seatsRequested:
+          type: integer
+          minimum: 1
+        fareCategory:
+          type: string
+          enum:
+          - REGULAR
+          - STUDENT_SENIOR_PWD
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coords'
+    Quote:
+      type: object
+      required:
+      - id
+      - rideOption
+      - totalCentavos
+      - currency
+      - expiresAt
+      - legalFareSourceId
+      - policyVersion
+      properties:
+        id:
+          type: string
+          format: uuid
+        rideOption:
+          type: string
+        totalCentavos:
+          type: integer
+          minimum: 0
+        currency:
+          type: string
+          const: PHP
+        expiresAt:
+          type: string
+          format: date-time
+        legalFareSourceId:
+          type: string
+          format: uuid
+        policyVersion:
+          type: integer
+        breakdown:
+          type: object
+    Ride:
+      type: object
+      required:
+      - id
+      - status
+      - version
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        version:
+          type: integer
+        fareSnapshot:
+          type: object
+        driver:
+          type:
+          - object
+          - 'null'
+    FareDraft:
+      type: object
+      required:
+      - sourceId
+      - serviceCode
+      - rules
+      - reason
+      properties:
+        sourceId:
+          type: string
+          format: uuid
+        serviceCode:
+          type: string
+          enum:
+          - REGULAR
+          - SHARED
+          - SPECIAL
+          - RESERVATION
+        reason:
+          type: string
+          minLength: 12
+        rules:
+          type: array
+          items:
+            type: object
+paths:
+  /health:
+    get:
+      tags: [Ops]
+      operationId: getHealth
+      security: []
+      summary: M1 public process liveness; not dependency readiness or booking eligibility
+      x-implemented-in: M1
+      responses:
+        '200':
+          description: Process is alive; bookings remain disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /me:
+    get:
+      tags:
+      - Identity
+      operationId: getMe
+      summary: Get authenticated identity and scoped roles
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: &id001
+                type: object
+  /services/available:
+    get:
+      tags:
+      - Services
+      operationId: getAvailableServices
+      summary: Available ride options scoped to city, TODA and route
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+  /quotes:
+    post:
+      tags:
+      - Quotes
+      operationId: createQuote
+      summary: Create verified policy-based fare quote; reject unverified matrix rows
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequest'
+  /rides:
+    post:
+      tags:
+      - Rides
+      operationId: createRide
+      summary: Create ride with idempotency key and accepted quote
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - quoteId
+              properties:
+                quoteId:
+                  type: string
+                  format: uuid
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+  /rides/{rideId}:
+    get:
+      tags:
+      - Rides
+      operationId: getRide
+      summary: Fetch authoritative ride snapshot
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+  /rides/{rideId}/cancel:
+    post:
+      tags:
+      - Rides
+      operationId: cancelRide
+      summary: Request cancellation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - reasonCode
+              properties:
+                reasonCode:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+  /rides/{rideId}/transitions:
+    post:
+      tags:
+      - Rides
+      operationId: transitionRide
+      summary: Driver-authorized ride state transition
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - action
+              - expectedVersion
+              properties:
+                action:
+                  type: string
+                  enum:
+                  - DRIVER_EN_ROUTE
+                  - DRIVER_ARRIVED
+                  - START_TRIP
+                  - COMPLETE_TRIP
+                expectedVersion:
+                  type: integer
+                pickupPin:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+  /rides/{rideId}/receipt:
+    get:
+      tags:
+      - Rides
+      operationId: getRideReceipt
+      summary: Get ride fare snapshot and cash record
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+      parameters:
+      - $ref: '#/components/parameters/RideId'
+  /driver/shifts:
+    post:
+      tags:
+      - Driver
+      operationId: startOrEndShift
+      summary: Request driver online/offline shift after authorization
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - operation
+              properties:
+                operation:
+                  type: string
+                  enum:
+                  - START
+                  - END
+                todaId:
+                  type: string
+                  format: uuid
+                vehicleId:
+                  type: string
+                  format: uuid
+  /driver/locations:
+    post:
+      tags:
+      - Driver
+      operationId: postDriverLocation
+      summary: Authenticated driver heartbeat; sequence protects out-of-order data
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - longitude
+              - latitude
+              - capturedAt
+              - sequence
+              properties:
+                longitude:
+                  type: number
+                latitude:
+                  type: number
+                capturedAt:
+                  type: string
+                  format: date-time
+                accuracyMeters:
+                  type: number
+                sequence:
+                  type: integer
+  /driver/offers:
+    get:
+      tags:
+      - Driver
+      operationId: getDriverOffers
+      summary: List current eligible offers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+  /driver/offers/{offerId}/accept:
+    post:
+      tags:
+      - Driver
+      operationId: acceptDriverOffer
+      summary: Atomic acceptance with driver engagement lock
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - expectedVersion
+              properties:
+                expectedVersion:
+                  type: integer
+      parameters:
+      - $ref: '#/components/parameters/OfferId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+  /driver/offers/{offerId}/decline:
+    post:
+      tags:
+      - Driver
+      operationId: declineDriverOffer
+      summary: Decline an offer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reasonCode:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/OfferId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+  /admin/fares:
+    get:
+      tags:
+      - FareAdmin
+      operationId: listFarePolicies
+      summary: Authorized list of versions and approval state
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+  /admin/fares/drafts:
+    post:
+      tags:
+      - FareAdmin
+      operationId: createFareDraft
+      summary: Editor creates source-linked draft; never automatically active
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FareDraft'
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+  /admin/fares/{policyId}/submit:
+    post:
+      tags:
+      - FareAdmin
+      operationId: submitFareDraft
+      summary: Submit fare draft for independent review
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - reason
+              properties:
+                reason:
+                  type: string
+      parameters:
+      - in: path
+        name: policyId
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /admin/fares/{policyId}/approve:
+    post:
+      tags:
+      - FareAdmin
+      operationId: approveFareDraft
+      summary: Independent maker/checker review with source evidence and reauth
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+        '403':
+          description: Not authorized or role-scoped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - decision
+              - reason
+              properties:
+                decision:
+                  type: string
+                  enum:
+                  - APPROVE
+                  - REJECT
+                reason:
+                  type: string
+      parameters:
+      - in: path
+        name: policyId
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /admin/todas:
+    get:
+      tags:
+      - TODAAdmin
+      operationId: listTodas
+      summary: List legally onboarded TODAs scoped to city
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001
+  /admin/rides:
+    get:
+      tags:
+      - Ops
+      operationId: listOperationalRides
+      summary: Masked scoped operational ride list
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: *id001

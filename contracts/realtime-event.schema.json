@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TRISSEA Realtime Event Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "type",
+    "version",
+    "occurredAt",
+    "aggregateId",
+    "sequence",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "ride.status_changed",
+        "ride.offer_created",
+        "ride.offer_expired",
+        "driver.location_updated",
+        "terminal.queue_updated",
+        "safety.incident_created",
+        "toda.reservation_held",
+        "toda.reservation_confirmed",
+        "toda.reservation_checked_in",
+        "toda.reservation_dispatching",
+        "toda.reservation_assigned",
+        "toda.reservation_fulfilled",
+        "toda.reservation_expired",
+        "toda.reservation_no_show",
+        "toda.reservation_cancelled",
+        "toda.reservation_unfulfilled",
+        "toda.slot_capacity_changed"
+      ]
+    },
+    "version": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "aggregateId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "data": {
+      "type": "object"
+    }
+  }
+}

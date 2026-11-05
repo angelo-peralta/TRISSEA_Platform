@@ -1,0 +1,8 @@
+---
+description: Backend, dispatch, SQL and API rules
+globs: services/**/*.ts, database/**/*.sql, contracts/**/*.yaml
+alwaysApply: false
+---
+Before changing dispatch or ride code, read `docs/03-DISPATCH-RULES.md`, `docs/04-RIDE-STATE-MACHINE.md` and `docs/08-DATA-MODEL.md`. Use DB row locks/unique constraints for assignment and queue invariants, idempotent command APIs, transactional outbox, server expiry, tenant-scoped authorization and auditable state transitions. Never use Redis locks as the sole correctness mechanism; write concurrency tests.
+
+For TODA Reservation read ADR-008 and `docs/28-TODA-RESERVATIONS.md`: passenger-only pickup quota, short-lived holds, in-person check-in, fare consent, linked ride from FIFO. No `DRIVER_CHECKIN_WINDOW`.

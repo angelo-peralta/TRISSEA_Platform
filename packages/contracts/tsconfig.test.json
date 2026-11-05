@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "module": "CommonJS", "moduleResolution": "Node", "rootDir": ".", "outDir": "../../.cache/contract-tests", "types": ["node"] },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

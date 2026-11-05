@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "TRISSEA Driver Dev",
+    "slug": "trissea-driver",
+    "scheme": "trissea-driver",
+    "version": "0.1.0",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "ph.trissea.driver.dev"
+    },
+    "ios": {
+      "bundleIdentifier": "ph.trissea.driver.dev",
+      "supportsTablet": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client"
+    ],
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

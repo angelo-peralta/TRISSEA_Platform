@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "outDir": "../../.cache/policy-tests" },
+  "include": ["src/auth/identity-provider.ts", "src/auth/authorization-policy.ts", "src/auth/development-otp.ts", "test/policy.test.ts", "test/otp.test.ts"]
+}

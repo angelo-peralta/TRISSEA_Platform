@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - services/*
+  - packages/*
+
+# Expo supports isolated pnpm installs; do not hoist multiple native runtimes.
+minimumReleaseAge: 1440
+strictPeerDependencies: true
+onlyBuiltDependencies:
+  - esbuild
+  - '@nestjs/core'

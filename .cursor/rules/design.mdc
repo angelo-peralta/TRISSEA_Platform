@@ -1,0 +1,8 @@
+---
+description: TRISSEA product UI/design guidance
+globs: apps/admin/**, apps/passenger/**, apps/driver/**, design/**
+alwaysApply: false
+---
+Read `design/DESIGN-BIBLE.md`, `design/SCREEN-INVENTORY.md`. Designs must be original and safety-first, low-data, accessible, responsive with precise hierarchy. Show stale GPS, uncertainty in ETAs, empty/loading/error/offline states, meaningful buttons and consent before switching mode/fare. Do not clone Grab's branding or trade dress.
+
+The binding mobile-specific rules are `design/MOBILE-DESIGN-RULES.md`, `design/MOBILE-SCREEN-ACCEPTANCE.md` and project skill `.agents/skills/trissea-mobile-design/SKILL.md`. External repository skill precedence is documented in `design/MOBILE-AGENT-REPOS.md`.

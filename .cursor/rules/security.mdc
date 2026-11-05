@@ -1,0 +1,7 @@
+---
+description: Security, privacy and Philippines deployment checks
+alwaysApply: true
+---
+Read `docs/11-SECURITY-PRIVACY-PH.md`. Never log credentials, tokens, precise history or ID documents. Enforce tenant+object ownership server-side, MFA for privileged admin, signed uploads, rate limits, least-privilege scopes and immutable audit. Do not deploy public paid transport before service-class permit and LGU/LTFRB review. Local development configuration is not production configuration.
+
+**v1.5 update:** Read root `AGENTS.md` and `docs/00-PILOT-STATUS.md` FIRST. Tuguegarao tricycle pilot, uploaded 42+1 fare rows in DRAFT only, on-demand Regular first, Special/Shared gated, terminal passenger Reservation deferred, role-based fare approval and legally restricted roads. Do not infer lawful prices or permitted routes.

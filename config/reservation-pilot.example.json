@@ -1,0 +1,22 @@
+{
+  "policyVersion": "PILOT_PROPOSED_NOT_APPROVED",
+  "tenantId": "00000000-0000-4000-8000-000000000000",
+  "terminalId": "00000000-0000-4000-8000-000000000001",
+  "timezone": "Asia/Manila",
+  "status": "DRAFT_NOT_APPROVED",
+  "pickupWindowMinutes": 15,
+  "holdTtlSeconds": 180,
+  "checkinOpensMinutesBeforeStart": 10,
+  "checkinClosesMinutesAfterStart": 10,
+  "minLeadMinutes": 30,
+  "maxLeadDays": 7,
+  "maxActivePerPassengerTenant": 1,
+  "capacityUnit": "BOOKING_PARTY",
+  "reservationFeeCentavos": 0,
+  "noShowFeeCentavos": 0,
+  "driverAssignmentMode": "TERMINAL_FIFO_AFTER_CHECKIN_AND_FARE_CONSENT",
+  "inPersonVerificationRequired": true,
+  "walkInAdmittancePolicy": "NOT_CONFIGURED_REQUIRES_TODA_APPROVAL",
+  "legalApprovalReference": null,
+  "notes": "ILLUSTRATIVE DEVELOPMENT DEFAULTS. NOT LEGAL/TODA APPROVAL OR SUGGESTED PUBLIC PROMISE. The server must refuse to publish when status is DRAFT_NOT_APPROVED."
+}

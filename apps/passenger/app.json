@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "TRISSEA Passenger Dev",
+    "slug": "trissea-passenger",
+    "scheme": "trissea-passenger",
+    "version": "0.1.0",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "ph.trissea.passenger.dev"
+    },
+    "ios": {
+      "bundleIdentifier": "ph.trissea.passenger.dev",
+      "supportsTablet": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client"
+    ],
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

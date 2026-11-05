@@ -1,0 +1,66 @@
+{
+  "documentVersion": "1.5.0",
+  "pilotLocation": "Tuguegarao City, Cagayan, Philippines",
+  "timezone": "Asia/Manila",
+  "currency": "PHP",
+  "fareSource": {
+    "type": "user_supplied_images",
+    "pages": 2,
+    "listedDestinationAreaRows": 42,
+    "poblacionAdditionalRows": 1,
+    "officialOrdinanceOrEffectiveDateVerified": false,
+    "originDefinitionVerified": false,
+    "allowedInProduction": false
+  },
+  "rideOptions": {
+    "REGULAR": {
+      "intended": true,
+      "launchEnabled": false
+    },
+    "SHARED": {
+      "intended": true,
+      "launchEnabled": false,
+      "restrictedToApprovedCorridors": true
+    },
+    "SPECIAL": {
+      "intended": true,
+      "launchEnabled": false
+    },
+    "RESERVATION": {
+      "intended": true,
+      "launchEnabled": false,
+      "deferred": true
+    }
+  },
+  "driverAndVehicle": {
+    "type": "TRICYCLE",
+    "operatorVerificationRequired": true,
+    "vehicleLegalSeatCapacityFromVerifiedDocuments": true,
+    "allowCrossTodaDispatch": false
+  },
+  "dispatch": {
+    "default": "ON_DEMAND",
+    "todaTerminalFeatureFlag": false,
+    "maxConcurrentExclusiveEngagements": 1
+  },
+  "payment": {
+    "enabledMethods": [
+      "CASH"
+    ]
+  },
+  "auth": {
+    "passenger": "PHONE_SMS_OTP",
+    "driver": "PHONE_SMS_OTP_PLUS_APPROVAL",
+    "admin": "EMAIL_PASSWORD_MFA"
+  },
+  "policiesNeedingApproval": [
+    "fare_origin_and_direction",
+    "private_whole_unit_fare",
+    "shareable_routes_and_seating",
+    "TODA_dispatch_scope",
+    "regulated_road_access",
+    "driver_rejection_and_cancellation",
+    "identity_and_discount_verification",
+    "cash_reconciliation"
+  ]
+}
