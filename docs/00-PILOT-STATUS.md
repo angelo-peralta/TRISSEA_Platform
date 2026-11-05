@@ -2,9 +2,10 @@
 
 **As of 2026-11-05.** This package is a **planning and implementation contract**, not a functioning ride-hailing application, verified legal fare schedule or production release.
 
-**Implementation update:** M1 foundation source and CI have been added. M1 is still
-in progress; [the validation record](49-M1-FOUNDATION.md) distinguishes passed
-source checks from blocked installation/runtime/device checks. Statements below
+**Implementation update:** M1 local foundation engineering acceptance is complete;
+[the validation record](49-M1-FOUNDATION.md) records source, infrastructure,
+Android emulator and admin browser results plus remaining release limitations.
+GitHub review/CI status is recorded separately from local acceptance. Statements below
 about the original ZIP describe the blueprint baseline, not completed software.
 
 ## Decisions adopted for initial engineering

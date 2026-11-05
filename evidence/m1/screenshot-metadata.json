@@ -1,0 +1,50 @@
+[
+  {
+    "name": "passenger-360-normal-light",
+    "pixels": [
+      1080,
+      2424
+    ],
+    "surface_rgb": [
+      247,
+      249,
+      250
+    ]
+  },
+  {
+    "name": "passenger-600-large-dark",
+    "pixels": [
+      1200,
+      2000
+    ],
+    "surface_rgb": [
+      16,
+      42,
+      67
+    ]
+  },
+  {
+    "name": "driver-360-normal-light",
+    "pixels": [
+      1080,
+      2424
+    ],
+    "surface_rgb": [
+      247,
+      249,
+      250
+    ]
+  },
+  {
+    "name": "driver-600-large-dark",
+    "pixels": [
+      1200,
+      2000
+    ],
+    "surface_rgb": [
+      16,
+      42,
+      67
+    ]
+  }
+]

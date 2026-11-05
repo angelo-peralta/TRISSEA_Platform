@@ -31,6 +31,7 @@
     "validate": "pnpm contracts:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "devDependencies": {
+    "@expo/config-plugins": "57.0.11",
     "@eslint/js": "9.39.5",
     "@types/node": "20.19.43",
     "eslint": "9.39.5",

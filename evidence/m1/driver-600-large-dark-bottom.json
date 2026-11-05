@@ -1,0 +1,164 @@
+[
+  {
+    "text": "",
+    "description": "Tools",
+    "bounds": "[1090,175][1142,227]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.ImageView"
+  },
+  {
+    "text": "Development preview · No live ride services",
+    "description": "",
+    "bounds": "[80,117][1120,163]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Offline · Development preview",
+    "description": "",
+    "bounds": "[82,277][1118,368]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "No shift is active. This app is not collecting or transmitting location.",
+    "description": "",
+    "bounds": "[82,392][1118,540]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Verification required",
+    "description": "",
+    "bounds": "[82,656][1118,747]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Sign-in, city/TODA authorization and driver/vehicle verification will be added in a later milestone. No affiliation or vehicle is assumed.",
+    "description": "",
+    "bounds": "[82,771][1118,1067]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Go online unavailable in M1",
+    "bounds": "[48,1149][1152,1293]",
+    "clickable": "true",
+    "enabled": "false",
+    "selected": "false",
+    "class": "android.widget.Button"
+  },
+  {
+    "text": "Go online unavailable in M1",
+    "description": "",
+    "bounds": "[254,1183][946,1259]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "No offers available",
+    "description": "",
+    "bounds": "[82,1375][1118,1466]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Dispatch, trip actions and cash collection are disabled in this preview.",
+    "description": "",
+    "bounds": "[82,1490][1118,1638]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Home",
+    "bounds": "[0,1737][300,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "true",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Home",
+    "description": "",
+    "bounds": "[79,1747][220,1817]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Trips",
+    "bounds": "[300,1737][600,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Trips",
+    "description": "",
+    "bounds": "[391,1747][508,1817]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Earnings",
+    "bounds": "[600,1737][900,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Earnings",
+    "description": "",
+    "bounds": "[648,1747][851,1817]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Profile",
+    "bounds": "[900,1737][1200,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Profile",
+    "description": "",
+    "bounds": "[974,1747][1125,1817]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  }
+]

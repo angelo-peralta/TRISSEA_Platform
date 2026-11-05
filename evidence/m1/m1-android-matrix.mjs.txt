@@ -1,0 +1,38 @@
+import { run, capture, hierarchy } from './m1-android-qa.mjs';
+import assert from 'node:assert/strict';
+import { writeFileSync } from 'node:fs';
+const results = [];
+const targets = [{serial:'emulator-5554', name:'passenger', title:'Where are you going?'},{serial:'emulator-5556',name:'driver',title:'Driver home'}].filter(target => !process.argv[2] || target.name === process.argv[2]);
+const resultPath = `evidence/m1/android-matrix-${process.argv[2] ?? 'both'}-results.json`;
+try {
+  for (const state of [{name:'360-normal-light',density:480,font:1,night:'no'}, {name:'600-normal-light',density:320,font:1,night:'no',size:'1200x2000'}, {name:'600-large-dark',density:320,font:2,night:'yes',size:'1200x2000'}]) {
+    for (const target of targets) {
+      run(target.serial,['shell','wm','size',state.size ?? 'reset']);
+      run(target.serial,['shell','wm','density',String(state.density)]);
+      run(target.serial,['shell','settings','put','system','font_scale',String(state.font)]);
+      run(target.serial,['shell','cmd','uimode','night',state.night]);
+      hierarchy(target.serial);
+      for(let i=0;i<5;i++)run(target.serial,['shell','input','swipe','540','500','540','1500','350']);
+      const top = capture(target.serial,`${target.name}-${state.name}`);
+      assert(top.some(node => node.text === target.title));
+      assert(top.some(node => node.text === 'TRISSEA · TUGUEGARAO'));
+      const tabs = top.filter(node => ['Home','Activity','Account','Trips','Earnings','Profile'].includes(node.description));
+      const densityScale = state.density/160;
+      for(const tab of tabs){ const [x1,y1,x2,y2]=tab.bounds.match(/\d+/g).map(Number); assert((x2-x1)/densityScale>=48 && (y2-y1)/densityScale>=48); }
+      for(let i=0;i<5;i++)run(target.serial,['shell','input','swipe','540','1500','540','500','350']);
+      const bottom = capture(target.serial,`${target.name}-${state.name}-bottom`);
+      if(target.name==='passenger') assert(bottom.some(node=>node.text==='Reservation · Coming later'));
+      else assert(bottom.some(node=>node.description==='Go online unavailable in M1' && node.enabled==='false'));
+      results.push({app:target.name,state,configuration:run(target.serial,['shell','am','get-config']).trim(),fontScale:run(target.serial,['shell','settings','get','system','font_scale']).trim(),tabs,result:'PASS'});
+      writeFileSync(resultPath,JSON.stringify({status:'IN PROGRESS',results},null,2));
+    }
+  }
+  writeFileSync(resultPath,JSON.stringify({status:'PASS',results},null,2));
+} finally {
+  for(const target of targets){
+    run(target.serial,['shell','wm','size','reset']);
+    run(target.serial,['shell','wm','density','reset']);
+    run(target.serial,['shell','settings','put','system','font_scale','1.0']);
+    run(target.serial,['shell','cmd','uimode','night','no']);
+  }
+}

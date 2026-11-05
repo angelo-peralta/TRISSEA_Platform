@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "historicalAnrEntriesBefore": 2,
+  "historicalAnrEntriesAfter": 2,
+  "results": [
+    {
+      "test": "background and normal launcher reopen",
+      "launch": "Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=ph.trissea.passenger.dev/.MainActivity }\r\nWarning: Activity not started, its current task has been brought to the front\r\nStatus: ok\r\nLaunchState: UNKNOWN (0)\r\nActivity: ph.trissea.passenger.dev/.MainActivity\r\nWaitTime: 339\r\nComplete\r\n"
+    },
+    {
+      "test": "cold normal-launcher reopen 1",
+      "activity": "Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=ph.trissea.passenger.dev/.MainActivity }\r\nStatus: ok\r\nLaunchState: COLD\r\nActivity: ph.trissea.passenger.dev/.MainActivity\r\nTotalTime: 4798\r\nWaitTime: 4836\r\nComplete\r\n",
+      "pid": "5633",
+      "jsMain": true,
+      "reactNativeJsErrors": false
+    },
+    {
+      "test": "cold normal-launcher reopen 2",
+      "activity": "Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=ph.trissea.passenger.dev/.MainActivity }\r\nStatus: ok\r\nLaunchState: COLD\r\nActivity: ph.trissea.passenger.dev/.MainActivity\r\nTotalTime: 5210\r\nWaitTime: 5215\r\nComplete\r\n",
+      "pid": "5835",
+      "jsMain": true,
+      "reactNativeJsErrors": false
+    }
+  ]
+}

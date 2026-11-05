@@ -1,0 +1,80 @@
+import { chromium } from './m1-browser/node_modules/playwright/index.mjs';
+import assert from 'node:assert/strict';
+import { mkdirSync, writeFileSync } from 'node:fs';
+
+mkdirSync('evidence/m1', { recursive: true });
+const results = [];
+const consoleErrors = [];
+const pageErrors = [];
+let phase = 'normal';
+const browser = await chromium.launch({ channel: 'msedge', headless: true });
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push({ phase, text: message.text() }); });
+  page.on('pageerror', error => pageErrors.push(String(error)));
+  await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
+  assert.equal(await page.title(), 'TRISSEA · Admin preview');
+  assert.equal(await page.getByRole('heading', { name: 'Overview', exact: true }).count(), 1);
+  assert.equal(await page.getByRole('navigation', { name: 'Preview navigation' }).getByRole('button').count(), 9);
+  await page.screenshot({ path: 'evidence/m1/admin-desktop.png', fullPage: true });
+  results.push('Desktop dashboard renders with nine navigation entries.');
+
+  let releaseHealth;
+  let requests = 0;
+  await page.route('**/v1/health', async route => { requests++; await new Promise(resolve => { releaseHealth = resolve; }); await route.continue(); });
+  await page.getByRole('button', { name: 'Check API connection', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Checking connection' }).waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Checking…', exact: true }).isDisabled(), true);
+  await page.getByRole('button', { name: 'Checking…', exact: true }).dispatchEvent('click');
+  await page.screenshot({ path: 'evidence/m1/admin-loading.png', fullPage: true });
+  assert.equal(requests, 1);
+  const proxyResponse = page.waitForResponse(response => response.url().endsWith('/v1/health') && response.status() === 200);
+  releaseHealth();
+  const response = await proxyResponse;
+  const health = await response.json();
+  assert.equal(health.status, 'ok');
+  assert.equal(health.bookingsEnabled, false);
+  await page.getByRole('status').filter({ hasText: 'API connected' }).waitFor();
+  await page.unroute('**/v1/health');
+  results.push({ check: 'Real Vite proxy /v1/health, pending UI and duplicate-request prevention', requests, health });
+
+  phase = 'intentional-503';
+  await page.route('**/v1/health', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"M1 QA simulated outage"}' }));
+  await page.getByRole('button', { name: 'Check API connection', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'API unavailable' }).waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Check API connection', exact: true }).isEnabled(), true);
+  await page.screenshot({ path: 'evidence/m1/admin-error.png', fullPage: true });
+  await page.unroute('**/v1/health');
+  phase = 'retry';
+  await page.getByRole('button', { name: 'Check API connection', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'API connected' }).waitFor();
+  await page.screenshot({ path: 'evidence/m1/admin-connected.png', fullPage: true });
+  results.push('Intentional HTTP 503 renders error; retry connects to real API.');
+
+  for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:360,height:740}]) {
+    await page.setViewportSize(viewport);
+    for (const name of ['Overview','Live Rides','Drivers & Vehicles','TODAs & Zones','Fare Management','Service Availability','Incidents','Audit','Settings']) {
+      await page.getByRole('navigation').getByRole('button', {name,exact:true}).click();
+      assert.equal(await page.getByRole('heading', {name,exact:true}).count(),1);
+      assert.equal(await page.getByRole('navigation').getByRole('button', {name,exact:true}).getAttribute('aria-current'),'page');
+      if (name === 'Fare Management') {
+        assert.equal(await page.getByText('Not yet approved', {exact:true}).count(),1);
+        assert.equal(await page.getByRole('button', {name:'Import and approval available in M3'}).isDisabled(),true);
+        await page.screenshot({path:`evidence/m1/admin-fares-${viewport.width}.png`,fullPage:true});
+      } else if (name !== 'Overview') assert.equal(await page.getByRole('heading',{name:'Not available in M1',exact:true}).count(),1);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),true,`Overflow at ${viewport.width}: ${name}`);
+    }
+    const targets = await page.getByRole('navigation').getByRole('button').evaluateAll(buttons => buttons.map(button => ({label:button.textContent,width:button.getBoundingClientRect().width,height:button.getBoundingClientRect().height})));
+    assert(targets.every(target => target.width >= 48 && target.height >= 48));
+    results.push({viewport, navigation:'9/9, no horizontal overflow',targets});
+    await page.getByRole('navigation').getByRole('button',{name:'Overview',exact:true}).click();
+    await page.screenshot({path:`evidence/m1/admin-overview-${viewport.width}.png`,fullPage:true});
+  }
+  assert.deepEqual(pageErrors,[]);
+  assert.deepEqual(consoleErrors.filter(error => error.phase !== 'intentional-503'),[]);
+  writeFileSync('evidence/m1/admin-results.json',JSON.stringify({status:'PASS',browser:await browser.version(),playwright:'1.64.1',results,consoleErrors,pageErrors},null,2));
+  console.log('PASS admin browser acceptance',JSON.stringify({browser:await browser.version(),checks:results.length,consoleErrors,pageErrors}));
+} catch (error) {
+  writeFileSync('evidence/m1/admin-results.json',JSON.stringify({status:'FAIL',results,consoleErrors,pageErrors,error:String(error)},null,2));
+  throw error;
+} finally { await browser.close(); }

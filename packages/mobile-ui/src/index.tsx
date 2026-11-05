@@ -1,9 +1,34 @@
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import type { ColorValue } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, useColorScheme, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius, spacing, themes, touchTarget, typeScale } from '@trissea/design-tokens';
 
 export function useTheme() { return themes[useColorScheme() === 'dark' ? 'dark' : 'light']; }
+
+function PreviewTabLabel({ children, color }: { children: string; color: ColorValue }) {
+  return <Text style={{ color, fontSize: typeScale.label, textAlign: 'center' }}>{children}</Text>;
+}
+
+/** Text tabs avoid missing icon fonts and leave room for two scaled label lines. */
+export function usePreviewTabOptions() {
+  const theme = useTheme();
+  const { fontScale } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  return {
+    headerShown: false,
+    tabBarActiveTintColor: theme.textPrimary,
+    tabBarInactiveTintColor: theme.textSecondary,
+    tabBarIconStyle: { display: 'none' as const },
+    tabBarLabel: PreviewTabLabel,
+    tabBarItemStyle: { paddingHorizontal: 0, paddingVertical: 0 },
+    tabBarStyle: {
+      backgroundColor: theme.surfaceRaised,
+      borderTopColor: theme.border,
+      height: Math.max(touchTarget.android + spacing.sm, Math.ceil(typeScale.label * fontScale * 3 + spacing.lg)) + insets.bottom,
+    },
+  };
+}
 
 /** Scrollable, font-scaling-safe shell. Does not fetch or infer operational state. */
 export function AppScreen({ title, children }: { title: string; children: ReactNode }) {

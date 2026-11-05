@@ -1,0 +1,5 @@
+$ pnpm --filter @trissea/passenger check && pnpm --filter @trissea/driver check
+$ expo install --check
+Dependencies are up to date
+$ expo install --check
+Dependencies are up to date

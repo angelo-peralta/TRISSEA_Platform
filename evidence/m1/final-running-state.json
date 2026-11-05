@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "serial": "emulator-5554",
+      "package": "ph.trissea.passenger.dev",
+      "pid": "5835",
+      "size": "Physical size: 1080x2424",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "night": "Night mode: no",
+      "reverse": "host-15 tcp:8081 tcp:8081",
+      "historicalAnrCount": 2
+    },
+    {
+      "serial": "emulator-5556",
+      "package": "ph.trissea.driver.dev",
+      "pid": "12886",
+      "size": "Physical size: 1080x2424",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "night": "Night mode: no",
+      "reverse": "host-17 tcp:8082 tcp:8082",
+      "historicalAnrCount": 0
+    },
+    {
+      "url": "http://127.0.0.1:4000/v1/health",
+      "status": 200,
+      "body": "{\"status\":\"ok\",\"service\":\"trissea-api\",\"milestone\":\"M1\",\"bookingsEnabled\":false}"
+    },
+    {
+      "url": "http://127.0.0.1:5173/v1/health",
+      "status": 200,
+      "body": "{\"status\":\"ok\",\"service\":\"trissea-api\",\"milestone\":\"M1\",\"bookingsEnabled\":false}"
+    },
+    {
+      "url": "http://127.0.0.1:8081/status",
+      "status": 200,
+      "body": "packager-status:running"
+    },
+    {
+      "url": "http://127.0.0.1:8082/status",
+      "status": 200,
+      "body": "packager-status:running"
+    }
+  ]
+}

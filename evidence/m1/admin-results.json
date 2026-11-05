@@ -1,0 +1,188 @@
+{
+  "status": "PASS",
+  "browser": "156.0.4314.58",
+  "playwright": "1.64.1",
+  "results": [
+    "Desktop dashboard renders with nine navigation entries.",
+    {
+      "check": "Real Vite proxy /v1/health, pending UI and duplicate-request prevention",
+      "requests": 1,
+      "health": {
+        "status": "ok",
+        "service": "trissea-api",
+        "milestone": "M1",
+        "bookingsEnabled": false
+      }
+    },
+    "Intentional HTTP 503 renders error; retry connects to real API.",
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "navigation": "9/9, no horizontal overflow",
+      "targets": [
+        {
+          "label": "Overview",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Live Rides",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Drivers & Vehicles",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "TODAs & Zones",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Fare Management",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Service Availability",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Incidents",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Audit",
+          "width": 215,
+          "height": 48
+        },
+        {
+          "label": "Settings",
+          "width": 215,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "navigation": "9/9, no horizontal overflow",
+      "targets": [
+        {
+          "label": "Overview",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Live Rides",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Drivers & Vehicles",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "TODAs & Zones",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Fare Management",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Service Availability",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Incidents",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Audit",
+          "width": 167,
+          "height": 48
+        },
+        {
+          "label": "Settings",
+          "width": 167,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "navigation": "9/9, no horizontal overflow",
+      "targets": [
+        {
+          "label": "Overview",
+          "width": 152,
+          "height": 48
+        },
+        {
+          "label": "Live Rides",
+          "width": 152,
+          "height": 48
+        },
+        {
+          "label": "Drivers & Vehicles",
+          "width": 152,
+          "height": 68
+        },
+        {
+          "label": "TODAs & Zones",
+          "width": 152,
+          "height": 68
+        },
+        {
+          "label": "Fare Management",
+          "width": 152,
+          "height": 68
+        },
+        {
+          "label": "Service Availability",
+          "width": 152,
+          "height": 68
+        },
+        {
+          "label": "Incidents",
+          "width": 152,
+          "height": 48
+        },
+        {
+          "label": "Audit",
+          "width": 152,
+          "height": 48
+        },
+        {
+          "label": "Settings",
+          "width": 152,
+          "height": 48
+        }
+      ]
+    }
+  ],
+  "consoleErrors": [
+    {
+      "phase": "intentional-503",
+      "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    }
+  ],
+  "pageErrors": []
+}

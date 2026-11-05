@@ -1,0 +1,29 @@
+[
+  {
+    "text": "TRISSEA Passenger Dev isn't responding",
+    "description": "",
+    "bounds": "[133,1060][947,1178]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Close app",
+    "description": "",
+    "bounds": "[70,1217][1010,1343]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.Button"
+  },
+  {
+    "text": "Wait",
+    "description": "",
+    "bounds": "[70,1343][1010,1469]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.Button"
+  }
+]

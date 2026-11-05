@@ -1,5 +1,6 @@
 .env
 .cache/
+.c/
 *.tsbuildinfo
 .env.*
 !.env.example
@@ -8,6 +9,9 @@ node_modules/
 .expo/
 .expo-shared/
 android/.gradle/
+# Expo Continuous Native Generation output; app configuration is the source.
+apps/*/android/
+apps/*/ios/
 ios/Pods/
 *.apk
 *.aab

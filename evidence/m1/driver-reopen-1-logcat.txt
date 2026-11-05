@@ -1,0 +1,2 @@
+--------- beginning of main
+11-05 07:41:26.373 12674 12777 I ReactNativeJS: Running "main" with {"rootTag":1,"initialProps":{},"fabric":true}

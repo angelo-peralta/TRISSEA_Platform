@@ -1,0 +1,191 @@
+[
+  {
+    "text": "",
+    "description": "Tools",
+    "bounds": "[1090,175][1142,227]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.ImageView"
+  },
+  {
+    "text": "Tools",
+    "description": "",
+    "bounds": "[1089,273][1143,298]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "TRISSEA · TUGUEGARAO",
+    "description": "",
+    "bounds": "[48,165][1152,203]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Driver home",
+    "description": "",
+    "bounds": "[48,251][1152,326]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Development preview · No live ride services",
+    "description": "",
+    "bounds": "[80,406][1120,458]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Offline · Development preview",
+    "description": "",
+    "bounds": "[82,572][1118,626]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "No shift is active. This app is not collecting or transmitting location.",
+    "description": "",
+    "bounds": "[82,650][1118,702]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Verification required",
+    "description": "",
+    "bounds": "[82,818][1118,872]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Sign-in, city/TODA authorization and driver/vehicle verification will be added in a later milestone. No affiliation or vehicle is assumed.",
+    "description": "",
+    "bounds": "[82,896][1118,1000]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Go online unavailable in M1",
+    "bounds": "[48,1082][1152,1193]",
+    "clickable": "true",
+    "enabled": "false",
+    "selected": "false",
+    "class": "android.widget.Button"
+  },
+  {
+    "text": "Go online unavailable in M1",
+    "description": "",
+    "bounds": "[402,1116][798,1160]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "No offers available",
+    "description": "",
+    "bounds": "[82,1275][1118,1329]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Dispatch, trip actions and cash collection are disabled in this preview.",
+    "description": "",
+    "bounds": "[82,1353][1118,1405]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Home",
+    "bounds": "[0,1821][300,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "true",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Home",
+    "description": "",
+    "bounds": "[112,1831][188,1869]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Trips",
+    "bounds": "[300,1821][600,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Trips",
+    "description": "",
+    "bounds": "[418,1831][482,1869]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Earnings",
+    "bounds": "[600,1821][900,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Earnings",
+    "description": "",
+    "bounds": "[695,1831][805,1869]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "description": "Profile",
+    "bounds": "[900,1821][1200,1936]",
+    "clickable": "true",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Profile",
+    "description": "",
+    "bounds": "[1010,1831][1090,1869]",
+    "clickable": "false",
+    "enabled": "true",
+    "selected": "false",
+    "class": "android.widget.TextView"
+  }
+]

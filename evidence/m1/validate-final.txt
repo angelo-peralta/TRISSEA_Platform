@@ -1,0 +1,174 @@
+$ pnpm contracts:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
+$ node scripts/generate-contracts.mjs --check
+Generated MVP types and health client match the contract.
+$ eslint .
+$ pnpm -r typecheck
+Scope: 7 of 8 workspace projects
+packages/contracts typecheck$ tsc --noEmit
+packages/design-tokens typecheck$ tsc --noEmit
+services/api typecheck$ tsc --noEmit
+packages/design-tokens typecheck: Done
+packages/contracts typecheck: Done
+services/api typecheck: Done
+apps/admin typecheck$ tsc --noEmit
+packages/mobile-ui typecheck$ tsc --noEmit
+packages/mobile-ui typecheck: Done
+apps/admin typecheck: Done
+apps/driver typecheck$ tsc --noEmit
+apps/passenger typecheck$ tsc --noEmit
+apps/passenger typecheck: Done
+apps/driver typecheck: Done
+$ pnpm test:client && pnpm --filter @trissea/api test && node --test tests/*.test.mjs
+$ tsc -p packages/contracts/tsconfig.test.json && node --test .cache/contract-tests/test/*.test.js
+TAP version 13
+# Subtest: typed health client uses the versioned URL and caller cancellation signal
+ok 1 - typed health client uses the versioned URL and caller cancellation signal
+  ---
+  duration_ms: 45.2799
+  type: 'test'
+  ...
+# Subtest: client rejects HTTP failure, malformed health and a false booking-availability claim
+ok 2 - client rejects HTTP failure, malformed health and a false booking-availability claim
+  ---
+  duration_ms: 2.6872
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 272.1082
+$ tsc && node --test dist/test/*.test.js
+TAP version 13
+# Subtest: OTP simulator requires NODE_ENV=development and consumes each challenge once
+ok 1 - OTP simulator requires NODE_ENV=development and consumes each challenge once
+  ---
+  duration_ms: 10.4183
+  type: 'test'
+  ...
+# Subtest: TODA access matches city, organization and permission together
+ok 2 - TODA access matches city, organization and permission together
+  ---
+  duration_ms: 2.6401
+  type: 'test'
+  ...
+# Subtest: scope and permissions cannot be combined from different grants
+ok 3 - scope and permissions cannot be combined from different grants
+  ---
+  duration_ms: 0.7711
+  type: 'test'
+  ...
+# Subtest: admin MFA and explicit grants are mandatory, including for city scope
+ok 4 - admin MFA and explicit grants are mandatory, including for city scope
+  ---
+  duration_ms: 0.7606
+  type: 'test'
+  ...
+# Subtest: Fastify: health is public; new routes deny absent, malformed, invalid and failed-provider tokens
+ok 5 - Fastify: health is public; new routes deny absent, malformed, invalid and failed-provider tokens
+  ---
+  duration_ms: 1322.5473
+  type: 'test'
+  ...
+# Subtest: guard accepts only provider-verified identity; provider failure is a generic 401
+ok 6 - guard accepts only provider-verified identity; provider failure is a generic 401
+  ---
+  duration_ms: 35.6154
+  type: 'test'
+  ...
+# Subtest: authorization prevents wrong-city, cross-TODA, city-wide escalation, missing MFA and missing permission
+ok 7 - authorization prevents wrong-city, cross-TODA, city-wide escalation, missing MFA and missing permission
+  ---
+  duration_ms: 3.8326
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6923.5395
+TAP version 13
+# Subtest: Router query parsing and serialization work with the patched ESM decoder
+ok 1 - Router query parsing and serialization work with the patched ESM decoder
+  ---
+  duration_ms: 64.9529
+  type: 'test'
+  ...
+# Subtest: Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod
+ok 2 - Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod
+  ---
+  duration_ms: 533.6448
+  type: 'test'
+  ...
+# Subtest: Expo glob consumers retain the filesystem matching API after security upgrades
+ok 3 - Expo glob consumers retain the filesystem matching API after security upgrades
+  ---
+  duration_ms: 151.1964
+  type: 'test'
+  ...
+# Subtest: migration tools refuse remote/production databases
+ok 4 - migration tools refuse remote/production databases
+  ---
+  duration_ms: 3.5785
+  type: 'test'
+  ...
+# Subtest: generated MVP contract remains reproducible; public health never enables bookings
+ok 5 - generated MVP contract remains reproducible; public health never enables bookings
+  ---
+  duration_ms: 168.3114
+  type: 'test'
+  ...
+# Subtest: actual light and dark text/action/notice color pairs meet WCAG AA
+ok 6 - actual light and dark text/action/notice color pairs meet WCAG AA
+  ---
+  duration_ms: 4.7596
+  type: 'test'
+  ...
+# Subtest: native path callbacks precede eager root plugins and regeneration is idempotent
+ok 7 - native path callbacks precede eager root plugins and regeneration is idempotent
+  ---
+  duration_ms: 3.817
+  type: 'test'
+  ...
+# Subtest: passenger and driver native outputs are separated; unknown staging context fails
+ok 8 - passenger and driver native outputs are separated; unknown staging context fails
+  ---
+  duration_ms: 9.4482
+  type: 'test'
+  ...
+# Subtest: Windows native codegen paths fit the Ninja filename limit
+ok 9 - Windows native codegen paths fit the Ninja filename limit
+  ---
+  duration_ms: 45.7298
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1235.6648
+$ pnpm --filter @trissea/api build && pnpm --filter @trissea/admin build
+$ tsc -p tsconfig.build.json
+$ tsc --noEmit && vite build
+vite v8.2.4 building client environment for production...
+transforming...
+✓ 21 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.43 kB │ gzip:  0.30 kB
+dist/assets/index-D320pAyF.css    1.54 kB │ gzip:  0.71 kB
+dist/assets/index-ZAS10LjW.js   194.57 kB │ gzip: 61.64 kB
+
+✓ built in 516ms

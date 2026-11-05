@@ -1,10 +1,10 @@
 import { AppScreen, InfoSection } from '@trissea/mobile-ui';
 
 const services = [
-  { title: 'Regular ? Unavailable', description: 'Private A to B travel. Booking requires approved fares, service areas and verified operators.' },
-  { title: 'Shared ? OFF', description: 'Per-seat travel requires approved corridors, seating rules and tested capacity controls.' },
-  { title: 'Special ? OFF', description: 'Exclusive vehicle hire requires an approved whole-vehicle fare policy.' },
-  { title: 'Reservation ? Coming later', description: 'Passenger pickup windows at approved TODA terminals are deferred from the pilot launch.' },
+  { title: 'Regular · Unavailable', description: 'Private A to B travel. Booking requires approved fares, service areas and verified operators.' },
+  { title: 'Shared · OFF', description: 'Per-seat travel requires approved corridors, seating rules and tested capacity controls.' },
+  { title: 'Special · OFF', description: 'Exclusive vehicle hire requires an approved whole-vehicle fare policy.' },
+  { title: 'Reservation · Coming later', description: 'Passenger pickup windows at approved TODA terminals are deferred from the pilot launch.' },
 ];
 
 export function HomeScreen() {
