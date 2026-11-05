@@ -1,3 +1,6 @@
 # Keep reviewed dependency bytes reproducible on Windows and Linux checkouts.
 pnpm-lock.yaml text eol=lf
 patches/*.patch text eol=lf
+# Contract generation compares output bytes; Windows must preserve generator LF.
+packages/contracts/src/generated/*.ts text eol=lf
+packages/contracts/src/health-client.ts text eol=lf

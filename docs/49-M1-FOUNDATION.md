@@ -616,3 +616,20 @@ SDK/native build outputs, APKs, caches and identity documents are excluded.
 `.gitattributes` retains LF bytes for the reviewed lockfile and package patch on
 Windows/Linux checkouts, preserving patch integrity and the documented lock hash.
 The PR and final handoff report the resulting commit, push and CI evidence.
+
+### First GitHub CI run and Windows checkout correction
+
+M1 commit `3984620` was pushed to `origin/chore/m1-acceptance`; draft
+[PR #1](https://github.com/angelo-peralta/TRISSEA_Platform/pull/1) targets `main`.
+PR run `41994028930` passed its isolated infrastructure migration/rollback job.
+Windows failed the generated-contract check because checkout converted generated
+TypeScript output to CRLF; matrix fail-fast cancelled the Linux export step after
+its validation/mobile checks had passed. These are failed/cancelled results, not
+a complete CI pass.
+
+Reproduced the exact contract-drift failure in a fresh `core.autocrlf=true`
+checkout-index export. Added scoped LF attributes for both generated contract
+outputs, preserving strict byte comparisons. The corrected fresh export passed
+`generate-contracts.mjs --check`. Set matrix `fail-fast: false` to retain independent
+Windows/Linux evidence on subsequent failures. No application or database behavior
+changed; the follow-up commit is verified by its new PR CI run.
