@@ -1,6 +1,6 @@
 # M2 proposed data, transactions and API contracts
 
-Status: **M2.0 reconciled; M2.1 schema implementation only. API delta remains proposed.**
+Status: **M2.0 reconciled; M2.1–M2.3 local backend implemented. Only the ten M2.3 identity operations and M1 health are implemented; remaining APIs are proposed.**
 Read [accepted SMS planning ADR](51-ADR-SMS-PROVIDER-AND-MOCK-OTP.md),
 [plan](52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md),
 [draft ADR](55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md) and
@@ -277,3 +277,22 @@ version/idempotency conflict; 422 incomplete allowed-domain submission; 429 with
 server `Retry-After`; 503 unavailable provider/DB/abuse controls. Anonymous auth
 errors must not encode whether a user exists, is restricted or has staff roles.
 An accepted send request is not a claim that an SMS was delivered.
+
+## M2.3 implemented contract reconciliation — 2026-11-06
+
+The exact ten implemented passenger operations and four new tables are recorded
+in [doc 59](59-M2-PASSENGER-AUTHENTICATION.md) and MVP OpenAPI v0.6.0. Earlier
+tables above describe proposed future DTOs. The implemented challenge returns
+no destination echo; the credential result has no stale stage claim. Clients
+obtain authoritative consent stage from `/me` after login/refresh. No staff grant
+or phone is in the JWT/profile. Challenge status requires secret device/proof
+headers; verification resubmits the phone and original binding. `clientPurpose`
+is PASSENGER only. All mutation contracts require Idempotency-Key; same-request
+verify/refresh response recovery is encrypted and bound for 15 seconds.
+
+PostgreSQL budgets survive Redis loss; consumed proof is never reconstructed from
+database metadata. Redis is atomic transient proof, PostgreSQL is authoritative
+redemption/session state. Session proof uses Ed25519 JOSE and opaque 48-byte
+rotating refresh credentials. Local absolute sessions last at most 24 hours;
+production policy/key rotation remain review gates. Error 429 provides a 60-second
+advisory Retry-After minimum, not a guarantee that an hourly/daily budget is free.

@@ -50,5 +50,12 @@ M2.1 database tests use a separate ephemeral cluster and a randomly named dispos
 database. See [identity foundation setup/evidence](docs/57-M2-IDENTITY-FOUNDATION.md).
 `db:up` remains limited to M1 unless disposable identity mode is explicitly enabled.
 
+The [M2.3 passenger backend record](docs/59-M2-PASSENGER-AUTHENTICATION.md)
+documents local mock OTP, revocable app sessions and the isolated non-public
+test harness. Use `pnpm.cmd test:passenger:auth` against the separate M2 cluster.
+`pnpm.cmd passenger:prepare` generates an ignored disposable local API environment;
+`pnpm.cmd dev:passenger:api` starts it on loopback 4100. Passenger auth is disabled
+in the ordinary M1 environment. No live SMS or mobile login acceptance is claimed.
+
 ## Release safety
 Screenshot figures alone do not establish a lawful origin→destination price or private vehicle hire tariff. **No production fare activation until signed applicable city/TODA source, road/MTOP service area approval, identity/privacy controls and physical device testing.** Old design docs should be read with the v1.5 status document, which supersedes conflicting launch-order recommendations.

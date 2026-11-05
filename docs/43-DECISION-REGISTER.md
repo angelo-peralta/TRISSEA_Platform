@@ -85,3 +85,23 @@ Conservative existing-vocabulary catalog edges are listed in doc 37 / doc 58.
 M2.2 does not approve Gate D role delegation/bootstrap/recovery, or any Gate A/B/C/E
 activation. Synthetic assigned-case/fare resources test policy only; they are not
 verification/fare features or legal approval.
+
+## M2.3 passenger backend review scope — 2026-11-06
+
+Owner approved continuation after M2.2. Development-only implementation selects
+Ed25519/JOSE, opaque rotating refresh and 15-second encrypted original-request
+retry; five distinct keys separate encryption, lookup, OTP, proof and refresh.
+PostgreSQL retains authoritative budgets/redemptions/revocation; Redis proof loss
+never rehydrates trust. Exact configurable bounds and actual local evidence are
+in [doc 59](59-M2-PASSENGER-AUTHENTICATION.md). No contact/account linking,
+phone replacement or recovery route exists.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P05 | Local 24h absolute session, 15s retry, 20 IP/hour, 10 device/hour + 20/day, 100 total/day and 30 verification/status/refresh IP/minute; signing/key custody and retention | DEVELOPMENT ONLY / REQUIRES_SECURITY for production | Runtime restricted to disposable synthetic mode; no hot digest/key rotation; review measured deployment capacity and interruption policy |
+| M2-P06 | Synthetic notice/terms versions and native secure storage/login integration | LOCAL TEST FIXTURES / PENDING M2.7 | No real legal consent claim or mobile authentication acceptance |
+
+Gates A–E and M2-P02 recovery/delegation remain unresolved. Backend local tests do
+not approve live SMS, phone recycling ownership, legal notices, real documents,
+driver operation, privileged provisioning or public deployment. Stop for review
+before M2.4. No business requirement or legal/city/TODA decision was changed.

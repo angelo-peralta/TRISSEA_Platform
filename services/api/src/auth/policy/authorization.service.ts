@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ForbiddenException, Injectable, Optional, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable, Optional, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { auditEvents } from '../../database/identity-schema';
 import { actionPolicies, decideAuthorization, type ActionKey, type DenialReason, type ResourceRecord, type SessionProof, type SubjectRecord } from './authorization-model';
@@ -28,14 +28,14 @@ export class AuthorizationService {
 
   async execute<T>(credentials: RequestCredentials, actionKey: ActionKey, resourceId: string, work: (context: AuthorizedWork) => Promise<T>): Promise<T> {
     const action = Object.hasOwn(actionPolicies,actionKey) ? actionPolicies[actionKey] : undefined;
-    if (!action || typeof resourceId !== 'string' || !uuid(resourceId)) throw new ForbiddenException('Resource access denied');
+    if (!action || typeof resourceId !== 'string' || (!uuid(resourceId)&&!(resourceId==='@self'&&action.self))) throw new ForbiddenException('Resource access denied');
     let proof: SessionProof | null;
     try { proof = await this.verifier.verify(credentials); } catch { proof = null; }
     if (!proof || ![proof.userId,proof.sessionId,proof.identityId].every(id => typeof id === 'string' && uuid(id))
       || !['PASSENGER','DRIVER','ADMIN'].includes(proof.purpose) || !Number.isFinite(proof.expiresAt)) throw new UnauthorizedException('Authentication required');
     // Copy the trusted adapter result so mutable provider/cache objects cannot change the transaction binding.
     const binding: SessionProof = Object.freeze({ ...proof, ...(proof.adminMfa ? { adminMfa: Object.freeze({ ...proof.adminMfa }) } : {}) });
-    const id = resourceId.toLowerCase(), traceId = randomUUID();
+    const id = resourceId==='@self'?(action.resource==='SESSION'?binding.sessionId:binding.userId):resourceId.toLowerCase(), traceId = randomUUID();
     let attemptResource: ResourceRecord | null = null, attemptSubject: SubjectRecord | null = null;
     const audit = async (tx: PolicyTransaction, outcome: 'ALLOWED' | 'DENIED', reason: string) => {
       await tx.insert(auditEvents).values({ id: randomUUID(), actorUserId: attemptSubject?.userId ?? null, actorSessionId: attemptSubject?.sessionId ?? null,
@@ -46,6 +46,8 @@ export class AuthorizationService {
     try {
       result = await this.database.transaction(async tx => {
         await setPolicyContext(tx,binding,null,null);
+        // Serialize own-account mutations before taking shared policy locks (avoids lock upgrades racing).
+        if(action.selfMutation)await tx.execute(sql`SELECT id FROM identity.app_users WHERE id=${binding.userId}::uuid FOR UPDATE`);
         const located = await this.resources.load(tx,action.resource,id);
         await setPolicyContext(tx,binding,located?.cityTenantId ?? null,located?.todaId ?? null);
         await tx.execute(sql`SELECT identity.lock_authorization_context(${binding.userId}::uuid,${binding.sessionId}::uuid,
@@ -59,7 +61,10 @@ export class AuthorizationService {
         if (!attemptResource) throw new Error('Missing authorized resource');
         await audit(tx,'ALLOWED','POLICY_ALLOWED'); // failure must prevent the handler and response
         const value = await work({ tx, userId: binding.userId, sessionId: binding.sessionId, resource: Object.freeze({ ...attemptResource }), traceId, grantId: decision.grantId });
-        const finalDecision = decideAuthorization(binding,await loadSubject(tx,binding),await withScopeStates(tx,attemptResource),await loadGrants(tx,binding,attemptResource),action,await databaseTime(tx),this.settings);
+        let finalSubject=await loadSubject(tx,binding);
+        // A successful own logout intentionally revokes the very session being checked.
+        if(action.terminalSession&&attemptResource.id===binding.sessionId&&finalSubject?.sessionState==='REVOKED')finalSubject={...finalSubject,sessionState:attemptSubject?.sessionState??'ACTIVE'};
+        const finalDecision = decideAuthorization(binding,finalSubject,await withScopeStates(tx,attemptResource),await loadGrants(tx,binding,attemptResource),action,await databaseTime(tx),this.settings);
         if (!finalDecision.allowed) throw new InterruptedPolicy(finalDecision.reason);
         return { allowed: true as const, value };
       });
@@ -73,6 +78,7 @@ export class AuthorizationService {
         });
       } catch { throw new ServiceUnavailableException('Authorization temporarily unavailable'); }
       if (error instanceof InterruptedPolicy) throw httpDenial(error.reason);
+      if (error instanceof HttpException) throw error; // validated domain errors; public bootstrap filter redacts values
       throw new ServiceUnavailableException('Authorization temporarily unavailable');
     }
     if (!result.allowed) throw httpDenial(result.reason);

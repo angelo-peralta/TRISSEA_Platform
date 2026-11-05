@@ -35,14 +35,16 @@ export interface ActionPolicy {
   readonly roles: readonly string[]; readonly scopes: readonly string[];
   readonly self: boolean; readonly assigned: boolean; readonly noSelfApproval: boolean;
   readonly fresh: boolean; readonly requiredMaker: boolean;
+  readonly selfMutation?: boolean;readonly terminalSession?: boolean;
 }
-const self = (resource: ResourceKind): ActionPolicy => ({ resource, permission: null, roles: [], scopes: [], self: true, assigned: false, noSelfApproval: false, fresh: false, requiredMaker: false });
+const self = (resource: ResourceKind,selfMutation=false,terminalSession=false): ActionPolicy => ({ resource, permission: null, roles: [], scopes: [], self: true, assigned: false, noSelfApproval: false, fresh: false, requiredMaker: false,selfMutation,terminalSession });
 const scoped = (resource: ResourceKind, permission: Permission, roles: readonly string[], scopes: readonly string[], extra: Partial<ActionPolicy> = {}): ActionPolicy =>
   ({ resource, permission, roles, scopes, self: false, assigned: false, noSelfApproval: false, fresh: false, requiredMaker: false, ...extra });
 
 /** Action keys are server route metadata, not new role/permission identifiers or public operations. */
 export const actionPolicies = Object.freeze({
   ACCOUNT_READ_SELF: self('ACCOUNT'), SESSION_READ_SELF: self('SESSION'),
+  ACCOUNT_UPDATE_SELF:self('ACCOUNT',true),CONSENT_RECORD_SELF:self('ACCOUNT',true),SESSION_REVOKE_SELF:self('SESSION',true,true),
   TODA_MEMBERS_MANAGE: scoped('TODA', 'toda.members.manage', ['TODA_MANAGER'], ['TODA'], { fresh: true }),
   DRIVER_VERIFY: scoped('VERIFICATION_CASE', 'driver.verify', ['VERIFICATION_OFFICER'], ['CITY', 'TODA'], { fresh: true, assigned: true, noSelfApproval: true }),
   FARE_DRAFT: scoped('FARE_POLICY', 'fare.draft', ['CITY_FARE_EDITOR'], ['CITY']),

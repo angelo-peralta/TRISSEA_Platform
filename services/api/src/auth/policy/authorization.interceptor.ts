@@ -22,7 +22,7 @@ export class AuthorizationInterceptor implements NestInterceptor<unknown, unknow
     const policy = this.reflector.get<PolicyMetadata | undefined>(metadataKey,context.getHandler());
     if (!policy) throw new ForbiddenException('Resource access denied');
     const request = context.switchToHttp().getRequest<{ headers: Record<string,string | string[] | undefined>; params?: Record<string,unknown> }>();
-    const id = request.params?.[policy.resourceParam];
+    const id = policy.resourceParam==='@self'?'@self':request.params?.[policy.resourceParam];
     if (typeof id !== 'string') throw new ForbiddenException('Resource access denied');
     const credentials: { -readonly [K in keyof RequestCredentials]: RequestCredentials[K] } = {};
     for (const [header,key] of [['authorization','authorization'],['cookie','cookie'],['origin','origin'],['x-csrf-token','csrf']] as const) {

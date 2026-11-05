@@ -16,6 +16,7 @@ jobs:
       - run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml up -d --wait
       - run: pnpm test:identity:db
       - run: pnpm test:authorization:db
+      - run: pnpm test:passenger:auth
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -27,6 +28,12 @@ jobs:
         with:
           name: m2-authorization-database-results
           path: .cache/m2-authorization/database-results.json
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-passenger-auth-results
+          path: .cache/m2-passenger/results.json
           include-hidden-files: true
       - if: always()
         run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml stop

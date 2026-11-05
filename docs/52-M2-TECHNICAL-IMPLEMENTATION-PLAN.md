@@ -1,6 +1,6 @@
 # M2 technical implementation plan
 
-Date: 2026-11-05. Status: **M2.0/M2.1 locally accepted; owner approved continuing with M2.2. Review stop before M2.3.**
+Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.3 local backend acceptance recorded; review stop before M2.4. Native integration and production gates remain pending.**
 
 ## Prerequisite and scope
 
@@ -282,3 +282,11 @@ M2.2 update: the owner approved continuing after M2.1 evidence. The authorizatio
 module now resolves current sessions, grants, ownership, city/TODA and assurance
 inside a transaction. Concrete JWT/Keycloak proof adapters remain denied by
 default until their respective slices. See [M2.2 evidence](58-M2-AUTHORIZATION.md).
+
+M2.3 update (2026-11-06): owner approved continuation after M2.2. Passenger
+backend OTP, mock SMS, signed app sessions, rotation, consent and own-profile
+operations are implemented under an explicit disposable local-synthetic flag.
+See [M2.3 implementation/evidence](59-M2-PASSENGER-AUTHENTICATION.md). Native secure
+storage and Android login integration remain M2.7 acceptance work; no mobile
+authentication pass is claimed. Stop for review before M2.4; the remaining slices
+and all external gates stay closed.

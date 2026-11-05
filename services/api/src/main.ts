@@ -5,7 +5,7 @@ async function main() {
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid API port');
   const app = await createApp();
   await app.listen(port, '127.0.0.1');
-  console.info(`TRISSEA M1 API listening on loopback port ${port}`);
+  console.info(`TRISSEA local API listening on loopback port ${port}`);
 }
 void main().catch(() => {
   console.error('API startup failed. Check local configuration.');

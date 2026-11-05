@@ -94,9 +94,9 @@ test('authorization migration is incremental, transactional, repeatable and seed
   await runMigrations(owner,'up',{through:'0002_identity_foundation',allowIdentity:true,report:note});
   fixture.previousLedger=await owner`SELECT id,checksum,applied_at::text AS applied_at FROM trissea_migrations ORDER BY id`;
   const failBeforeCommit={begin:callback=>owner.begin(async tx=>{await callback(tx);await tx`SELECT 1/0`;})};
-  await assert.rejects(runMigrations(failBeforeCommit,'up',{allowIdentity:true,report:()=>{}}),error=>error.code==='22012');
+  await assert.rejects(runMigrations(failBeforeCommit,'up',{through:'0003_authorization',allowIdentity:true,report:()=>{}}),error=>error.code==='22012');
   assert.equal((await owner`SELECT to_regprocedure('identity.lock_authorization_context(uuid,uuid,uuid,uuid,text)') AS f`)[0].f,null);
-  await runMigrations(owner,'up',{allowIdentity:true,report:note});await runMigrations(owner,'up',{allowIdentity:true,report:note});
+  await runMigrations(owner,'up',{through:'0003_authorization',allowIdentity:true,report:note});await runMigrations(owner,'up',{through:'0003_authorization',allowIdentity:true,report:note});
   assert.equal((await owner`SELECT count(*)::int AS n FROM trissea_migrations`)[0].n,3);
   assert.equal((await owner`SELECT count(*)::int AS n FROM identity.role_permissions`)[0].n,11);
   assert.equal((await owner`SELECT count(*)::int AS n FROM identity.app_users`)[0].n,0);
@@ -357,7 +357,7 @@ test('M2.2 rollback/reapply retains M1/M2.1 metadata, users, grants, audit and u
   assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'synthetic-policy-preservation');
   assert.equal((await owner`SELECT value FROM foundation_metadata WHERE key='milestone'`)[0].value,'M1');
   assert.equal((await owner`SELECT has_column_privilege('trissea_m2_authorization','identity.app_users','id','SELECT') AS granted`)[0].granted,false);
-  await runMigrations(owner,'up',{allowIdentity:true,report:note});
+  await runMigrations(owner,'up',{through:'0003_authorization',allowIdentity:true,report:note});
   assert.deepEqual((await owner`SELECT (SELECT count(*) FROM identity.app_users)::int AS users,(SELECT count(*) FROM identity.audit_events)::int AS audits,
     (SELECT count(*) FROM identity.scoped_role_assignments)::int AS grants`)[0],beforeCounts);
   const [versions]=await owner`SELECT current_setting('server_version') AS postgres,postgis_lib_version() AS postgis,current_setting('TimeZone') AS timezone`;

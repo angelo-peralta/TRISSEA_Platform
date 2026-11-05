@@ -38,3 +38,15 @@ Sources (reviewed November 5, 2026):
 - https://app.philsms.com/developers/documentation
 - https://www.cast.ph/pricing
 - https://unismsapi.com/docs/pricing
+
+## M2.3 implementation result — 2026-11-06
+
+The passenger backend now uses random six-digit OTP, keyed/purpose/client-bound
+hashes, atomic Redis attempts/consume, durable PostgreSQL budget/redemption and
+revocable sessions. `SmsGateway` has an in-memory test-only capture mock and a
+potential PhilSMS adapter tested exclusively with injected transport stubs.
+The runtime accepts mock only in explicit local-synthetic development/test and
+never selects PhilSMS. No live network delivery, sender/endpoint approval or
+production startup is enabled. The legacy fixed-code simulator is not wired to
+M2 routes. See [doc 59](59-M2-PASSENGER-AUTHENTICATION.md) for exact policy,
+non-public harness, uncertainty handling, evidence and remaining Gate A checks.

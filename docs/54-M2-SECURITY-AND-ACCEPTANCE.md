@@ -1,6 +1,6 @@
 # M2 security, testing and acceptance plan
 
-Status: **M2.0 architecture approved; M2.1 local engineering only. Production and external gates pending.**
+Status: **M2.0 architecture approved; M2.1–M2.3 local backend acceptance recorded. Native integration, production and external gates pending.**
 Companions: [technical plan](52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md),
 [data/API design](53-M2-DATA-AND-API-DESIGN.md),
 [draft ADR](55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md).
@@ -133,7 +133,8 @@ never real enrollment QR seeds, OTPs, tokens or identity images.
 ## Release/rollback and M2 definition of done
 
 1. M1 merge `553c5d7` and owner M2 directive verified. M2.0/M2.1 local evidence was
-   reviewed and the owner approved M2.2. Stop before M2.3; no publication/deployment authorization.
+   reviewed and the owner approved M2.2 and then M2.3. Stop before M2.4;
+   no publication/deployment authorization.
 2. Schema/tenancy ADR and authority boundaries approved; contract and migration
    changes reviewed before execution. Every slice has a clear feature gate.
 3. Required unit/integration/concurrency/authorization/contract checks pass on
@@ -183,3 +184,11 @@ M2.2 acceptance is tracked in [doc 58](58-M2-AUTHORIZATION.md). It tests real DB
 authorization and synthetic server-only credential proofs. This is not a claim
 of JWT signature validation, live SMS or real Keycloak MFA integration; those
 adapters remain fail-closed and require their actual slice acceptance.
+
+M2.3 now has actual passenger JWT/OTP/session/consent/backend acceptance in
+[doc 59](59-M2-PASSENGER-AUTHENTICATION.md): unit/contract cases and real
+PostgreSQL/Redis/Fastify positive/negative, concurrency, revocation, isolation and
+outage tests. SMS is simulated; PhilSMS uses transport stubs only. Native secure
+storage/Android authentication and Keycloak browser/MFA evidence remain future
+M2.7/M2.5 gates. One low dependency advisory remains. No production acceptance or
+real-data/recovery/driver/public-service gate has been approved by these tests.

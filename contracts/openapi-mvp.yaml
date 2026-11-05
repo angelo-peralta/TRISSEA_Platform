@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: TRISSEA Tuguegarao MVP API
-  version: 0.5.1
-  description: M1 implements public health only. Other operations remain future design. Requires verified legal fare and operator permission before public use.
+  version: 0.6.0
+  description: M1 health and explicitly enabled M2.3 local-synthetic passenger identity are implemented. Other operations remain future design. Legal, privacy and public-operation approval gates remain closed.
 servers:
 - url: https://api.example.invalid/v1
   description: placeholder
@@ -46,7 +46,321 @@ components:
         type: string
         minLength: 12
         maxLength: 128
+  responses:
+    PhoneAuthFailure:
+      description: Sanitized failure; no codes, contacts or credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PhoneAuthError'
   schemas:
+    FutureObject: &id001
+      type: object
+    PhoneChallengeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - phone
+        - clientPurpose
+        - deviceId
+        - clientProof
+      properties:
+        phone:
+          type: string
+          maxLength: 32
+          description: Philippine mobile; normalized to E.164. Synthetic numbers only in
+            this local slice.
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        deviceId:
+          type: string
+          format: uuid
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43,86}$
+          description: Secret generated with a CSPRNG and kept in secure client storage.
+            Never log.
+    PhoneChallengeResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - challengeId
+        - expiresAt
+        - resendAfter
+        - clientPurpose
+        - deliveryMode
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
+        resendAfter:
+          type: string
+          format: date-time
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        deliveryMode:
+          type: string
+          const: MOCK
+    PhoneChallengeStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - challengeId
+        - expiresAt
+        - resendAfter
+        - clientPurpose
+        - deliveryMode
+        - state
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
+        resendAfter:
+          type: string
+          format: date-time
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        deliveryMode:
+          type: string
+          const: MOCK
+        state:
+          type: string
+          enum:
+            - PENDING
+            - EXPIRED
+            - COMPLETED
+    PhoneVerifyRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - phone
+        - clientPurpose
+        - deviceId
+        - clientProof
+        - code
+      properties:
+        phone:
+          type: string
+          maxLength: 32
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        deviceId:
+          type: string
+          format: uuid
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43,86}$
+          description: Secret generated with a CSPRNG and kept in secure client storage.
+            Never log.
+        code:
+          type: string
+          pattern: ^[0-9]{6}$
+    MobileRefreshRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientPurpose
+        - deviceId
+        - clientProof
+        - refreshToken
+      properties:
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        deviceId:
+          type: string
+          format: uuid
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43,86}$
+          description: Secret generated with a CSPRNG and kept in secure client storage.
+            Never log.
+        refreshToken:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{64}$
+    MobileAuthResult:
+      type: object
+      additionalProperties: false
+      required:
+        - accessToken
+        - accessTokenExpiresAt
+        - refreshToken
+        - tokenType
+        - userId
+        - sessionId
+        - clientPurpose
+      properties:
+        accessToken:
+          type: string
+        accessTokenExpiresAt:
+          type: string
+          format: date-time
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          const: Bearer
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        clientPurpose:
+          type: string
+          const: PASSENGER
+    PassengerProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - sessionId
+        - clientPurpose
+        - state
+        - displayName
+        - profileVersion
+        - requiredNoticeVersion
+        - requiredTermsVersion
+        - operationsEnabled
+        - environment
+      properties:
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        state:
+          type: string
+          enum:
+            - CONSENT_REQUIRED
+            - ACTIVE
+        displayName:
+          type:
+            - string
+            - "null"
+        profileVersion:
+          type: integer
+          minimum: 1
+        requiredNoticeVersion:
+          type: string
+        requiredTermsVersion:
+          type: string
+        operationsEnabled:
+          type: boolean
+          const: false
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    PassengerProfileUpdate:
+      type: object
+      additionalProperties: false
+      required:
+        - displayName
+        - expectedVersion
+      properties:
+        displayName:
+          type:
+            - string
+            - "null"
+          maxLength: 80
+        expectedVersion:
+          type: integer
+          minimum: 1
+    PassengerConsentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - noticeVersion
+        - termsVersion
+        - noticeAcknowledged
+        - termsAccepted
+      properties:
+        noticeVersion:
+          type: string
+          const: local-synthetic-notice-v1
+        termsVersion:
+          type: string
+          const: local-synthetic-terms-v1
+        noticeAcknowledged:
+          type: boolean
+          const: true
+        termsAccepted:
+          type: boolean
+          const: true
+    PassengerSessionList:
+      type: object
+      additionalProperties: false
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - state
+              - lastSeenAt
+              - expiresAt
+              - current
+            properties:
+              id:
+                type: string
+                format: uuid
+              state:
+                type: string
+                enum:
+                  - PREAUTH
+                  - CONSENT_REQUIRED
+                  - ACTIVE
+                  - REVOKED
+                  - EXPIRED
+              lastSeenAt:
+                type: string
+                format: date-time
+              expiresAt:
+                type: string
+                format: date-time
+              current:
+                type: boolean
+    EmptyMutation:
+      type: object
+      additionalProperties: false
+      required: []
+      properties: {}
+    PhoneAuthError:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - INVALID_REQUEST
+            - AUTH_FAILED
+            - RATE_LIMITED
+            - CONFLICT
+            - UNAVAILABLE
+        message:
+          type: string
     HealthResponse:
       type: object
       additionalProperties: false
@@ -211,19 +525,410 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /auth/phone/challenges:
+    post:
+      tags:
+        - Identity
+      operationId: requestPassengerOtp
+      x-implemented-in: M2.3-local-synthetic
+      summary: requestPassengerOtp
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhoneChallengeRequest"
+      responses:
+        "202":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneChallengeResponse"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/phone/challenges/{challengeId}/verify:
+    post:
+      tags:
+        - Identity
+      operationId: verifyPassengerOtp
+      x-implemented-in: M2.3-local-synthetic
+      summary: verifyPassengerOtp
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhoneVerifyRequest"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAuthResult"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/phone/challenges/{challengeId}:
+    get:
+      tags:
+        - Identity
+      operationId: getPassengerChallengeStatus
+      x-implemented-in: M2.3-local-synthetic
+      summary: getPassengerChallengeStatus
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Device-Id
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Client-Proof
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{43,86}$
+            description: Secret generated with a CSPRNG and kept in secure client storage.
+              Never log.
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneChallengeStatus"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/mobile/refresh:
+    post:
+      tags:
+        - Identity
+      operationId: refreshPassengerSession
+      x-implemented-in: M2.3-local-synthetic
+      summary: refreshPassengerSession
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MobileRefreshRequest"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAuthResult"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/sessions:
+    get:
+      tags:
+        - Identity
+      operationId: listPassengerSessions
+      x-implemented-in: M2.3-local-synthetic
+      summary: listPassengerSessions
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerSessionList"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/sessions/{sessionId}/revoke:
+    post:
+      tags:
+        - Identity
+      operationId: revokePassengerSession
+      x-implemented-in: M2.3-local-synthetic
+      summary: revokePassengerSession
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Completed; no response body
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/logout:
+    post:
+      tags:
+        - Identity
+      operationId: logoutPassenger
+      x-implemented-in: M2.3-local-synthetic
+      summary: logoutPassenger
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Completed; no response body
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
   /me:
     get:
       tags:
-      - Identity
+        - Identity
       operationId: getMe
-      summary: Get authenticated identity and scoped roles
+      x-implemented-in: M2.3-local-synthetic
+      summary: getMe
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
       responses:
-        '200':
-          description: Success
+        "200":
+          description: Success (local mock only)
           content:
             application/json:
-              schema: &id001
-                type: object
+              schema:
+                $ref: "#/components/schemas/PassengerProfile"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+    patch:
+      tags:
+        - Identity
+      operationId: updatePassengerProfile
+      x-implemented-in: M2.3-local-synthetic
+      summary: updatePassengerProfile
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassengerProfileUpdate"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerProfile"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /me/consents:
+    post:
+      tags:
+        - Identity
+      operationId: recordPassengerConsent
+      x-implemented-in: M2.3-local-synthetic
+      summary: recordPassengerConsent
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassengerConsentRequest"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerProfile"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
   /services/available:
     get:
       tags:
