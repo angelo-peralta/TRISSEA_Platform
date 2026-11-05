@@ -1,0 +1,186 @@
+$ pnpm contracts:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
+$ node scripts/generate-contracts.mjs --check
+Generated MVP types and health client match the contract.
+$ eslint .
+$ pnpm -r typecheck
+Scope: 7 of 8 workspace projects
+packages/contracts typecheck$ tsc --noEmit
+packages/design-tokens typecheck$ tsc --noEmit
+services/api typecheck$ tsc --noEmit
+packages/design-tokens typecheck: Done
+packages/contracts typecheck: Done
+services/api typecheck: Done
+apps/admin typecheck$ tsc --noEmit
+packages/mobile-ui typecheck$ tsc --noEmit
+packages/mobile-ui typecheck: Done
+apps/admin typecheck: Done
+apps/driver typecheck$ tsc --noEmit
+apps/passenger typecheck$ tsc --noEmit
+apps/driver typecheck: Done
+apps/passenger typecheck: Done
+$ pnpm test:client && pnpm --filter @trissea/api test && node --test tests/*.test.mjs
+$ tsc -p packages/contracts/tsconfig.test.json && node --test .cache/contract-tests/test/*.test.js
+TAP version 13
+# Subtest: typed health client uses the versioned URL and caller cancellation signal
+ok 1 - typed health client uses the versioned URL and caller cancellation signal
+  ---
+  duration_ms: 58.436
+  type: 'test'
+  ...
+# Subtest: client rejects HTTP failure, malformed health and a false booking-availability claim
+ok 2 - client rejects HTTP failure, malformed health and a false booking-availability claim
+  ---
+  duration_ms: 3.1554
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 235.0662
+$ tsc && node --test dist/test/*.test.js
+TAP version 13
+# Subtest: identity encryption is randomized, purpose-bound, authenticated and uses separate lookup keys
+ok 1 - identity encryption is randomized, purpose-bound, authenticated and uses separate lookup keys
+  ---
+  duration_ms: 10.2729
+  type: 'test'
+  ...
+# Subtest: development policy has bounded owner-approved initial settings; capability gates fail closed
+ok 2 - development policy has bounded owner-approved initial settings; capability gates fail closed
+  ---
+  duration_ms: 2.831
+  type: 'test'
+  ...
+# Subtest: OTP simulator requires NODE_ENV=development and consumes each challenge once
+ok 3 - OTP simulator requires NODE_ENV=development and consumes each challenge once
+  ---
+  duration_ms: 10.5976
+  type: 'test'
+  ...
+# Subtest: TODA access matches city, organization and permission together
+ok 4 - TODA access matches city, organization and permission together
+  ---
+  duration_ms: 2.8243
+  type: 'test'
+  ...
+# Subtest: scope and permissions cannot be combined from different grants
+ok 5 - scope and permissions cannot be combined from different grants
+  ---
+  duration_ms: 0.3787
+  type: 'test'
+  ...
+# Subtest: admin MFA and explicit grants are mandatory, including for city scope
+ok 6 - admin MFA and explicit grants are mandatory, including for city scope
+  ---
+  duration_ms: 0.7794
+  type: 'test'
+  ...
+# Subtest: Fastify: health is public; new routes deny absent, malformed, invalid and failed-provider tokens
+ok 7 - Fastify: health is public; new routes deny absent, malformed, invalid and failed-provider tokens
+  ---
+  duration_ms: 684.008
+  type: 'test'
+  ...
+# Subtest: guard accepts only provider-verified identity; provider failure is a generic 401
+ok 8 - guard accepts only provider-verified identity; provider failure is a generic 401
+  ---
+  duration_ms: 31.876
+  type: 'test'
+  ...
+# Subtest: authorization prevents wrong-city, cross-TODA, city-wide escalation, missing MFA and missing permission
+ok 9 - authorization prevents wrong-city, cross-TODA, city-wide escalation, missing MFA and missing permission
+  ---
+  duration_ms: 2.6052
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4344.1167
+TAP version 13
+# Subtest: Router query parsing and serialization work with the patched ESM decoder
+ok 1 - Router query parsing and serialization work with the patched ESM decoder
+  ---
+  duration_ms: 34.1306
+  type: 'test'
+  ...
+# Subtest: Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod
+ok 2 - Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod
+  ---
+  duration_ms: 431.0479
+  type: 'test'
+  ...
+# Subtest: Expo glob consumers retain the filesystem matching API after security upgrades
+ok 3 - Expo glob consumers retain the filesystem matching API after security upgrades
+  ---
+  duration_ms: 105.5147
+  type: 'test'
+  ...
+# Subtest: migration tools refuse remote/production databases
+ok 4 - migration tools refuse remote/production databases
+  ---
+  duration_ms: 3.7327
+  type: 'test'
+  ...
+# Subtest: generated MVP contract remains reproducible; public health never enables bookings
+ok 5 - generated MVP contract remains reproducible; public health never enables bookings
+  ---
+  duration_ms: 166.6493
+  type: 'test'
+  ...
+# Subtest: actual light and dark text/action/notice color pairs meet WCAG AA
+ok 6 - actual light and dark text/action/notice color pairs meet WCAG AA
+  ---
+  duration_ms: 3.5954
+  type: 'test'
+  ...
+# Subtest: native path callbacks precede eager root plugins and regeneration is idempotent
+ok 7 - native path callbacks precede eager root plugins and regeneration is idempotent
+  ---
+  duration_ms: 4.0582
+  type: 'test'
+  ...
+# Subtest: passenger and driver native outputs are separated; unknown staging context fails
+ok 8 - passenger and driver native outputs are separated; unknown staging context fails
+  ---
+  duration_ms: 3.2038
+  type: 'test'
+  ...
+# Subtest: Windows native codegen paths fit the Ninja filename limit
+ok 9 - Windows native codegen paths fit the Ninja filename limit
+  ---
+  duration_ms: 27.2111
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 789.6759
+$ pnpm --filter @trissea/api build && pnpm --filter @trissea/admin build
+$ tsc -p tsconfig.build.json
+$ tsc --noEmit && vite build
+vite v8.2.4 building client environment for production...
+transforming...
+✓ 21 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.43 kB │ gzip:  0.31 kB
+dist/assets/index-D320pAyF.css    1.54 kB │ gzip:  0.71 kB
+dist/assets/index-ZAS10LjW.js   194.57 kB │ gzip: 61.64 kB
+
+✓ built in 414ms

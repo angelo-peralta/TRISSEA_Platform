@@ -28,7 +28,8 @@
     "mobile:doctor": "expo-doctor apps/passenger && expo-doctor apps/driver",
     "mobile:export": "pnpm --filter @trissea/passenger export && pnpm --filter @trissea/driver export",
     "audit:dependencies": "pnpm audit --audit-level=moderate",
-    "validate": "pnpm contracts:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "validate": "pnpm contracts:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "test:identity:db": "pnpm --filter @trissea/api exec tsc && node --env-file-if-exists=.env.m2-test --test scripts/test-identity-database.mjs"
   },
   "devDependencies": {
     "@expo/config-plugins": "57.0.11",

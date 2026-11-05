@@ -27,6 +27,9 @@ jobs:
       - run: python scripts/validate_tuguegarao_fares.py
   local-infrastructure:
     runs-on: ubuntu-latest
+    env:
+      # Keep M1 acceptance independent of new disposable-only identity migrations.
+      MIGRATION_TARGET: 0001_foundation
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

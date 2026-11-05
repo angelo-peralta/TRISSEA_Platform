@@ -1,7 +1,8 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-/** Operational tables are deliberately not migrated from the historical reference.
- * M2 will review city/TODA tenancy and record its ADR before adding those tables. */
+export * from './identity-schema';
+
+/** M1 ledger/table preserved; M2 uses reviewed incremental migrations, never legacy SQL. */
 export const foundationMetadata = pgTable('foundation_metadata', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),

@@ -29,7 +29,12 @@ scope, security boundaries and outstanding checks.
 - Drivers/passengers: phone SMS OTP; drivers require additional TODA+vehicle verification; admin email/password+MFA; cash first.
 
 ## Selected stack
-Two React Native + Expo/TypeScript apps (passenger and driver), React/Vite admin, NestJS/Fastify API, PostgreSQL/PostGIS + Drizzle, Redis/BullMQ worker, Socket.IO realtime, MapLibre map renderer + separately approved tricycle-legal routing engine, Supabase Auth as provisional OTP adapter subject to Philippine SMS provider test.
+Two React Native + Expo/TypeScript apps (passenger and driver), React/Vite admin,
+NestJS/Fastify API, PostgreSQL/PostGIS + Drizzle, Redis/BullMQ worker, Socket.IO,
+MapLibre plus separately approved routing. M2 uses TRISSEA phone OTP and sessions,
+mock SMS locally/CI, future gated PhilSMS transport, and self-hosted Keycloak admin
+OIDC/password/TOTP through Nest BFF. Supabase's historical proposal is superseded
+and rejected; see [ADR-011](docs/55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md).
 
 ## Included
 Existing v1.4 docs/design/AGENTS/Cursor/Copilot/Claude rules/OpenAPI/reference SQL retained, plus Tuguegarao domain documents, role policies, reference fare import, 2 original source images, 43-row CSV (42 named areas + 1 poblacion), a separate design-only MVP OpenAPI spec, security/UX/admin/QA requirements and update notes.
@@ -40,6 +45,10 @@ PostGIS and Redis; `pnpm.cmd db:up` applies the isolated M1 foundation migration
 Use `pnpm.cmd dev:api`, `dev:admin`, `dev:passenger` and `dev:driver` for the shells.
 Use `python scripts/validate_tuguegarao_fares.py` to verify CSV transcription
 **structure**, not official fare approval.
+
+M2.1 database tests use a separate ephemeral cluster and a randomly named disposable
+database. See [identity foundation setup/evidence](docs/57-M2-IDENTITY-FOUNDATION.md).
+`db:up` remains limited to M1 unless disposable identity mode is explicitly enabled.
 
 ## Release safety
 Screenshot figures alone do not establish a lawful origin→destination price or private vehicle hire tariff. **No production fare activation until signed applicable city/TODA source, road/MTOP service area approval, identity/privacy controls and physical device testing.** Old design docs should be read with the v1.5 status document, which supersedes conflicting launch-order recommendations.

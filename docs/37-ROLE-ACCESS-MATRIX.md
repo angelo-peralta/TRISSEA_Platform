@@ -21,6 +21,16 @@ One Tuguegarao `city_tenant`, TODAs in `toda_organizations`, cities separated fr
 No anonymous route or price editor. One person can hold multiple roles only if explicit conflict-of-interest rules permit; **fare maker/checker separation applies even across role combinations**. Permission families: `fare.draft`, `fare.approve`, `fare.activate`, `toda.members.manage`, `driver.verify`, `rides.assist`, `rides.read.masked`, `gps.read.live`, `privacy.dsr`, `incidents.escalate`, `config.manage`.
 
 ## Data security controls
+
+M2.0 reconciliation (owner directive, 2026-11-05): the twelve role identifiers
+above and eleven listed permissions are canonical. Privacy Officer / Auditor
+means the separate `PRIVACY_OFFICER` and `SECURITY_AUDITOR` roles. M2.1 seeds only
+catalogs/scope compatibility; role-permission edges and user assignments are not
+seeded. `SELF`, `CITY`, `TODA`, `PLATFORM` grant scope always binds an explicit city
+membership; PLATFORM never implies cross-city/PII access. Keycloak roles and
+caller scope flags create no TRISSEA permissions. M2.2 implements same-grant,
+ownership, duty and current-session checks. No operational permissions are enabled
+merely by catalog presence. Recovery/privileged delegation remain Gate D closed.
 - RLS as defense in depth where data is directly exposed; **all mobile clients access operational data only through secured NestJS APIs**, not public-table PostgreSQL credentials.
 - APIs enforce identity, resource ownership, tenant/TODA scope, duty context, verification status, scoped permission, record state and rate limits on every action.
 - Sensitive IDs and driver licenses in private encrypted object storage with short-lived signed URLs; audit each access. Sensitive document approval cannot be delegated to unauthenticated customer support.
