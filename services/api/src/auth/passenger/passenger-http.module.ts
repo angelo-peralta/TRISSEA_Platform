@@ -12,28 +12,28 @@ function anonymous(request:ApiRequest):void{if(request.headers.authorization||re
 class PassengerAuthController {
   constructor(private readonly runtime:PassengerRuntime){}
   @Public() @Post('phone/challenges') @HttpCode(202)
-  request(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){anonymous(request);return this.runtime.challenges.request(body,key,request.ip);}
+  request(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){anonymous(request);return this.runtime.forPurpose(objectInput(body,['phone','clientPurpose','clientProof','deviceId']).clientPurpose).challenges.request(body,key,request.ip);}
   @Public() @Post('phone/challenges/:challengeId/verify') @HttpCode(200)
-  verify(@Param('challengeId')id:string,@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){anonymous(request);return this.runtime.challenges.verify(id,body,key,request.ip);}
+  verify(@Param('challengeId')id:string,@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){anonymous(request);return this.runtime.forPurpose(objectInput(body,['phone','code','clientPurpose','clientProof','deviceId']).clientPurpose).challenges.verify(id,body,key,request.ip);}
   @Public() @Get('phone/challenges/:challengeId')
-  status(@Param('challengeId')id:string,@Headers('x-device-id')deviceId:unknown,@Headers('x-client-proof')proof:unknown,@Req()request:ApiRequest){anonymous(request);return this.runtime.challenges.status(id,deviceId,proof,request.ip);}
+  status(@Param('challengeId')id:string,@Headers('x-device-id')deviceId:unknown,@Headers('x-client-proof')proof:unknown,@Headers('x-client-purpose')purpose:unknown,@Req()request:ApiRequest){anonymous(request);return this.runtime.forPurpose(purpose??'PASSENGER').challenges.status(id,deviceId,proof,request.ip);}
   @Public() @Post('mobile/refresh') @HttpCode(200)
-  async refresh(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){anonymous(request);await this.runtime.otp.limitVerification(this.runtime.secrets.coordinate('ip',request.ip));return this.runtime.sessions.refresh(body,key);}
-  @Get('sessions') @ProtectedPolicy('ACCOUNT_READ_SELF','@self')
+  async refresh(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){anonymous(request);await this.runtime.otp.limitVerification(this.runtime.secrets.coordinate('ip',request.ip));return this.runtime.forPurpose(objectInput(body,['clientPurpose','clientProof','deviceId','refreshToken']).clientPurpose).sessions.refresh(body,key);}
+  @Get('sessions') @ProtectedPolicy('PASSENGER_READ_SELF','@self')
   sessions(@Req()request:ApiRequest){const ctx=authorizedRequestContext(request);return this.runtime.profiles.listSessions(ctx.tx,ctx.userId,ctx.sessionId);}
-  @Post('sessions/:sessionId/revoke') @HttpCode(204) @ProtectedPolicy('SESSION_REVOKE_SELF','sessionId')
+  @Post('sessions/:sessionId/revoke') @HttpCode(204) @ProtectedPolicy('PASSENGER_REVOKE_SELF','sessionId')
   async revoke(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){objectInput(body??{},[]);const ctx=authorizedRequestContext(request);await this.runtime.profiles.revoke(ctx.tx,ctx.userId,ctx.sessionId,ctx.resource.id,key);}
-  @Post('logout') @HttpCode(204) @ProtectedPolicy('SESSION_REVOKE_SELF','@self')
+  @Post('logout') @HttpCode(204) @ProtectedPolicy('PASSENGER_REVOKE_SELF','@self')
   async logout(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){objectInput(body??{},[]);const ctx=authorizedRequestContext(request);await this.runtime.profiles.revoke(ctx.tx,ctx.userId,ctx.sessionId,ctx.sessionId,key);}
 }
 @Controller('me')
 class PassengerMeController {
   constructor(private readonly runtime:PassengerRuntime){}
-  @Get() @ProtectedPolicy('ACCOUNT_READ_SELF','@self')
+  @Get() @ProtectedPolicy('PASSENGER_READ_SELF','@self')
   read(@Req()request:ApiRequest){const ctx=authorizedRequestContext(request);return this.runtime.profiles.me(ctx.tx,ctx.userId,ctx.sessionId);}
-  @Patch() @ProtectedPolicy('ACCOUNT_UPDATE_SELF','@self')
+  @Patch() @ProtectedPolicy('PASSENGER_UPDATE_SELF','@self')
   update(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){const ctx=authorizedRequestContext(request);return this.runtime.profiles.update(ctx.tx,ctx.userId,ctx.sessionId,body,key);}
-  @Post('consents') @HttpCode(200) @ProtectedPolicy('CONSENT_RECORD_SELF','@self')
+  @Post('consents') @HttpCode(200) @ProtectedPolicy('PASSENGER_CONSENT_SELF','@self')
   consent(@Body()body:unknown,@Headers('idempotency-key')key:unknown,@Req()request:ApiRequest){const ctx=authorizedRequestContext(request);return this.runtime.profiles.consent(ctx.tx,ctx.userId,ctx.sessionId,body,key);}
 }
 @Catch()

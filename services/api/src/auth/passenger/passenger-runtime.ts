@@ -11,30 +11,41 @@ import { MockSmsGateway,type SmsGateway } from './sms-gateway';
 import { PassengerSessions } from './passenger-sessions';
 import { PhoneChallenges } from './phone-challenges';
 import { PassengerProfiles } from './passenger-profiles';
+import { DriverAccounts } from '../driver/driver-accounts';
+import { PhoneAuthError,type MobilePurpose } from './primitives';
 
 export class PassengerProofVerifier extends SessionProofVerifier {
-  constructor(readonly tokens:PassengerTokens){super();}
+  constructor(readonly tokens:PassengerTokens,readonly driverTokens?:PassengerTokens){super();}
   async verify(credentials:RequestCredentials){
     if(credentials.cookie)return null;
     const match=/^Bearer ([^\s]+)$/i.exec(credentials.authorization??'');
-    return match?.[1]?this.tokens.verify(match[1]):null;
+    if(!match?.[1])return null;
+    return await this.tokens.verify(match[1])??await this.driverTokens?.verify(match[1])??null;
   }
 }
 class PassengerIdentity extends IdentityProvider {
   constructor(readonly runtime:PassengerRuntime){super();}
   async verifyAccessToken(token:string){
-    const proof=await this.runtime.tokens.verify(token);
-    return proof&&await this.runtime.sessions.isCurrent(proof)?{subject:proof.userId,mfa:false,grants:[]}:null;
+    const proof=await this.runtime.proofVerifier.verify({authorization:`Bearer ${token}`});
+    return proof&&await this.runtime.forPurpose(proof.purpose).sessions.isCurrent(proof)?{subject:proof.userId,mfa:false,grants:[]}:null;
   }
 }
 export class PassengerRuntime implements OnModuleInit,OnModuleDestroy {
   readonly database:PassengerDatabase;readonly sessions:PassengerSessions;readonly challenges:PhoneChallenges;readonly profiles:PassengerProfiles;
   readonly proofVerifier:PassengerProofVerifier;readonly identity:IdentityProvider;
+  readonly driver: {sessions:PassengerSessions;challenges:PhoneChallenges;accounts:DriverAccounts}|undefined;
   private janitor:ReturnType<typeof setInterval>|undefined;
-  constructor(readonly connection:postgres.Sql,readonly settings:PassengerSettings,readonly secrets:PassengerSecrets,readonly otp:RedisOtpStore,readonly sms:SmsGateway,readonly tokens:PassengerTokens){
+  constructor(readonly connection:postgres.Sql,readonly settings:PassengerSettings,readonly secrets:PassengerSecrets,readonly otp:RedisOtpStore,readonly sms:SmsGateway,readonly tokens:PassengerTokens,driverTokens?:PassengerTokens){
+    if(tokens.purpose!=='PASSENGER'||(driverTokens&&driverTokens.purpose!=='DRIVER'))throw new Error('Invalid mobile token purpose');
     this.database=new PassengerDatabase(connection);this.sessions=new PassengerSessions(this.database,secrets,settings,tokens);
     this.challenges=new PhoneChallenges(this.database,secrets,settings,otp,sms,this.sessions);this.profiles=new PassengerProfiles(secrets,settings);
-    this.proofVerifier=new PassengerProofVerifier(tokens);this.identity=new PassengerIdentity(this);
+    if(driverTokens){const sessions=new PassengerSessions(this.database,secrets,settings,driverTokens);this.driver={sessions,challenges:new PhoneChallenges(this.database,secrets,settings,otp,sms,sessions,'DRIVER'),accounts:new DriverAccounts(secrets,settings,this.profiles)};}
+    this.proofVerifier=new PassengerProofVerifier(tokens,driverTokens);this.identity=new PassengerIdentity(this);
+  }
+  forPurpose(value:unknown):{purpose:MobilePurpose;sessions:PassengerSessions;challenges:PhoneChallenges}{
+    if(value==='PASSENGER')return {purpose:'PASSENGER',sessions:this.sessions,challenges:this.challenges};
+    if(value==='DRIVER'&&this.driver)return {purpose:'DRIVER',sessions:this.driver.sessions,challenges:this.driver.challenges};
+    throw new PhoneAuthError('INVALID_REQUEST');
   }
   onModuleInit(){this.janitor=setInterval(()=>{void this.sessions.purgeExpiredResults().catch(()=>{});},10_000);this.janitor.unref();}
   async onModuleDestroy(){if(this.janitor)clearInterval(this.janitor);await this.otp.close();await this.connection.end({timeout:5});}
@@ -56,12 +67,18 @@ export class PassengerRuntime implements OnModuleInit,OnModuleDestroy {
       const readKey=(name:string)=>{const value=k[name];if(typeof value!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(value))throw new Error();return Buffer.from(value,'base64url');};
       const secrets=new PassengerSecrets(k.keyId,readKey('encryptionKey'),readKey('lookupKey'),readKey('otpKey'),readKey('coordinationKey'),readKey('refreshKey'));
       const tokens=await PassengerTokens.create(issuer.href,env.PASSENGER_JWT_AUDIENCE??'trissea-passenger-local',k.keyId,k.jwtPrivateKey,k.jwtPublicKey,settings.policy.mobileJwtSeconds);
+      let driverTokens:PassengerTokens|undefined;
+      if(env.M2_DRIVER_AUTH_ENABLED==='true'){
+        if(!env.DRIVER_JWT_AUDIENCE||env.DRIVER_JWT_AUDIENCE===(env.PASSENGER_JWT_AUDIENCE??'trissea-passenger-local'))throw new Error();
+        driverTokens=await PassengerTokens.create(issuer.href,env.DRIVER_JWT_AUDIENCE,k.keyId,k.jwtPrivateKey,k.jwtPublicKey,settings.policy.mobileJwtSeconds,'DRIVER');
+      }
       connection=postgres(databaseUrl.href,{max:5,connect_timeout:5,onnotice:()=>{},connection:{timezone:'UTC'}});
       const db=new PassengerDatabase(connection);
       await db.transaction(async tx=>{const [row]=await tx.execute((await import('drizzle-orm')).sql`SELECT value FROM public.m2_disposable_manifest WHERE key='identity-test'`);
-        if(row?.value!==databaseUrl.pathname.slice(1))throw new Error();});
+        if(row?.value!==databaseUrl.pathname.slice(1))throw new Error();
+        if(driverTokens){const [driverSchema]=await tx.execute((await import('drizzle-orm')).sql`SELECT to_regclass('identity.driver_profiles') AS present`);if(!driverSchema?.present)throw new Error();}});
       otp=new RedisOtpStore(redisUrl.href,env.M2_PASSENGER_REDIS_NAMESPACE??'m2-passenger-local');await otp.connect();
-      runtime=new PassengerRuntime(connection,settings,secrets,otp,new MockSmsGateway(env.NODE_ENV??''),tokens);return runtime;
+      runtime=new PassengerRuntime(connection,settings,secrets,otp,new MockSmsGateway(env.NODE_ENV??''),tokens,driverTokens);return runtime;
     }catch{
       await otp?.close();await connection?.end({timeout:5});throw new Error('Passenger authentication startup configuration is invalid');
     }

@@ -1,0 +1,27 @@
+{
+  "database": "trissea_m2_test_f408873a49fe",
+  "executedAt": "2026-11-06T00:52:09.036Z",
+  "syntheticOnly": true,
+  "checks": [
+    "Applied 0005_driver_identity",
+    "Rolled back 0005_driver_identity",
+    "Applied 0005_driver_identity",
+    "0005 fresh/no-op/transaction failure/down/reapply preserves M1-M2.3 ledger, prior synthetic user and unrelated table; no intake or driver seeds",
+    "Drizzle/PostgreSQL consistency: 7 tables, columns/defaults/nullability and all declared constraints/indexes",
+    "Real AppModule + global authentication/policy guards, non-owner auth/resolver login and isolated Redis PONG",
+    "Driver mock OTP succeeds; required driver consent gates intake; profile stays PENDING; shifts/GPS/dispatch denied server-side; logout revokes",
+    "One verified user; no cross-purpose OTP redemption, consent inheritance, token validation, refresh, profile access, session listing or revocation; driver logout leaves passenger session valid",
+    "Concurrent passenger/driver first verification uses independent active-proof keys but one global identity; shared destination cooldown cannot be bypassed by purpose",
+    "Owner-only synthetic scope configuration; pending organizations omitted; caller cannot combine a TODA with another city",
+    "Concurrent/idempotent requests produce one pending affiliation and relationship; changed payload, foreign driver/city/TODA and self-approval fields denied; no city membership or staff grant created",
+    "Real column grants deny approval/config/assertion writes; composite FKs and immutable/versioned bindings enforced; purpose+owner RLS and pool cleanup passed",
+    "Owner-provisioned synthetic facts produce identityEligible=true in real API; current suspension/expiry/revocation/stale versions/membership removal deny immediately; even positive fixtures cannot create shifts, GPS or dispatch",
+    "Measured PostgreSQL lock wait: concurrent downgrade waits for authoritative eligibility read; subsequent API evaluation denies",
+    "Driver five-attempt lockout, one concurrent redemption/session, bound refresh race and stale reuse revocation; global restriction invalidates remaining passenger session",
+    "Generated driver transport exercises all 15 typed operations, automatic DRIVER status header, runtime response validation, synthetic intake and empty 204",
+    "Closed Redis and PostgreSQL transports fail closed without mock SMS or token issuance",
+    "Rolled back 0005_driver_identity",
+    "Applied 0005_driver_identity",
+    "Disposable populated 0005 down/reapply preserves all earlier auth users/sessions/audit/refresh, M1-M2.3 ledger and unrelated data"
+  ]
+}

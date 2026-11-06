@@ -1,0 +1,121 @@
+TAP version 13
+# Applied 0005_driver_identity
+# Rolled back 0005_driver_identity
+# Applied 0005_driver_identity
+# 0005 fresh/no-op/transaction failure/down/reapply preserves M1-M2.3 ledger, prior synthetic user and unrelated table; no intake or driver seeds
+# Subtest: M2.4 migrations preserve prior ledger, synthetic user and unrelated data on failure/down/reapply
+ok 1 - M2.4 migrations preserve prior ledger, synthetic user and unrelated data on failure/down/reapply
+  ---
+  duration_ms: 3084.0319
+  type: 'test'
+  ...
+# Drizzle/PostgreSQL consistency: 7 tables, columns/defaults/nullability and all declared constraints/indexes
+# Subtest: all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL
+ok 2 - all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL
+  ---
+  duration_ms: 277.3298
+  type: 'test'
+  ...
+# Real AppModule + global authentication/policy guards, non-owner auth/resolver login and isolated Redis PONG
+# Subtest: real root Nest app accepts purpose-bound driver and passenger proofs using a non-owner database login
+ok 3 - real root Nest app accepts purpose-bound driver and passenger proofs using a non-owner database login
+  ---
+  duration_ms: 1082.7868
+  type: 'test'
+  ...
+# Driver mock OTP succeeds; required driver consent gates intake; profile stays PENDING; shifts/GPS/dispatch denied server-side; logout revokes
+# Subtest: new driver authenticates, accepts separate consent and remains pending/offline with no personal documents
+ok 4 - new driver authenticates, accepts separate consent and remains pending/offline with no personal documents
+  ---
+  duration_ms: 1524.0479
+  type: 'test'
+  ...
+# One verified user; no cross-purpose OTP redemption, consent inheritance, token validation, refresh, profile access, session listing or revocation; driver logout leaves passenger session valid
+# Subtest: verified global phone identity has separate personas, consent, OTP proof, token audiences and sessions
+ok 5 - verified global phone identity has separate personas, consent, OTP proof, token audiences and sessions
+  ---
+  duration_ms: 2157.2818
+  type: 'test'
+  ...
+# Concurrent passenger/driver first verification uses independent active-proof keys but one global identity; shared destination cooldown cannot be bypassed by purpose
+# Subtest: concurrent first passenger and driver verification converges without invalidating either purpose proof
+ok 6 - concurrent first passenger and driver verification converges without invalidating either purpose proof
+  ---
+  duration_ms: 394.2513
+  type: 'test'
+  ...
+# Owner-only synthetic scope configuration; pending organizations omitted; caller cannot combine a TODA with another city
+# Subtest: only explicitly configured current city/TODA scopes and synthetic vehicles are offered
+ok 7 - only explicitly configured current city/TODA scopes and synthetic vehicles are offered
+  ---
+  duration_ms: 812.4611
+  type: 'test'
+  ...
+# Concurrent/idempotent requests produce one pending affiliation and relationship; changed payload, foreign driver/city/TODA and self-approval fields denied; no city membership or staff grant created
+# Subtest: pending affiliation/vehicle requests are durable, idempotent, concurrent and resource scoped
+ok 8 - pending affiliation/vehicle requests are durable, idempotent, concurrent and resource scoped
+  ---
+  duration_ms: 2025.9163
+  type: 'test'
+  ...
+# Real column grants deny approval/config/assertion writes; composite FKs and immutable/versioned bindings enforced; purpose+owner RLS and pool cleanup passed
+# Subtest: database constraints and least-privilege RLS prevent self approval and cross-scope writes
+ok 9 - database constraints and least-privilege RLS prevent self approval and cross-scope writes
+  ---
+  duration_ms: 91.2149
+  type: 'test'
+  ...
+# Owner-provisioned synthetic facts produce identityEligible=true in real API; current suspension/expiry/revocation/stale versions/membership removal deny immediately; even positive fixtures cannot create shifts, GPS or dispatch
+# Subtest: real database synthetic eligibility has positive and stale/expired/suspended/revoked negative cases; operations always denied
+ok 10 - real database synthetic eligibility has positive and stale/expired/suspended/revoked negative cases; operations always denied
+  ---
+  duration_ms: 3190.6074
+  type: 'test'
+  ...
+# Measured PostgreSQL lock wait: concurrent downgrade waits for authoritative eligibility read; subsequent API evaluation denies
+# Subtest: eligibility read locks serialize a concurrent verification downgrade
+ok 11 - eligibility read locks serialize a concurrent verification downgrade
+  ---
+  duration_ms: 409.3158
+  type: 'test'
+  ...
+# Driver five-attempt lockout, one concurrent redemption/session, bound refresh race and stale reuse revocation; global restriction invalidates remaining passenger session
+# Subtest: driver OTP lockout/concurrent verification and bound rotating refresh remain fail-closed
+ok 12 - driver OTP lockout/concurrent verification and bound rotating refresh remain fail-closed
+  ---
+  duration_ms: 1024.2389
+  type: 'test'
+  ...
+# Generated driver transport exercises all 15 typed operations, automatic DRIVER status header, runtime response validation, synthetic intake and empty 204
+# Subtest: all fifteen generated driver client contracts operate against actual API
+ok 13 - all fifteen generated driver client contracts operate against actual API
+  ---
+  duration_ms: 2244.3667
+  type: 'test'
+  ...
+# Closed Redis and PostgreSQL transports fail closed without mock SMS or token issuance
+# Subtest: Redis and PostgreSQL transport loss cannot issue driver credentials or send SMS
+ok 14 - Redis and PostgreSQL transport loss cannot issue driver credentials or send SMS
+  ---
+  duration_ms: 21.2528
+  type: 'test'
+  ...
+# Rolled back 0005_driver_identity
+# Applied 0005_driver_identity
+# Disposable populated 0005 down/reapply preserves all earlier auth users/sessions/audit/refresh, M1-M2.3 ledger and unrelated data
+# Subtest: populated driver rollback/reapply preserves prior auth records, audit, ledger and unrelated sentinel
+ok 15 - populated driver rollback/reapply preserves prior auth records, audit, ledger and unrelated sentinel
+  ---
+  duration_ms: 144.3377
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25375.4666
+$ pnpm --filter @trissea/api exec tsc && tsc -p packages/contracts/tsconfig.test.json && node --env-file-if-exists=.env.m2-test --test scripts/test-driver-auth.mjs

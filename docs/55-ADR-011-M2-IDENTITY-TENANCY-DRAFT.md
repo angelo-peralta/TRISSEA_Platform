@@ -2,8 +2,8 @@
 
 Date: 2026-11-05. Status: **ACCEPTED ARCHITECTURE / LOCAL DEVELOPMENT ONLY**.
 Approval: explicit platform-owner M2 implementation directive in this session.
-M2.0/M2.1 were authorized, followed by owner approval for M2.2 and M2.3;
-review stop before M2.4. Historical DRAFT filename is
+M2.0/M2.1 were authorized, followed by owner approval for M2.2, M2.3 and M2.4;
+review stop before M2.5. Historical DRAFT filename is
 retained for links. Production/legal/privacy gates are not approved.
 Owners requested: platform owner, security owner, privacy owner and authorized
 city/TODA verification-policy owners. Related unresolved decisions: D11, D13,
@@ -100,3 +100,9 @@ application keys, authoritative PostgreSQL revocation and bounded original-reque
 refresh retries. [Doc 59](59-M2-PASSENGER-AUTHENTICATION.md) records exact interfaces,
 migration 0004 and actual acceptance. This local selection does not approve
 production key custody/rotation, security values, phone recycling or recovery.
+
+M2.4 shares the OTP/session implementation while separating app purpose,
+audience, consent and own-resource routes. Seven synthetic-only tables form the
+pending driver intake and constrained eligibility handoff; they do not implement
+M2.6 legal/document review. Dedicated non-owner locking and owner/purpose RLS
+preserve current DB authority without runtime approval privileges. See doc 60.

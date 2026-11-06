@@ -1,6 +1,6 @@
 # M2 technical implementation plan
 
-Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.3 local backend acceptance recorded; review stop before M2.4. Native integration and production gates remain pending.**
+Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.4 local backend acceptance recorded; review stop before M2.5. Native integration and production gates remain pending.**
 
 ## Prerequisite and scope
 
@@ -290,3 +290,11 @@ See [M2.3 implementation/evidence](59-M2-PASSENGER-AUTHENTICATION.md). Native se
 storage and Android login integration remain M2.7 acceptance work; no mobile
 authentication pass is claimed. Stop for review before M2.4; the remaining slices
 and all external gates stay closed.
+
+M2.4 update: owner approved continuing after M2.3. Shared purpose-bound OTP and
+sessions now support DRIVER with a separate audience, consent and route policy.
+Pending driver/TODA/vehicle intake, explicit operational denials and a constrained
+synthetic eligibility handoff are implemented. See
+[M2.4 implementation/evidence](60-M2-DRIVER-AUTHENTICATION.md). This does not approve
+real verification rules or implement the M2.6 reviewer/document workflows.
+Native login/storage testing remains M2.7. Stop before Keycloak M2.5 for review.

@@ -105,3 +105,22 @@ Gates A–E and M2-P02 recovery/delegation remain unresolved. Backend local test
 not approve live SMS, phone recycling ownership, legal notices, real documents,
 driver operation, privileged provisioning or public deployment. Stop for review
 before M2.4. No business requirement or legal/city/TODA decision was changed.
+
+## M2.4 driver backend review scope — 2026-11-06
+
+Owner approved continuation after M2.3. Driver login reuses the reviewed OTP and
+rotating-session implementation with separate immutable purpose/audience and
+consent. Pending intake requires an explicitly opened synthetic city/TODA scope;
+it grants no membership, staff role or operating authority. The role vocabulary
+and legal/verification requirements remain unchanged.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P07 | Synthetic pending driver/profile/vehicle records and version-bound eligibility assertions | LOCAL ENGINEERING ONLY | Only isolated owner fixtures may configure/approve assertions; M2.6 must implement reviewed case/evidence/decision workflows before real processing |
+
+The positive synthetic eligibility test never approves a real driver: all results
+keep `canGoOnline`, `operationalServicesEnabled` and `realDriverApproved` false.
+Shift/location/offer endpoints deny server-side. Gates A–E remain closed;
+production security values, key handling, retention and native secure storage
+acceptance remain unresolved. See [doc 60](60-M2-DRIVER-AUTHENTICATION.md).
+Stop before M2.5; no publication, deployment, recovery or privileged delegation.

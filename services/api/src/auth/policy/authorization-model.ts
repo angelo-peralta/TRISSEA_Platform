@@ -36,6 +36,7 @@ export interface ActionPolicy {
   readonly self: boolean; readonly assigned: boolean; readonly noSelfApproval: boolean;
   readonly fresh: boolean; readonly requiredMaker: boolean;
   readonly selfMutation?: boolean;readonly terminalSession?: boolean;
+  readonly clientPurpose?: ClientPurpose; readonly activeSelf?: boolean;
 }
 const self = (resource: ResourceKind,selfMutation=false,terminalSession=false): ActionPolicy => ({ resource, permission: null, roles: [], scopes: [], self: true, assigned: false, noSelfApproval: false, fresh: false, requiredMaker: false,selfMutation,terminalSession });
 const scoped = (resource: ResourceKind, permission: Permission, roles: readonly string[], scopes: readonly string[], extra: Partial<ActionPolicy> = {}): ActionPolicy =>
@@ -45,6 +46,15 @@ const scoped = (resource: ResourceKind, permission: Permission, roles: readonly 
 export const actionPolicies = Object.freeze({
   ACCOUNT_READ_SELF: self('ACCOUNT'), SESSION_READ_SELF: self('SESSION'),
   ACCOUNT_UPDATE_SELF:self('ACCOUNT',true),CONSENT_RECORD_SELF:self('ACCOUNT',true),SESSION_REVOKE_SELF:self('SESSION',true,true),
+  PASSENGER_READ_SELF:{...self('ACCOUNT'),clientPurpose:'PASSENGER' as const},
+  PASSENGER_UPDATE_SELF:{...self('ACCOUNT',true),clientPurpose:'PASSENGER' as const},
+  PASSENGER_CONSENT_SELF:{...self('ACCOUNT',true),clientPurpose:'PASSENGER' as const},
+  PASSENGER_REVOKE_SELF:{...self('SESSION',true,true),clientPurpose:'PASSENGER' as const},
+  DRIVER_READ_SELF:{...self('ACCOUNT'),clientPurpose:'DRIVER' as const},
+  DRIVER_CONSENT_SELF:{...self('ACCOUNT',true),clientPurpose:'DRIVER' as const},
+  DRIVER_INTAKE_SELF:{...self('ACCOUNT',true),clientPurpose:'DRIVER' as const,activeSelf:true},
+  DRIVER_INTAKE_READ_SELF:{...self('ACCOUNT'),clientPurpose:'DRIVER' as const,activeSelf:true},
+  DRIVER_REVOKE_SELF:{...self('SESSION',true,true),clientPurpose:'DRIVER' as const},
   TODA_MEMBERS_MANAGE: scoped('TODA', 'toda.members.manage', ['TODA_MANAGER'], ['TODA'], { fresh: true }),
   DRIVER_VERIFY: scoped('VERIFICATION_CASE', 'driver.verify', ['VERIFICATION_OFFICER'], ['CITY', 'TODA'], { fresh: true, assigned: true, noSelfApproval: true }),
   FARE_DRAFT: scoped('FARE_POLICY', 'fare.draft', ['CITY_FARE_EDITOR'], ['CITY']),
@@ -83,6 +93,8 @@ export function decideAuthorization(proof: SessionProof, s: SubjectRecord | null
     || !['PENDING','ACTIVE'].includes(s.personaState ?? '')) return deny('INVALID_SESSION');
   if (!resource || resource.kind !== action.resource || !Number.isSafeInteger(resource.version) || resource.version < 1
     || (resource.todaId !== null && resource.cityTenantId === null)) return deny('INVALID_RESOURCE');
+  if(action.clientPurpose&&s.purpose!==action.clientPurpose)return deny('NO_PERMISSION');
+  if(action.activeSelf&&(s.userState!=='ACTIVE'||s.sessionState!=='ACTIVE'))return deny('CONSENT_REQUIRED');
   if (action.self) return resource.ownerUserId === s.userId ? { allowed: true, grantId: null } : deny('OWNERSHIP_REQUIRED');
   if (resource.cityState !== 'ACTIVE' || (resource.todaId !== null && resource.todaState !== 'VERIFIED')) return deny('INVALID_RESOURCE');
   if (s.userState !== 'ACTIVE' || s.sessionState !== 'ACTIVE') return deny('CONSENT_REQUIRED');

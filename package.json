@@ -32,8 +32,11 @@
     "test:identity:db": "pnpm --filter @trissea/api exec tsc && node --env-file-if-exists=.env.m2-test --test scripts/test-identity-database.mjs",
     "test:authorization:db": "pnpm --filter @trissea/api exec tsc && node --env-file-if-exists=.env.m2-test --test scripts/test-authorization-database.mjs",
     "test:passenger:auth": "pnpm --filter @trissea/api exec tsc && tsc -p packages/contracts/tsconfig.test.json && node --env-file-if-exists=.env.m2-test --test scripts/test-passenger-auth.mjs",
+    "test:driver:auth": "pnpm --filter @trissea/api exec tsc && tsc -p packages/contracts/tsconfig.test.json && node --env-file-if-exists=.env.m2-test --test scripts/test-driver-auth.mjs",
     "passenger:prepare": "pnpm --filter @trissea/api build && node --env-file=.env.m2-test scripts/prepare-passenger-local.mjs",
-    "dev:passenger:api": "node --env-file=.env.m2-passenger services/api/dist/main.js"
+    "dev:passenger:api": "node --env-file=.env.m2-passenger services/api/dist/main.js",
+    "driver:prepare": "pnpm --filter @trissea/api build && node --env-file=.env.m2-test scripts/prepare-passenger-local.mjs --driver",
+    "dev:driver:api": "node --env-file=.env.m2-driver services/api/dist/main.js"
   },
   "devDependencies": {
     "@expo/config-plugins": "57.0.11",

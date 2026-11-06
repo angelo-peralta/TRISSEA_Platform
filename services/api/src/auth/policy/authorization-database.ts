@@ -22,10 +22,11 @@ export class PostgresAuthorizationDatabase extends AuthorizationDatabase {
       const [role] = await tx.execute(sql`SELECT rolsuper,rolbypassrls,
         pg_has_role(current_user,'trissea_m2_authorization','member') AS resolver,
         pg_has_role(current_user,'trissea_m2_policy_lock','member') AS locker,
+        EXISTS(SELECT FROM pg_roles WHERE rolname='trissea_m2_driver_lock' AND pg_has_role(current_user,oid,'member')) AS driver_locker,
         EXISTS(SELECT FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
           WHERE n.nspname='identity' AND c.relkind='r' AND pg_has_role(current_user,c.relowner,'member')) AS owns_tables
         FROM pg_roles WHERE rolname=current_user`);
-      if (!role?.resolver || role.rolsuper || role.rolbypassrls || role.locker || role.owns_tables) throw new Error('Invalid authorization database role');
+      if (!role?.resolver || role.rolsuper || role.rolbypassrls || role.locker || role.driver_locker || role.owns_tables) throw new Error('Invalid authorization database role');
       await tx.execute(sql`SELECT set_config('statement_timeout','5000',true),set_config('lock_timeout','2000',true)`);
       return work(tx);
     }, { isolationLevel: 'read committed' });
@@ -34,7 +35,7 @@ export class PostgresAuthorizationDatabase extends AuthorizationDatabase {
 
 export async function setPolicyContext(tx: PolicyTransaction, proof: SessionProof, cityTenantId: string | null, todaId: string | null): Promise<void> {
   await tx.execute(sql`SELECT set_config('trissea.user_id',${proof.userId},true),set_config('trissea.session_id',${proof.sessionId},true),
-    set_config('trissea.city_tenant_id',${cityTenantId ?? ''},true),set_config('trissea.toda_id',${todaId ?? ''},true)`);
+    set_config('trissea.city_tenant_id',${cityTenantId ?? ''},true),set_config('trissea.toda_id',${todaId ?? ''},true),set_config('trissea.client_purpose',${proof.purpose},true)`);
 }
 export async function databaseTime(tx: PolicyTransaction): Promise<number> {
   const [row] = await tx.execute(sql`SELECT extract(epoch from clock_timestamp())*1000 AS milliseconds`);

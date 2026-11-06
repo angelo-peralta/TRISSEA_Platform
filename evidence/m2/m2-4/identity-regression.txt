@@ -1,0 +1,91 @@
+TAP version 13
+# Subtest: migration gates reject non-disposable, remote, production and ambiguous targets
+ok 1 - migration gates reject non-disposable, remote, production and ambiguous targets
+  ---
+  duration_ms: 471.3774
+  type: 'test'
+  ...
+# Applied 0001_foundation
+# Applied 0002_identity_foundation
+# Fresh + no-op migration; M1 ledger retained; zero seeded accounts/grants/permission edges
+# Subtest: fresh, repeat and failed migrations preserve M1 ledger and unrelated data
+ok 2 - fresh, repeat and failed migrations preserve M1 ledger and unrelated data
+  ---
+  duration_ms: 1980.2714
+  type: 'test'
+  ...
+# Drizzle/PostgreSQL consistency: 19 tables, columns/defaults/nullability and all declared constraints/indexes
+# Subtest: all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL
+ok 3 - all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL
+  ---
+  duration_ms: 641.301
+  type: 'test'
+  ...
+# Composite city/TODA and identity/session integrity, lifecycle and self-assignment denials passed
+# Subtest: constraints reject wrong city/TODA, wrong identity/session, invalid lifecycles, self grants and plaintext digests
+ok 4 - constraints reject wrong city/TODA, wrong identity/session, invalid lifecycles, self grants and plaintext digests
+  ---
+  duration_ms: 90.1528
+  type: 'test'
+  ...
+# Non-owner LOGIN role RLS; positive own scope, cross-city denial, 12 pooled alternating contexts and least-privilege denials
+# Subtest: real least-privilege LOGIN connections, RLS positive/negative scopes and pooled context isolation
+ok 5 - real least-privilege LOGIN connections, RLS positive/negative scopes and pooled context isolation
+  ---
+  duration_ms: 386.4231
+  type: 'test'
+  ...
+# Concurrent restriction CAS: one winner; session/refresh revoked; audit/outbox atomic; immutable history
+# Subtest: account restriction atomically revokes sessions/refresh and audits once; stale updates fail
+ok 6 - account restriction atomically revokes sessions/refresh and audits once; stale updates fail
+  ---
+  duration_ms: 123.2418
+  type: 'test'
+  ...
+# Owned session revocation audited atomically; wrong owner/stale version/reactivation/refresh reset/recovery shortcuts denied
+# Subtest: own-session revocation rejects cross-account writes and cannot reactivate consumed credentials
+ok 7 - own-session revocation rejects cross-account writes and cannot reactivate consumed credentials
+  ---
+  duration_ms: 63.4928
+  type: 'test'
+  ...
+# Two independent DB connections: one identity/user and one accepted redemption; losing transactions fully rolled back
+# Subtest: duplicate identity and OTP redemption races converge; failed transactions leave no partial user
+ok 8 - duplicate identity and OTP redemption races converge; failed transactions leave no partial user
+  ---
+  duration_ms: 116.054
+  type: 'test'
+  ...
+# Parent row lock serializes in-flight session creation with account restriction
+# Subtest: restriction racing an in-flight session insert leaves no usable new session
+ok 9 - restriction racing an in-flight session insert leaves no usable new session
+  ---
+  duration_ms: 108.3478
+  type: 'test'
+  ...
+# Consent append-only; password-only/unmapped admin and self-approval denied (no OIDC flow claimed)
+# Subtest: versioned consent is append-only and admin MFA/mapping fail closed
+ok 10 - versioned consent is append-only and admin MFA/mapping fail closed
+  ---
+  duration_ms: 57.2971
+  type: 'test'
+  ...
+# Rolled back 0002_identity_foundation
+# Applied 0002_identity_foundation
+# Rollback/reapply + failed rollback atomicity; M1 ledger/metadata and unrelated sentinel preserved; UTC/PostGIS passed
+# Subtest: rollback/reapply preserves sentinel, M1 table/checksum, UTC and PostGIS; unknown dependencies abort safely
+ok 11 - rollback/reapply preserves sentinel, M1 table/checksum, UTC and PostGIS; unknown dependencies abort safely
+  ---
+  duration_ms: 419.3125
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5844.8969
+$ pnpm --filter @trissea/api exec tsc && node --env-file-if-exists=.env.m2-test --test scripts/test-identity-database.mjs

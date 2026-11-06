@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: TRISSEA Tuguegarao MVP API
-  version: 0.6.0
-  description: M1 health and explicitly enabled M2.3 local-synthetic passenger identity are implemented. Other operations remain future design. Legal, privacy and public-operation approval gates remain closed.
+  version: 0.7.0
+  description: M1 health and explicitly enabled M2.3/M2.4 local-synthetic passenger/driver identity are implemented. Other operations remain future design. Legal, privacy and public-operation approval gates remain closed.
 servers:
 - url: https://api.example.invalid/v1
   description: placeholder
@@ -72,7 +72,9 @@ components:
             this local slice.
         clientPurpose:
           type: string
-          const: PASSENGER
+          enum:
+            - PASSENGER
+            - DRIVER
         deviceId:
           type: string
           format: uuid
@@ -102,7 +104,9 @@ components:
           format: date-time
         clientPurpose:
           type: string
-          const: PASSENGER
+          enum:
+            - PASSENGER
+            - DRIVER
         deliveryMode:
           type: string
           const: MOCK
@@ -128,7 +132,9 @@ components:
           format: date-time
         clientPurpose:
           type: string
-          const: PASSENGER
+          enum:
+            - PASSENGER
+            - DRIVER
         deliveryMode:
           type: string
           const: MOCK
@@ -153,7 +159,9 @@ components:
           maxLength: 32
         clientPurpose:
           type: string
-          const: PASSENGER
+          enum:
+            - PASSENGER
+            - DRIVER
         deviceId:
           type: string
           format: uuid
@@ -176,7 +184,9 @@ components:
       properties:
         clientPurpose:
           type: string
-          const: PASSENGER
+          enum:
+            - PASSENGER
+            - DRIVER
         deviceId:
           type: string
           format: uuid
@@ -218,7 +228,9 @@ components:
           format: uuid
         clientPurpose:
           type: string
-          const: PASSENGER
+          enum:
+            - PASSENGER
+            - DRIVER
     PassengerProfile:
       type: object
       additionalProperties: false
@@ -361,6 +373,293 @@ components:
             - UNAVAILABLE
         message:
           type: string
+    DriverProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - sessionId
+        - clientPurpose
+        - state
+        - driverStatus
+        - profileVersion
+        - requiredNoticeVersion
+        - requiredTermsVersion
+        - canGoOnline
+        - operationalServicesEnabled
+        - realDocumentsEnabled
+        - environment
+      properties:
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        clientPurpose:
+          type: string
+          const: DRIVER
+        state:
+          type: string
+          enum:
+            - CONSENT_REQUIRED
+            - ACTIVE
+        driverStatus:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - SUSPENDED
+            - REVOKED
+            - EXPIRED
+        profileVersion:
+          type: integer
+          minimum: 1
+        requiredNoticeVersion:
+          type: string
+        requiredTermsVersion:
+          type: string
+        canGoOnline:
+          type: boolean
+          const: false
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+        realDocumentsEnabled:
+          type: boolean
+          const: false
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverScopeOptions:
+      type: object
+      additionalProperties: false
+      required:
+        - scopes
+        - environment
+      properties:
+        scopes:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - cityTenantId
+              - todaId
+              - cityName
+              - todaName
+            properties:
+              cityTenantId:
+                type: string
+                format: uuid
+              todaId:
+                type: string
+                format: uuid
+              cityName:
+                type: string
+              todaName:
+                type: string
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverSyntheticVehicles:
+      type: object
+      additionalProperties: false
+      required:
+        - vehicles
+        - environment
+      properties:
+        vehicles:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - referenceCode
+            properties:
+              id:
+                type: string
+                format: uuid
+              referenceCode:
+                type: string
+                pattern: ^SYNTHETIC_[A-Z0-9_]{1,32}$
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverAffiliationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - todaId
+      properties:
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+    DriverAffiliation:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - todaId
+        - state
+        - version
+        - validUntil
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - SUSPENDED
+            - REVOKED
+            - EXPIRED
+        version:
+          type: integer
+          minimum: 1
+        validUntil:
+          type:
+            - string
+            - "null"
+          format: date-time
+    DriverVehicleRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - affiliationId
+        - vehicleId
+      properties:
+        affiliationId:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+    DriverVehicleRelationship:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - todaId
+        - state
+        - version
+        - validUntil
+        - affiliationId
+        - vehicleId
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - SUSPENDED
+            - REVOKED
+            - EXPIRED
+        version:
+          type: integer
+          minimum: 1
+        validUntil:
+          type:
+            - string
+            - "null"
+          format: date-time
+        affiliationId:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+    DriverVerificationStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - affiliations
+        - vehicleRelationships
+        - realDocumentsEnabled
+        - environment
+      properties:
+        affiliations:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/DriverAffiliation"
+        vehicleRelationships:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/DriverVehicleRelationship"
+        realDocumentsEnabled:
+          type: boolean
+          const: false
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverEligibility:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - todaId
+        - identityEligible
+        - canGoOnline
+        - operationalServicesEnabled
+        - realDriverApproved
+        - eligibilityBasis
+        - reasons
+      properties:
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+        identityEligible:
+          type: boolean
+        canGoOnline:
+          type: boolean
+          const: false
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+        realDriverApproved:
+          type: boolean
+          const: false
+        eligibilityBasis:
+          type: string
+          const: SYNTHETIC_ONLY
+        reasons:
+          type: array
+          items:
+            type: string
     HealthResponse:
       type: object
       additionalProperties: false
@@ -551,21 +850,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/PhoneChallengeResponse"
         "400":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "401":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "403":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "404":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "409":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "413":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "429":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "503":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: requestDriverOtp
   /auth/phone/challenges/{challengeId}/verify:
     post:
       tags:
@@ -598,21 +898,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/MobileAuthResult"
         "400":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "401":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "403":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "404":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "409":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "413":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "429":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "503":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: verifyDriverOtp
   /auth/phone/challenges/{challengeId}:
     get:
       tags:
@@ -644,6 +945,17 @@ paths:
             pattern: ^[A-Za-z0-9_-]{43,86}$
             description: Secret generated with a CSPRNG and kept in secure client storage.
               Never log.
+        - name: X-Client-Purpose
+          in: header
+          required: false
+          schema:
+            type: string
+            enum:
+              - PASSENGER
+              - DRIVER
+            default: PASSENGER
+          description: Driver client must send DRIVER; omission preserves the passenger
+            contract.
       responses:
         "200":
           description: Success (local mock only)
@@ -652,21 +964,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/PhoneChallengeStatus"
         "400":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "401":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "403":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "404":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "409":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "413":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "429":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "503":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: getDriverChallengeStatus
   /auth/mobile/refresh:
     post:
       tags:
@@ -693,21 +1006,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/MobileAuthResult"
         "400":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "401":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "403":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "404":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "409":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "413":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "429":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
         "503":
-          $ref: '#/components/responses/PhoneAuthFailure'
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: refreshDriverSession
   /auth/sessions:
     get:
       tags:
@@ -929,6 +1243,389 @@ paths:
           $ref: '#/components/responses/PhoneAuthFailure'
         "503":
           $ref: '#/components/responses/PhoneAuthFailure'
+  /driver/me:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverMe
+      summary: getDriverMe
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverProfile"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/me/consents:
+    post:
+      tags:
+        - Driver
+      operationId: recordDriverConsent
+      summary: recordDriverConsent
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassengerConsentRequest"
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverProfile"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/auth/sessions:
+    get:
+      tags:
+        - Driver
+      operationId: listDriverSessions
+      summary: listDriverSessions
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerSessionList"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/auth/sessions/{sessionId}/revoke:
+    post:
+      tags:
+        - Driver
+      operationId: revokeDriverSession
+      summary: revokeDriverSession
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Local synthetic result
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/auth/logout:
+    post:
+      tags:
+        - Driver
+      operationId: logoutDriver
+      summary: logoutDriver
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Local synthetic result
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/onboarding/options:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverIntakeOptions
+      summary: getDriverIntakeOptions
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverScopeOptions"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/cities/{cityTenantId}/todas/{todaId}/synthetic-vehicles:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverSyntheticVehicles
+      summary: getDriverSyntheticVehicles
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - in: path
+          name: cityTenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: todaId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverSyntheticVehicles"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/toda-affiliation-requests:
+    post:
+      tags:
+        - Driver
+      operationId: requestDriverAffiliation
+      summary: requestDriverAffiliation
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverAffiliationRequest"
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverAffiliation"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/vehicle-relationships:
+    post:
+      tags:
+        - Driver
+      operationId: requestDriverVehicle
+      summary: requestDriverVehicle
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverVehicleRequest"
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverVehicleRelationship"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/verification-status:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverVerificationStatus
+      summary: getDriverVerificationStatus
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverVerificationStatus"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/cities/{cityTenantId}/todas/{todaId}/eligibility:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverEligibility
+      summary: getDriverEligibility
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - in: path
+          name: cityTenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: todaId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverEligibility"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
   /services/available:
     get:
       tags:
@@ -1087,17 +1784,18 @@ paths:
   /driver/shifts:
     post:
       tags:
-      - Driver
+        - Driver
       operationId: startOrEndShift
       summary: Request driver online/offline shift after authorization
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
-              schema: *id001
-        '403':
-          description: Not authorized or role-scoped
+              schema:
+                type: object
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
       requestBody:
         required: true
         content:
@@ -1105,33 +1803,38 @@ paths:
             schema:
               type: object
               required:
-              - operation
+                - operation
               properties:
                 operation:
                   type: string
                   enum:
-                  - START
-                  - END
+                    - START
+                    - END
                 todaId:
                   type: string
                   format: uuid
                 vehicleId:
                   type: string
                   format: uuid
+      x-m2-capability: DENIED
+      description: M2 always denies this operational capability, including synthetic
+        identity-eligible drivers. Existing success response is future design
+        only.
   /driver/locations:
     post:
       tags:
-      - Driver
+        - Driver
       operationId: postDriverLocation
       summary: Authenticated driver heartbeat; sequence protects out-of-order data
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
-              schema: *id001
-        '403':
-          description: Not authorized or role-scoped
+              schema:
+                type: object
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
       requestBody:
         required: true
         content:
@@ -1139,10 +1842,10 @@ paths:
             schema:
               type: object
               required:
-              - longitude
-              - latitude
-              - capturedAt
-              - sequence
+                - longitude
+                - latitude
+                - capturedAt
+                - sequence
               properties:
                 longitude:
                   type: number
@@ -1155,18 +1858,29 @@ paths:
                   type: number
                 sequence:
                   type: integer
+      x-m2-capability: DENIED
+      description: M2 always denies this operational capability, including synthetic
+        identity-eligible drivers. Existing success response is future design
+        only.
   /driver/offers:
     get:
       tags:
-      - Driver
+        - Driver
       operationId: getDriverOffers
       summary: List current eligible offers
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
-              schema: *id001
+              schema:
+                type: object
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-m2-capability: DENIED
+      description: M2 always denies this operational capability, including synthetic
+        identity-eligible drivers. Existing success response is future design
+        only.
   /driver/offers/{offerId}/accept:
     post:
       tags:

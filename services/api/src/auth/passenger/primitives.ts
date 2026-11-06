@@ -1,5 +1,6 @@
 import { createHmac,randomInt,timingSafeEqual } from 'node:crypto';
 import { HttpException } from '@nestjs/common';
+export type MobilePurpose='PASSENGER'|'DRIVER';
 export type AuthErrorCode='INVALID_REQUEST'|'AUTH_FAILED'|'RATE_LIMITED'|'CONFLICT'|'UNAVAILABLE';
 export class PhoneAuthError extends HttpException {
   constructor(readonly code:AuthErrorCode) { super({code,message:({INVALID_REQUEST:'Invalid request',AUTH_FAILED:'Authentication failed',RATE_LIMITED:'Try again later',CONFLICT:'Request conflicts with an earlier operation',UNAVAILABLE:'Authentication temporarily unavailable'} as const)[code]},({INVALID_REQUEST:400,AUTH_FAILED:401,RATE_LIMITED:429,CONFLICT:409,UNAVAILABLE:503} as const)[code]); }
@@ -21,8 +22,8 @@ export function objectInput(value:unknown,keys:readonly string[]):Record<string,
   if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(key=>!keys.includes(key)))throw new PhoneAuthError('INVALID_REQUEST');
   return value as Record<string,unknown>;
 }
-export function clientBinding(input:Record<string,unknown>):{deviceId:string;clientProof:string} {
-  if(input.clientPurpose!=='PASSENGER'||!uuid(input.deviceId)||typeof input.clientProof!=='string'||!/^[A-Za-z0-9_-]{43,86}$/.test(input.clientProof))throw new PhoneAuthError('INVALID_REQUEST');
+export function clientBinding(input:Record<string,unknown>,purpose:MobilePurpose='PASSENGER'):{deviceId:string;clientProof:string} {
+  if(input.clientPurpose!==purpose||!uuid(input.deviceId)||typeof input.clientProof!=='string'||!/^[A-Za-z0-9_-]{43,86}$/.test(input.clientProof))throw new PhoneAuthError('INVALID_REQUEST');
   return {deviceId:input.deviceId,clientProof:input.clientProof};
 }
 export function idempotency(value:unknown):string { if(typeof value!=='string'||!/^[A-Za-z0-9_-]{12,128}$/.test(value))throw new PhoneAuthError('INVALID_REQUEST');return value; }

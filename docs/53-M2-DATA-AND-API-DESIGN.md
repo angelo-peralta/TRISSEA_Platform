@@ -1,6 +1,6 @@
 # M2 proposed data, transactions and API contracts
 
-Status: **M2.0 reconciled; M2.1–M2.3 local backend implemented. Only the ten M2.3 identity operations and M1 health are implemented; remaining APIs are proposed.**
+Status: **M2.0 reconciled; M2.1–M2.4 local backend implemented. M1 health, ten passenger/shared identity operations and eleven additional driver operations are implemented; operational APIs remain disabled/future design.**
 Read [accepted SMS planning ADR](51-ADR-SMS-PROVIDER-AND-MOCK-OTP.md),
 [plan](52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md),
 [draft ADR](55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md) and
@@ -296,3 +296,23 @@ redemption/session state. Session proof uses Ed25519 JOSE and opaque 48-byte
 rotating refresh credentials. Local absolute sessions last at most 24 hours;
 production policy/key rotation remain review gates. Error 429 provides a 60-second
 advisory Retry-After minimum, not a guarantee that an hourly/daily budget is free.
+
+## M2.4 implemented contract reconciliation
+
+MVP v0.7.0 extends the four shared phone/status/refresh operations to an explicitly
+validated DRIVER purpose and adds eleven own-driver intake/session/status routes.
+Existing operation IDs remain stable; `x-driver-operation-id` aliases generate
+the separate driver transport. Status defaults to PASSENGER for compatibility;
+the driver transport supplies the DRIVER header. Protected endpoints derive
+purpose only from cryptographic proof and current sessions, never that header.
+Both generated clients narrow request/response purpose and persist nothing.
+
+0005 adds seven constrained synthetic driver tables listed in
+[doc 60](60-M2-DRIVER-AUTHENTICATION.md), plus a dedicated non-owner lock function.
+The new assertions are a test-only identity-eligibility handoff; full verification
+cases/evidence/decisions remain M2.6. Scoped composite FKs, owner/purpose RLS,
+immutable bindings and column grants prevent runtime self-approval. Synthetic
+intake configuration is owner-provisioned; requesting affiliation grants neither
+city membership nor a staff role. Every eligibility result keeps operational and
+real-driver approval false, even for positive synthetic fixtures. M2 always denies
+the existing future shift/location/offer routes; no operational success is claimed.

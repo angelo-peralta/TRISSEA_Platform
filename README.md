@@ -57,5 +57,12 @@ test harness. Use `pnpm.cmd test:passenger:auth` against the separate M2 cluster
 `pnpm.cmd dev:passenger:api` starts it on loopback 4100. Passenger auth is disabled
 in the ordinary M1 environment. No live SMS or mobile login acceptance is claimed.
 
+[M2.4 driver backend](docs/60-M2-DRIVER-AUTHENTICATION.md) adds purpose-bound driver
+login, pending synthetic TODA/vehicle requests and eligibility evaluation while
+keeping online/GPS/dispatch disabled. `pnpm.cmd driver:prepare` creates a separate
+ignored disposable environment; `pnpm.cmd dev:driver:api` serves it on loopback
+4101. Run `pnpm.cmd test:driver:auth` for the isolated mock harness. Native
+authentication/storage and real verification acceptance remain pending.
+
 ## Release safety
 Screenshot figures alone do not establish a lawful origin→destination price or private vehicle hire tariff. **No production fare activation until signed applicable city/TODA source, road/MTOP service area approval, identity/privacy controls and physical device testing.** Old design docs should be read with the v1.5 status document, which supersedes conflicting launch-order recommendations.

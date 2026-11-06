@@ -62,6 +62,13 @@ also require current session/membership, matching role and the same grant scope.
 positives do not activate operational handlers. Missing resource adapters deny.
 See [M2.2 implementation](58-M2-AUTHORIZATION.md).
 
+M2.4 implementation note: DRIVER own-account/session/intake actions require a
+verified DRIVER-purpose application session and current ownership/consent. These
+static server action keys add no administrative role/permission edges. Selecting
+an explicitly configured synthetic TODA creates a pending request, not membership
+or a grant. A synthetic eligible fixture is still denied online/GPS/dispatch.
+See [driver boundary/evidence](60-M2-DRIVER-AUTHENTICATION.md).
+
 ## Required tests
 
 Cross-TODA IDOR; wrong-city admin; self-approval of fare; suspended driver accepts offer; support access without case; unauthorized GPS query; missing MFA; stolen token; privilege escalation; bulk export denial; admin creates booking on behalf of passenger only under logged consent/helpdesk case.

@@ -1,6 +1,6 @@
 import { createClient } from '@redis/client';
 import { randomUUID } from 'node:crypto';
-import { PhoneAuthError } from './primitives';
+import { PhoneAuthError,type MobilePurpose } from './primitives';
 
 const registerScript=`
 local clock=redis.call('TIME'); local now=tonumber(clock[1])*1000+math.floor(tonumber(clock[2])/1000)
@@ -46,14 +46,14 @@ export class RedisOtpStore {
   async connect():Promise<void> { await this.client.connect(); }
   async close():Promise<void> { if(this.client.isOpen)this.client.destroy(); }
   key(kind:string,id=''):string { return `${this.namespace}:{otp}:${kind}:${id}`; }
-  async register(id:string,hash:string,binding:string,destination:string,ip:string,device:string,limits:OtpLimits):Promise<void> {
-    const result=await this.client.withCommandOptions({timeout:2000}).eval(registerScript,{keys:[this.key('challenge',id),this.key('active',destination),this.key('dest',destination),this.key('ip',ip),this.key('device',device),this.key('budget'),this.key('cooldown',destination)],
+  async register(id:string,hash:string,binding:string,destination:string,ip:string,device:string,limits:OtpLimits,purpose:MobilePurpose='PASSENGER'):Promise<void> {
+    const result=await this.client.withCommandOptions({timeout:2000}).eval(registerScript,{keys:[this.key('challenge',id),this.key('active',purpose+':'+destination),this.key('dest',destination),this.key('ip',ip),this.key('device',device),this.key('budget'),this.key('cooldown',destination)],
       arguments:[id,hash,binding,destination,String(limits.otpTtlSeconds*1000),String(limits.otpResendSeconds*1000),String(limits.otpHourlyLimit),String(limits.otpDailyLimit),String(limits.ipHourlyLimit),String(limits.deviceHourlyLimit),String(limits.deviceDailyLimit),String(limits.globalDailyLimit)]});
     if(Number(result)!==1)throw new PhoneAuthError(Number(result)===-1?'RATE_LIMITED':'CONFLICT');
   }
   async inspect(id:string):Promise<Record<string,string>> { return this.client.withCommandOptions({timeout:2000}).hGetAll(this.key('challenge',id)); }
-  async consume(id:string,destination:string,binding:string,expectedHash:string,request:string,correct:boolean,receipt:string,maxAttempts:number):Promise<string|null> {
-    const result=await this.client.withCommandOptions({timeout:2000}).eval(consumeScript,{keys:[this.key('challenge',id),this.key('active',destination)],arguments:[id,binding,expectedHash,request,correct?'1':'0',receipt,String(maxAttempts)]});
+  async consume(id:string,destination:string,binding:string,expectedHash:string,request:string,correct:boolean,receipt:string,maxAttempts:number,purpose:MobilePurpose='PASSENGER'):Promise<string|null> {
+    const result=await this.client.withCommandOptions({timeout:2000}).eval(consumeScript,{keys:[this.key('challenge',id),this.key('active',purpose+':'+destination)],arguments:[id,binding,expectedHash,request,correct?'1':'0',receipt,String(maxAttempts)]});
     return typeof result==='string'&&/^[0-9a-f]{64}$/.test(result)?result:null;
   }
   async limitVerification(ipDigest:string):Promise<void> {

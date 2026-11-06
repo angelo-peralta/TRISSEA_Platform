@@ -1,19 +1,28 @@
 // Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.
-// Only x-implemented-in operations are implemented; M2.3 requires the local-synthetic flag.
+// Only x-implemented-in operations are implemented; M2.3/M2.4 require the local-synthetic flags.
 export interface Schemas {
   "FutureObject": Record<string, unknown>;
-  "PhoneChallengeRequest": { "phone": string; "clientPurpose": "PASSENGER"; "deviceId": string; "clientProof": string; };
-  "PhoneChallengeResponse": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER"; "deliveryMode": "MOCK"; };
-  "PhoneChallengeStatus": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER"; "deliveryMode": "MOCK"; "state": "PENDING" | "EXPIRED" | "COMPLETED"; };
-  "PhoneVerifyRequest": { "phone": string; "clientPurpose": "PASSENGER"; "deviceId": string; "clientProof": string; "code": string; };
-  "MobileRefreshRequest": { "clientPurpose": "PASSENGER"; "deviceId": string; "clientProof": string; "refreshToken": string; };
-  "MobileAuthResult": { "accessToken": string; "accessTokenExpiresAt": string; "refreshToken": string; "tokenType": "Bearer"; "userId": string; "sessionId": string; "clientPurpose": "PASSENGER"; };
+  "PhoneChallengeRequest": { "phone": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; };
+  "PhoneChallengeResponse": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deliveryMode": "MOCK"; };
+  "PhoneChallengeStatus": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deliveryMode": "MOCK"; "state": "PENDING" | "EXPIRED" | "COMPLETED"; };
+  "PhoneVerifyRequest": { "phone": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; "code": string; };
+  "MobileRefreshRequest": { "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; "refreshToken": string; };
+  "MobileAuthResult": { "accessToken": string; "accessTokenExpiresAt": string; "refreshToken": string; "tokenType": "Bearer"; "userId": string; "sessionId": string; "clientPurpose": "PASSENGER" | "DRIVER"; };
   "PassengerProfile": { "userId": string; "sessionId": string; "clientPurpose": "PASSENGER"; "state": "CONSENT_REQUIRED" | "ACTIVE"; "displayName": string | null; "profileVersion": number; "requiredNoticeVersion": string; "requiredTermsVersion": string; "operationsEnabled": false; "environment": "LOCAL_SYNTHETIC"; };
   "PassengerProfileUpdate": { "displayName": string | null; "expectedVersion": number; };
   "PassengerConsentRequest": { "noticeVersion": "local-synthetic-notice-v1"; "termsVersion": "local-synthetic-terms-v1"; "noticeAcknowledged": true; "termsAccepted": true; };
   "PassengerSessionList": { "sessions": Array<{ "id": string; "state": "PREAUTH" | "CONSENT_REQUIRED" | "ACTIVE" | "REVOKED" | "EXPIRED"; "lastSeenAt": string; "expiresAt": string; "current": boolean; }>; };
   "EmptyMutation": Record<string, never>;
   "PhoneAuthError": { "code": "INVALID_REQUEST" | "AUTH_FAILED" | "RATE_LIMITED" | "CONFLICT" | "UNAVAILABLE"; "message": string; };
+  "DriverProfile": { "userId": string; "sessionId": string; "clientPurpose": "DRIVER"; "state": "CONSENT_REQUIRED" | "ACTIVE"; "driverStatus": "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED" | "REVOKED" | "EXPIRED"; "profileVersion": number; "requiredNoticeVersion": string; "requiredTermsVersion": string; "canGoOnline": false; "operationalServicesEnabled": false; "realDocumentsEnabled": false; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverScopeOptions": { "scopes": Array<{ "cityTenantId": string; "todaId": string; "cityName": string; "todaName": string; }>; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverSyntheticVehicles": { "vehicles": Array<{ "id": string; "referenceCode": string; }>; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverAffiliationRequest": { "cityTenantId": string; "todaId": string; };
+  "DriverAffiliation": { "id": string; "cityTenantId": string; "todaId": string; "state": "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED" | "REVOKED" | "EXPIRED"; "version": number; "validUntil": string | null; };
+  "DriverVehicleRequest": { "affiliationId": string; "vehicleId": string; };
+  "DriverVehicleRelationship": { "id": string; "cityTenantId": string; "todaId": string; "state": "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED" | "REVOKED" | "EXPIRED"; "version": number; "validUntil": string | null; "affiliationId": string; "vehicleId": string; };
+  "DriverVerificationStatus": { "affiliations": Array<Schemas["DriverAffiliation"]>; "vehicleRelationships": Array<Schemas["DriverVehicleRelationship"]>; "realDocumentsEnabled": false; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverEligibility": { "cityTenantId": string; "todaId": string; "identityEligible": boolean; "canGoOnline": false; "operationalServicesEnabled": false; "realDriverApproved": false; "eligibilityBasis": "SYNTHETIC_ONLY"; "reasons": Array<string>; };
   "HealthResponse": { "status": "ok"; "service": "trissea-api"; "milestone": "M1"; "bookingsEnabled": false; };
   "Error": { "code": string; "message": string; "traceId"?: string; };
   "Coords": { "longitude": number; "latitude": number; };
@@ -29,11 +38,22 @@ export interface Operations {
   "getPassengerChallengeStatus": { method: "GET"; path: "/auth/phone/challenges/{challengeId}"; body: never; response: Schemas["PhoneChallengeStatus"] };
   "refreshPassengerSession": { method: "POST"; path: "/auth/mobile/refresh"; body: Schemas["MobileRefreshRequest"]; response: Schemas["MobileAuthResult"] };
   "listPassengerSessions": { method: "GET"; path: "/auth/sessions"; body: never; response: Schemas["PassengerSessionList"] };
-  "revokePassengerSession": { method: "POST"; path: "/auth/sessions/{sessionId}/revoke"; body: Schemas["EmptyMutation"]; response: unknown };
-  "logoutPassenger": { method: "POST"; path: "/auth/logout"; body: Schemas["EmptyMutation"]; response: unknown };
+  "revokePassengerSession": { method: "POST"; path: "/auth/sessions/{sessionId}/revoke"; body: Schemas["EmptyMutation"]; response: void };
+  "logoutPassenger": { method: "POST"; path: "/auth/logout"; body: Schemas["EmptyMutation"]; response: void };
   "getMe": { method: "GET"; path: "/me"; body: never; response: Schemas["PassengerProfile"] };
   "updatePassengerProfile": { method: "PATCH"; path: "/me"; body: Schemas["PassengerProfileUpdate"]; response: Schemas["PassengerProfile"] };
   "recordPassengerConsent": { method: "POST"; path: "/me/consents"; body: Schemas["PassengerConsentRequest"]; response: Schemas["PassengerProfile"] };
+  "getDriverMe": { method: "GET"; path: "/driver/me"; body: never; response: Schemas["DriverProfile"] };
+  "recordDriverConsent": { method: "POST"; path: "/driver/me/consents"; body: Schemas["PassengerConsentRequest"]; response: Schemas["DriverProfile"] };
+  "listDriverSessions": { method: "GET"; path: "/driver/auth/sessions"; body: never; response: Schemas["PassengerSessionList"] };
+  "revokeDriverSession": { method: "POST"; path: "/driver/auth/sessions/{sessionId}/revoke"; body: Schemas["EmptyMutation"]; response: void };
+  "logoutDriver": { method: "POST"; path: "/driver/auth/logout"; body: Schemas["EmptyMutation"]; response: void };
+  "getDriverIntakeOptions": { method: "GET"; path: "/driver/onboarding/options"; body: never; response: Schemas["DriverScopeOptions"] };
+  "getDriverSyntheticVehicles": { method: "GET"; path: "/driver/cities/{cityTenantId}/todas/{todaId}/synthetic-vehicles"; body: never; response: Schemas["DriverSyntheticVehicles"] };
+  "requestDriverAffiliation": { method: "POST"; path: "/driver/toda-affiliation-requests"; body: Schemas["DriverAffiliationRequest"]; response: Schemas["DriverAffiliation"] };
+  "requestDriverVehicle": { method: "POST"; path: "/driver/vehicle-relationships"; body: Schemas["DriverVehicleRequest"]; response: Schemas["DriverVehicleRelationship"] };
+  "getDriverVerificationStatus": { method: "GET"; path: "/driver/verification-status"; body: never; response: Schemas["DriverVerificationStatus"] };
+  "getDriverEligibility": { method: "GET"; path: "/driver/cities/{cityTenantId}/todas/{todaId}/eligibility"; body: never; response: Schemas["DriverEligibility"] };
   "getAvailableServices": { method: "GET"; path: "/services/available"; body: never; response: Record<string, unknown> };
   "createQuote": { method: "POST"; path: "/quotes"; body: Schemas["QuoteRequest"]; response: Schemas["Quote"] };
   "createRide": { method: "POST"; path: "/rides"; body: { "quoteId": string; }; response: Schemas["Ride"] };

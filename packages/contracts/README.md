@@ -18,3 +18,11 @@ omits cookies, performs no automatic retry and persists nothing. Native consumer
 must use app-specific secure storage and serialize refresh, reusing the original
 idempotency key after response loss. The backend local feature flag and external
 approval gates still apply. See `docs/59-M2-PASSENGER-AUTHENTICATION.md`.
+
+`createDriverClient` uses the same reviewed generator with DRIVER-only
+request/response purpose, a DRIVER status header, and the eleven protected driver
+operations. Four shared operation aliases keep existing OpenAPI IDs stable.
+`PassengerApiError` and `DriverApiError` contain safe status only. Neither client
+stores credentials; native consumers must use separate secure storage namespaces
+and serialized refresh. M2.4 backend evidence is in doc 60; native storage has not
+been accepted by these transport tests.

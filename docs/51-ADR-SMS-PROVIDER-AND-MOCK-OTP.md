@@ -50,3 +50,8 @@ never selects PhilSMS. No live network delivery, sender/endpoint approval or
 production startup is enabled. The legacy fixed-code simulator is not wired to
 M2 routes. See [doc 59](59-M2-PASSENGER-AUTHENTICATION.md) for exact policy,
 non-public harness, uncertainty handling, evidence and remaining Gate A checks.
+
+M2.4 reuses that same OTP/gateway implementation for DRIVER. Destination budgets
+and cooldown remain shared; hash/binding/active proof and sessions are purpose-
+bound. A verified canonical phone maps to one global identity with separate
+personas. No new provider configuration, live sending or recovery is enabled.

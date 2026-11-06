@@ -1,0 +1,50 @@
+[
+  {
+    "check": "validate",
+    "command": "pnpm.cmd validate",
+    "exitCode": 0,
+    "seconds": 134.68
+  },
+  {
+    "check": "driver-auth",
+    "command": "pnpm.cmd test:driver:auth",
+    "exitCode": 0,
+    "seconds": 49.05
+  },
+  {
+    "check": "passenger-regression",
+    "command": "pnpm.cmd test:passenger:auth",
+    "exitCode": 0,
+    "seconds": 42.76
+  },
+  {
+    "check": "authorization-regression",
+    "command": "pnpm.cmd test:authorization:db",
+    "exitCode": 0,
+    "seconds": 39.43
+  },
+  {
+    "check": "identity-regression",
+    "command": "pnpm.cmd test:identity:db",
+    "exitCode": 0,
+    "seconds": 25.96
+  },
+  {
+    "check": "frozen-install",
+    "command": "pnpm.cmd install --frozen-lockfile",
+    "exitCode": 0,
+    "seconds": 1.66
+  },
+  {
+    "check": "audit",
+    "command": "pnpm.cmd audit:dependencies",
+    "exitCode": 0,
+    "seconds": 4.38
+  },
+  {
+    "check": "blueprint",
+    "command": "python scripts/validate_blueprint.py",
+    "exitCode": 0,
+    "seconds": 1.75
+  }
+]
