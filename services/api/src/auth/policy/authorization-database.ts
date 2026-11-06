@@ -28,10 +28,11 @@ export class PostgresAuthorizationDatabase extends AuthorizationDatabase {
         pg_has_role(current_user,'trissea_m2_authorization','member') AS resolver,
         pg_has_role(current_user,'trissea_m2_policy_lock','member') AS locker,
         EXISTS(SELECT FROM pg_roles WHERE rolname='trissea_m2_driver_lock' AND pg_has_role(current_user,oid,'member')) AS driver_locker,
+        EXISTS(SELECT FROM pg_roles WHERE rolname='trissea_m2_verification_writer' AND pg_has_role(current_user,oid,'member')) AS verification_writer,
         EXISTS(SELECT FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
           WHERE n.nspname='identity' AND c.relkind='r' AND pg_has_role(current_user,c.relowner,'member')) AS owns_tables
         FROM pg_roles WHERE rolname=current_user`);
-      if (!role?.resolver || role.rolsuper || role.rolbypassrls || role.locker || role.driver_locker || role.owns_tables) throw new Error('Invalid authorization database role');
+      if (!role?.resolver || role.rolsuper || role.rolbypassrls || role.locker || role.driver_locker || role.verification_writer || role.owns_tables) throw new Error('Invalid authorization database role');
       await tx.execute(sql`SELECT set_config('statement_timeout','5000',true),set_config('lock_timeout','2000',true)`);
       return work(tx);
     }, { isolationLevel: 'read committed' });

@@ -58,16 +58,16 @@ test('0006 fresh/repeat/failed commit/rollback/reapply preserves M1-M2.4 and unr
   const ledger = await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`;
   await owner`INSERT INTO identity.app_users DEFAULT VALUES`;
   const failed = { begin: work => owner.begin(async tx => { await work(tx); await tx`SELECT 1/0`; }) };
-  await assert.rejects(runMigrations(failed, 'up', { allowIdentity: true, report: () => {} }));
+  await assert.rejects(runMigrations(failed, 'up', { through: '0006_admin_browser_auth', allowIdentity: true, report: () => {} }));
   assert.equal((await owner`SELECT to_regclass('identity.admin_oidc_flows') AS t`)[0].t, null);
-  await runMigrations(owner, 'up', { allowIdentity: true, report: () => {} });
-  await runMigrations(owner, 'up', { allowIdentity: true, report: () => {} });
-  await runMigrations(owner, 'down', { allowIdentity: true, report: () => {} });
+  await runMigrations(owner, 'up', { through: '0006_admin_browser_auth', allowIdentity: true, report: () => {} });
+  await runMigrations(owner, 'up', { through: '0006_admin_browser_auth', allowIdentity: true, report: () => {} });
+  await runMigrations(owner, 'down', { through: '0006_admin_browser_auth', allowIdentity: true, report: () => {} });
   assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`, ledger);
   assert.equal((await owner`SELECT count(*)::int AS n FROM identity.app_users`)[0].n, 1);
   assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value, 'synthetic-admin-preservation');
   assert.equal((await owner`SELECT has_column_privilege('trissea_m2_admin_auth','identity.app_users','version','UPDATE') AS allowed`)[0].allowed, false);
-  await Promise.all([runMigrations(owner,'up',{allowIdentity:true,report:()=>{}}),runMigrations(owner,'up',{allowIdentity:true,report:()=>{}})]);
+  await Promise.all([runMigrations(owner,'up',{through:'0006_admin_browser_auth',allowIdentity:true,report:()=>{}}),runMigrations(owner,'up',{through:'0006_admin_browser_auth',allowIdentity:true,report:()=>{}})]);
   assert.equal((await owner`SELECT count(*)::int AS n FROM trissea_migrations`)[0].n, 6);
   note('0006 transactional fresh/no-op/concurrent apply/failed commit/down/reapply; prior ledger, user and unrelated table preserved; column privileges revoked on down');
 });
@@ -124,11 +124,11 @@ async function login(person, {wrongPassword=false, wrongOtp=false,codeOverride,c
   try {
   const context=existingContext??await browser.newContext(),page=await context.newPage();
   await page.goto(await start(context));
-  if(evidence){await mkdir(new URL('../evidence/m2/m2-5/',import.meta.url),{recursive:true});await page.screenshot({path:new URL('../evidence/m2/m2-5/keycloak-sign-in.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('keycloak-sign-in.png');}
+  if(evidence){await mkdir(new URL('../.cache/m2-admin/screenshots/',import.meta.url),{recursive:true});await page.screenshot({path:new URL('../.cache/m2-admin/screenshots/keycloak-sign-in.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('keycloak-sign-in.png');}
   await page.locator('#username').fill(person.name+'@example.invalid');await page.locator('#password').fill(wrongPassword?'incorrect-synthetic-password':person.password);await page.locator('#kc-login').click();
   if(wrongPassword)return {context,page};
   await page.locator('#otp').waitFor({timeout:15000});
-  if(evidence){await page.screenshot({path:new URL('../evidence/m2/m2-5/keycloak-totp.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true,mask:[page.locator('#kc-username')]});report.screenshots.push('keycloak-totp.png');}
+  if(evidence){await page.screenshot({path:new URL('../.cache/m2-admin/screenshots/keycloak-totp.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true,mask:[page.locator('input, #kc-username, #kc-attempted-username')]});report.screenshots.push('keycloak-totp.png');}
   const code=await currentOtp(person.totp);await page.locator('#otp').fill(codeOverride??(wrongOtp?String((Number(code)+1)%1000000).padStart(6,'0'):code));await page.locator('#kc-login').click();
   if(!wrongOtp&&!codeOverride)await page.waitForURL(url=>url.origin===origin,{timeout:20000});
   return {context,page,submittedCode:code};
@@ -157,11 +157,11 @@ test('real password plus TOTP yields opaque BFF cookie, current scoped access an
   assert.equal((await context.request.get(origin+'/v1/admin/access/todas/'+todaA)).status(),200);
   assert.equal((await context.request.get(origin+'/v1/admin/access/todas/'+todaB)).status(),403);
   await page.getByRole('status').filter({hasText:'Administrator session active'}).waitFor();
-  await mkdir(new URL('../evidence/m2/m2-5/',import.meta.url),{recursive:true});
-  await page.screenshot({path:new URL('../evidence/m2/m2-5/admin-desktop.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('admin-desktop.png');
+  await mkdir(new URL('../.cache/m2-admin/screenshots/',import.meta.url),{recursive:true});
+  await page.screenshot({path:new URL('../.cache/m2-admin/screenshots/admin-desktop.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('admin-desktop.png');
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  await page.screenshot({path:new URL('../evidence/m2/m2-5/admin-mobile.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('admin-mobile.png');
+  await page.screenshot({path:new URL('../.cache/m2-admin/screenshots/admin-mobile.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('admin-mobile.png');
   await owner`UPDATE identity.scoped_role_assignments SET revoked_at=now(),version=version+1 WHERE id=${grantId}`;
   assert.equal((await context.request.get(origin+'/v1/admin/access/todas/'+todaA)).status(),403);
   await own(context);await context.close();
@@ -221,7 +221,7 @@ test('browser loading, failure/retry, keyboard, proxy health and unapproved fare
   await page.route('**/v1/admin/auth/session',async route=>{await gate;await route.fulfill({status:503,contentType:'application/json',body:'{"code":"UNAVAILABLE"}'});});
   await page.goto(origin);await page.getByRole('status').filter({hasText:'Checking administrator session'}).waitFor();assert.equal(await page.getByRole('button',{name:'Sign in with Keycloak'}).isDisabled(),true);release();
   await page.getByRole('status').filter({hasText:'Identity service unavailable'}).waitFor();
-  await page.screenshot({path:new URL('../evidence/m2/m2-5/admin-error.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('admin-error.png');
+  await page.screenshot({path:new URL('../.cache/m2-admin/screenshots/admin-error.png',import.meta.url).pathname.replace(/^\/(.:)/,'$1'),fullPage:true});report.screenshots.push('admin-error.png');
   await page.unroute('**/v1/admin/auth/session');await page.getByRole('button',{name:'Check session / Retry'}).click();await page.getByRole('status').filter({hasText:'Sign in with your approved'}).waitFor();
   await page.getByRole('button',{name:'Check API connection'}).click();await page.getByRole('status').filter({hasText:'API connected'}).waitFor();
   await page.keyboard.press('Tab');assert.ok(await page.evaluate(()=>document.activeElement?.tagName==='BUTTON'));

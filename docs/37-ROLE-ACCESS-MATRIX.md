@@ -78,4 +78,15 @@ grant no operational authority. See [doc 61](61-M2-KEYCLOAK-ADMIN.md).
 
 ## Required tests
 
+M2.6 uses existing permission tuples only. `VERIFICATION_OFFICER` with
+`driver.verify` reviews assigned DRIVER/VEHICLE cases in its CITY or exact TODA
+grant. `TODA_MANAGER` with `toda.members.manage` reviews assigned TODA_MEMBERSHIP
+cases in its exact TODA grant. Both require current membership, fresh admin MFA
+and a reviewer different from the applicant. Assignment does not grant authority;
+permissions and scope must match within one current grant. A manager cannot review
+driver/vehicle evidence through its membership route. A platform role alone grants
+no case/evidence access. No arbitrary assignment/delegation API is authorized.
+Applicants can read and submit only their own synthetic cases. Doc 62 records
+implementation status and evidence; real reviewer responsibilities remain unapproved.
+
 Cross-TODA IDOR; wrong-city admin; self-approval of fare; suspended driver accepts offer; support access without case; unauthorized GPS query; missing MFA; stolen token; privilege escalation; bulk export denial; admin creates booking on behalf of passenger only under logged consent/helpdesk case.

@@ -1,6 +1,6 @@
 # M2 technical implementation plan
 
-Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.5 local engineering acceptance recorded. Stop before M2.6. Native integration and production gates remain pending.**
+Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.6 local engineering acceptance recorded. Overall M2 IN PROGRESS. Stop before M2.7. Native integration and production gates remain pending.**
 
 ## Prerequisite and scope
 
@@ -306,3 +306,11 @@ The five implemented routes and migration 0006 supersede the proposed admin rout
 names above. No provider refresh or public staff registration is activated.
 See [configuration, review boundaries and evidence](61-M2-KEYCLOAK-ADMIN.md).
 Earlier slice-stop statements describe historical gates. Current stop is M2.6.
+
+M2.6 update: owner approved continuation after M2.5. Synthetic driver, vehicle
+and TODA membership case/review APIs, immutable evidence/decision history,
+transactional projection, audit/outbox and constrained runtime roles passed local
+acceptance: 115 repository and 80 integration tests. See
+[implementation and actual results](62-M2-SYNTHETIC-VERIFICATION.md).
+No real documents, new permit rules, assignment delegation or operating authority.
+Current review stop is before M2.7; earlier stop statements remain historical.

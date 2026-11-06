@@ -1,6 +1,13 @@
 // Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.
 // Only x-implemented-in operations are implemented; M2.3/M2.4/M2.5 require local-synthetic flags.
 export interface Schemas {
+  "VerificationOpenRequest": { "relationshipId": string; "kind": "DRIVER" | "VEHICLE" | "TODA_MEMBERSHIP"; };
+  "VerificationSubmitRequest": { "expectedVersion": number; "evidenceId": string; "evidenceVersion": number; };
+  "VerificationDecisionRequest": { "expectedVersion": number; "evidenceVersion": number; "outcome": "APPROVE" | "REJECT" | "REVOKE" | "EXPIRE"; "reasonCode": "SYNTHETIC_ACCEPTED" | "SYNTHETIC_INCOMPLETE" | "SYNTHETIC_MISMATCH" | "SYNTHETIC_WITHDRAWN" | "SYNTHETIC_EXPIRED"; };
+  "VerificationCase": { "id": string; "cityTenantId": string; "todaId": string; "relationshipId": string; "kind": "DRIVER" | "VEHICLE" | "TODA_MEMBERSHIP"; "state": "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "REVOKED" | "EXPIRED"; "effectiveState": "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "REVOKED" | "EXPIRED" | "STALE"; "evidenceCurrent": boolean | null; "version": number; "round": number; "assigned": boolean; "validUntil": string | null; "source": "SYNTHETIC_ONLY"; "realDocumentsEnabled": false; "operationalServicesEnabled": false; "realDriverApproved": false; };
+  "VerificationCases": { "items": Array<Schemas["VerificationCase"]>; "nextCursor": string | null; "source": "SYNTHETIC_ONLY"; };
+  "VerificationEvidenceChoices": { "items": Array<{ "evidenceId": string; "evidenceVersion": number; "relationshipId": string; "kind": "DRIVER" | "VEHICLE" | "TODA_MEMBERSHIP"; "referenceCode": string; "validUntil": string; }>; "source": "SYNTHETIC_ONLY"; };
+  "VerificationDetail": { "case": Schemas["VerificationCase"]; "evidence": { "evidenceId": string; "evidenceVersion": number; "referenceCode": string; "syntheticSeatCapacity": number | null; "validUntil": string; } | null; "historyTruncated": boolean; "submissions": Array<{ "round": number; "evidenceId": string; "evidenceVersion": number; "submittedAt": string; }>; "decisions": Array<{ "id": string; "round": number; "outcome": "APPROVE" | "REJECT" | "REVOKE" | "EXPIRE"; "reasonCode": "SYNTHETIC_ACCEPTED" | "SYNTHETIC_INCOMPLETE" | "SYNTHETIC_MISMATCH" | "SYNTHETIC_WITHDRAWN" | "SYNTHETIC_EXPIRED"; "evidenceVersion": number; "decidedAt": string; "validUntil": string | null; }>; };
   "AdminLoginRequest": { "clientProof": string; };
   "AdminLoginResponse": { "authorizationUrl": string; };
   "AdminSession": { "userId": string; "sessionId": string; "clientPurpose": "ADMIN"; "mfaVerified": true; "csrfToken": string; "permissionsResolvedPerResource": true; "operationalServicesEnabled": false; };
@@ -81,5 +88,16 @@ export interface Operations {
   "getAdminSession": { method: "GET"; path: "/admin/auth/session"; body: never; response: Schemas["AdminSession"] };
   "logoutAdmin": { method: "POST"; path: "/admin/auth/logout"; body: Record<string, never>; response: void };
   "getAdminTodaAccess": { method: "GET"; path: "/admin/access/todas/{todaId}"; body: never; response: Schemas["AdminScopeAccess"] };
+  "listDriverSyntheticEvidence": { method: "GET"; path: "/driver/me/verification/evidence"; body: never; response: Schemas["VerificationEvidenceChoices"] };
+  "listDriverVerificationCases": { method: "GET"; path: "/driver/me/verification/cases"; body: never; response: Schemas["VerificationCases"] };
+  "openDriverVerificationCase": { method: "POST"; path: "/driver/me/verification/cases"; body: Schemas["VerificationOpenRequest"]; response: Schemas["VerificationCase"] };
+  "getDriverVerificationCase": { method: "GET"; path: "/driver/me/verification/cases/{caseId}"; body: never; response: Schemas["VerificationDetail"] };
+  "submitDriverVerificationCase": { method: "POST"; path: "/driver/me/verification/cases/{caseId}/submit"; body: Schemas["VerificationSubmitRequest"]; response: Schemas["VerificationCase"] };
+  "listAssignedVerificationCases": { method: "GET"; path: "/admin/verifications/todas/{todaId}/cases"; body: never; response: Schemas["VerificationCases"] };
+  "listAssignedMembershipCases": { method: "GET"; path: "/admin/verifications/todas/{todaId}/memberships"; body: never; response: Schemas["VerificationCases"] };
+  "getAssignedVerificationCase": { method: "GET"; path: "/admin/verifications/cases/{caseId}"; body: never; response: Schemas["VerificationDetail"] };
+  "getAssignedMembershipCase": { method: "GET"; path: "/admin/verifications/memberships/{caseId}"; body: never; response: Schemas["VerificationDetail"] };
+  "decideVerificationCase": { method: "POST"; path: "/admin/verifications/cases/{caseId}/decisions"; body: Schemas["VerificationDecisionRequest"]; response: Schemas["VerificationCase"] };
+  "decideMembershipCase": { method: "POST"; path: "/admin/verifications/memberships/{caseId}/decisions"; body: Schemas["VerificationDecisionRequest"]; response: Schemas["VerificationCase"] };
 }
 export type HealthResponse = Operations['getHealth']['response'];

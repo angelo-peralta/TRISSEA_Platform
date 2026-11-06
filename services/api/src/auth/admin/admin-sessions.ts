@@ -80,9 +80,12 @@ export class AdminSessions{
   const saved=JSON.parse(this.secrets.identity.decrypt(row.providerCiphertext,`admin-provider:${sessionId}`)) as {csrf:string};
   return {userId,sessionId,clientPurpose:'ADMIN' as const,mfaVerified:true as const,csrfToken:saved.csrf,permissionsResolvedPerResource:true as const,operationalServicesEnabled:false as const};
  }
- async logout(tx:AuthTransaction,userId:string,sessionId:string,origin:unknown,csrf:unknown){
-  this.checkOrigin(origin);const [row]=await tx.select().from(a.adminBrowserSessions).where(eq(a.adminBrowserSessions.sessionId,sessionId));
+ async assertCsrf(tx:AuthTransaction,sessionId:string,origin:unknown,csrf:unknown){
+  this.checkOrigin(origin);const [row]=await tx.select({csrfDigest:a.adminBrowserSessions.csrfDigest}).from(a.adminBrowserSessions).where(eq(a.adminBrowserSessions.sessionId,sessionId));
   if(!row||typeof csrf!=='string'||!equalDigest(row.csrfDigest,this.secrets.coordinate('admin-csrf',csrf)))throw new ForbiddenException('Request CSRF denied');
+ }
+ async logout(tx:AuthTransaction,userId:string,sessionId:string,origin:unknown,csrf:unknown){
+  await this.assertCsrf(tx,sessionId,origin,csrf);
   const now=await authNow(tx);await tx.update(b.appSessions).set({state:'REVOKED',revokedAt:new Date(now),version:sql`${b.appSessions.version}+1`}).where(eq(b.appSessions.id,sessionId));await authAudit(tx,'admin.logged_out',sessionId,userId,sessionId);
  }
 }

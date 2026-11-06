@@ -211,3 +211,14 @@ The current execution record and remaining checks are maintained in
 request, bounded for at most five seconds during local authorization; production
 out-of-band revocation guarantees still require independent review. Gate D real
 bootstrap/recovery/delegation and Gates A/B/C/E remain closed. Stop before M2.6.
+
+M2.6 update: continuation after M2.5 is approved for synthetic metadata only.
+Current implementation/testing status is in [doc 62](62-M2-SYNTHETIC-VERIFICATION.md).
+Review requires assignment plus a current same-grant scope/permission and fresh
+Keycloak MFA; self/foreign review denies. Approval requires current evidence and
+target/policy versions; revocation/expiry cannot overwrite later projections.
+History and encrypted retry receipts are immutable; audit/outbox failures roll back
+the decision and driver facts. Evidence revision denies synthetic eligibility.
+Real-document checklist, reviewer ownership, storage/retention, legal basis, permit
+authority and privileged assignment remain unresolved. No M2 production-readiness
+claim; all external gates stay closed. Stop before M2.7 for owner review.

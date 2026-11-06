@@ -143,3 +143,19 @@ flow budgets are implemented. No business, legal or driver-authority policy chan
 checks. The implementation does not grant Gate A live sending, B real personal
 data, C driver operation, D recovery/delegation or E public deployment. Current
 stop is before M2.6; no GitHub publication was authorized for this slice.
+
+## M2.6 synthetic verification review scope — 2026-11-06
+
+Owner approved continuation after M2.5. Synthetic metadata, case decisions and
+version-bound driver facts are within local engineering scope. Architecture
+approval does not approve real documents, reviewer duties or legal operating rules.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P10 | Reviewer assignment and evidence provisioning authority; required documents, validity/capacity/permit sources and retention | GATES B/C/D CLOSED | Explicit owner-controlled synthetic fixtures only; no public upload, assignment, permit creation or delegation API |
+
+Existing `driver.verify` and `toda.members.manage` permissions are reused with
+assigned-case and exact-scope checks. Case approval grants neither staff access nor
+city membership/permit authority. All operational capabilities remain denied.
+See [doc 62](62-M2-SYNTHETIC-VERIFICATION.md) for actual acceptance status.
+Current stop is before M2.7. No push, PR, merge or deployment is authorized.

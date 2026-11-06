@@ -23,3 +23,9 @@ test('driver transport rejects a validly shaped passenger challenge response and
  const sdk=createDriverClient('http://localhost:4101/v1',async()=>new Response(JSON.stringify({challengeId:randomUUID(),expiresAt:new Date().toISOString(),resendAfter:new Date().toISOString(),clientPurpose:'PASSENGER',deliveryMode:'MOCK'}),{status:202}));
  await assert.rejects(sdk.request('requestDriverOtp',{body:{...binding,phone:'+639990000001'},idempotencyKey:randomUUID()}),e=>e instanceof DriverApiError&&e.status===502);
 });
+
+test('verification list cursor is optional and travels in the query, with no implicit credentials or retries',async()=>{
+ const after=randomUUID(),seen:string[]=[],sdk=createDriverClient('http://localhost:4104/v1',async(url,init)=>{seen.push(String(url));assert.equal((init?.headers as Record<string,string>).after,undefined);assert.equal(init?.credentials,'omit');return new Response(JSON.stringify({items:[],nextCursor:null,source:'SYNTHETIC_ONLY'}));});
+ await sdk.request('listDriverVerificationCases',{accessToken:'synthetic-transport-only'});await sdk.request('listDriverVerificationCases',{accessToken:'synthetic-transport-only',after});
+ assert.deepEqual(seen,['http://localhost:4104/v1/driver/me/verification/cases','http://localhost:4104/v1/driver/me/verification/cases?after='+after]);
+});

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: TRISSEA Tuguegarao MVP API
-  version: 0.8.0
-  description: M1 health, M2.3/M2.4 passenger/driver identity, and M2.5 Keycloak administrator BFF are implemented only behind local-synthetic flags. Other operations remain future design. Live SMS, recovery, real identity documents and production activation remain disabled.
+  version: 0.9.0
+  description: M1 health and M2.3-M2.6 local synthetic identity, Keycloak BFF and verification are implemented behind explicit flags. Real documents, live SMS, recovery and operations remain disabled.
 servers:
 - url: https://api.example.invalid/v1
   description: placeholder
@@ -60,6 +60,258 @@ components:
           schema:
             $ref: '#/components/schemas/PhoneAuthError'
   schemas:
+    VerificationOpenRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - relationshipId
+        - kind
+      properties:
+        relationshipId: &a1
+          type: string
+          format: uuid
+        kind: &a3
+          type: string
+          enum:
+            - DRIVER
+            - VEHICLE
+            - TODA_MEMBERSHIP
+    VerificationSubmitRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedVersion
+        - evidenceId
+        - evidenceVersion
+      properties:
+        expectedVersion: &a2
+          type: integer
+          minimum: 1
+          maximum: 2147483646
+        evidenceId: *a1
+        evidenceVersion: *a2
+    VerificationDecisionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedVersion
+        - evidenceVersion
+        - outcome
+        - reasonCode
+      properties:
+        expectedVersion: *a2
+        evidenceVersion: *a2
+        outcome:
+          type: string
+          enum:
+            - APPROVE
+            - REJECT
+            - REVOKE
+            - EXPIRE
+        reasonCode:
+          type: string
+          enum:
+            - SYNTHETIC_ACCEPTED
+            - SYNTHETIC_INCOMPLETE
+            - SYNTHETIC_MISMATCH
+            - SYNTHETIC_WITHDRAWN
+            - SYNTHETIC_EXPIRED
+      description: Reason must match outcome. Only APPROVE accepts current synthetic target/policy/evidence.
+        Terminal decisions require an approved case; EXPIRE requires database time past validity. No caller
+        capacity, validity, reviewer, permit or status fields.
+    VerificationCase:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - todaId
+        - relationshipId
+        - kind
+        - state
+        - effectiveState
+        - evidenceCurrent
+        - version
+        - round
+        - assigned
+        - validUntil
+        - source
+        - realDocumentsEnabled
+        - operationalServicesEnabled
+        - realDriverApproved
+      properties:
+        id: *a1
+        cityTenantId: *a1
+        todaId: *a1
+        relationshipId: *a1
+        kind: *a3
+        state: &a4
+          type: string
+          enum:
+            - DRAFT
+            - SUBMITTED
+            - APPROVED
+            - REJECTED
+            - REVOKED
+            - EXPIRED
+        effectiveState:
+          type: string
+          enum: [DRAFT, SUBMITTED, APPROVED, REJECTED, REVOKED, EXPIRED, STALE]
+        evidenceCurrent:
+          type: [boolean, "null"]
+        version: *a2
+        round:
+          type: integer
+          minimum: 0
+        assigned: &a8
+          type: boolean
+        validUntil: &a9
+          type:
+            - string
+            - "null"
+          format: date-time
+        source: &a6
+          type: string
+          const: SYNTHETIC_ONLY
+        realDocumentsEnabled: &a5
+          type: boolean
+          const: false
+        operationalServicesEnabled: *a5
+        realDriverApproved: *a5
+    VerificationCases:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+        - source
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerificationCase"
+        nextCursor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        source: *a6
+    VerificationEvidenceChoices:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - source
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - evidenceId
+              - evidenceVersion
+              - relationshipId
+              - kind
+              - referenceCode
+              - validUntil
+            properties:
+              evidenceId: *a1
+              evidenceVersion: *a2
+              relationshipId: *a1
+              kind: *a3
+              referenceCode:
+                type: string
+                pattern: ^SYNTHETIC_[A-Z0-9_]{1,32}$
+              validUntil: &a7
+                type: string
+                format: date-time
+        source: *a6
+    VerificationDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - case
+        - evidence
+        - historyTruncated
+        - submissions
+        - decisions
+      properties:
+        case:
+          $ref: "#/components/schemas/VerificationCase"
+        evidence:
+          type:
+            - object
+            - "null"
+          additionalProperties: false
+          required:
+            - evidenceId
+            - evidenceVersion
+            - referenceCode
+            - syntheticSeatCapacity
+            - validUntil
+          properties:
+            evidenceId: *a1
+            evidenceVersion: *a2
+            referenceCode:
+              type: string
+              pattern: ^SYNTHETIC_[A-Z0-9_]{1,32}$
+            syntheticSeatCapacity:
+              type:
+                - integer
+                - "null"
+              minimum: 1
+            validUntil: *a7
+        historyTruncated: *a8
+        submissions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - round
+              - evidenceId
+              - evidenceVersion
+              - submittedAt
+            properties:
+              round: *a2
+              evidenceId: *a1
+              evidenceVersion: *a2
+              submittedAt: *a7
+        decisions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - round
+              - outcome
+              - reasonCode
+              - evidenceVersion
+              - decidedAt
+              - validUntil
+            properties:
+              id: *a1
+              round: *a2
+              outcome:
+                type: string
+                enum:
+                  - APPROVE
+                  - REJECT
+                  - REVOKE
+                  - EXPIRE
+              reasonCode:
+                type: string
+                enum:
+                  - SYNTHETIC_ACCEPTED
+                  - SYNTHETIC_INCOMPLETE
+                  - SYNTHETIC_MISMATCH
+                  - SYNTHETIC_WITHDRAWN
+                  - SYNTHETIC_EXPIRED
+              evidenceVersion: *a2
+              decidedAt: *a7
+              validUntil: *a9
     AdminLoginRequest:
       type: object
       additionalProperties: false
@@ -2302,3 +2554,327 @@ paths:
           schema:
             type: string
             format: uuid
+
+  /driver/me/verification/evidence:
+    get:
+      tags:
+        - Identity
+      operationId: listDriverSyntheticEvidence
+      summary: Own owner-provisioned synthetic reference choices; no uploads or storage URLs
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters: []
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationEvidenceChoices"
+        "400": &a1
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /driver/me/verification/cases:
+    get:
+      tags:
+        - Identity
+      operationId: listDriverVerificationCases
+      summary: Own bounded case summaries
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - &a4
+          name: after
+          in: query
+          required: false
+          schema: &a2
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCases"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+    post:
+      tags:
+        - Identity
+      operationId: openDriverVerificationCase
+      summary: Ensure one owner/context/kind case; create DRAFT, never approval
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - &a3
+          $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationOpenRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /driver/me/verification/cases/{caseId}:
+    get:
+      tags:
+        - Identity
+      operationId: getDriverVerificationCase
+      summary: Own case and latest bounded immutable history, with explicit truncation flag
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationDetail"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /driver/me/verification/cases/{caseId}/submit:
+    post:
+      tags:
+        - Identity
+      operationId: submitDriverVerificationCase
+      summary: Submit/reapply with a current synthetic evidence revision and target snapshot
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+        - *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationSubmitRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/todas/{todaId}/cases:
+    get:
+      tags:
+        - Identity
+      operationId: listAssignedVerificationCases
+      summary: Current driver.verify scope, fresh MFA and assigned driver/vehicle queue only
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: todaId
+          in: path
+          required: true
+          schema: *a2
+        - *a4
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCases"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/todas/{todaId}/memberships:
+    get:
+      tags:
+        - Identity
+      operationId: listAssignedMembershipCases
+      summary: Current toda.members.manage exact TODA, fresh MFA and assigned membership queue only
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: todaId
+          in: path
+          required: true
+          schema: *a2
+        - *a4
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCases"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/cases/{caseId}:
+    get:
+      tags:
+        - Identity
+      operationId: getAssignedVerificationCase
+      summary: Assigned Verification Officer, current scope and fresh MFA; no self review
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationDetail"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/memberships/{caseId}:
+    get:
+      tags:
+        - Identity
+      operationId: getAssignedMembershipCase
+      summary: Assigned TODA Manager, exact organization and fresh MFA; no self review
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationDetail"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/cases/{caseId}/decisions:
+    post:
+      tags:
+        - Identity
+      operationId: decideVerificationCase
+      summary: Append officer decision with CAS, current evidence, CSRF, assignment, scope, audit/outbox and
+        synthetic projection
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+        - *a3
+        - &a5
+          name: Origin
+          in: header
+          required: true
+          schema:
+            type: string
+        - &a6
+          name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationDecisionRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/memberships/{caseId}/decisions:
+    post:
+      tags:
+        - Identity
+      operationId: decideMembershipCase
+      summary: Append TODA membership decision; no city membership, staff grant or permit creation
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+        - *a3
+        - *a5
+        - *a6
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationDecisionRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1

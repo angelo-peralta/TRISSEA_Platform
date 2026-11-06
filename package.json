@@ -42,6 +42,7 @@
     "dev:driver:api": "node --env-file=.env.m2-driver services/api/dist/main.js",
     "admin:prepare": "pnpm --filter @trissea/api build && node --env-file=.env.local scripts/prepare-admin-database.mjs",
     "test:admin:auth": "pnpm --filter @trissea/api exec tsc && node --test scripts/test-admin-auth.mjs",
+    "test:verification": "pnpm --filter @trissea/api exec tsc && tsc -p packages/contracts/tsconfig.test.json && node --test scripts/test-verification.mjs",
     "keycloak:prepare": "node scripts/prepare-keycloak-local.mjs",
     "dev:admin:api": "node --env-file=.env.local services/api/dist/main.js",
     "keycloak:provision": "node --env-file=.env.local scripts/provision-keycloak-local.mjs",

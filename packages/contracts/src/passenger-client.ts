@@ -49,8 +49,9 @@ export function createPassengerClient(baseUrl:string,fetcher:typeof fetch=fetch)
   if(spec.authenticated){if(typeof args.accessToken!=='string'||!args.accessToken)throw new PassengerApiError(400);headers.Authorization='Bearer '+args.accessToken;}
   for(const parameter of spec.parameters){const name=parameter.name,field=name==='Idempotency-Key'?'idempotencyKey':name==='X-Device-Id'?'deviceId':name==='X-Client-Proof'?'clientProof':name;const value=args[field];
    if(name==='X-Client-Purpose'){headers[name]="PASSENGER";continue;}
+   if(value===undefined&&!parameter.required)continue;
    if(!valid(value,parameter.schema))throw new PassengerApiError(400);
-   if(parameter.in==='path')path=path.replace('{'+name+'}',encodeURIComponent(value as string));else headers[name]=value as string;
+   if(parameter.in==='path')path=path.replace('{'+name+'}',encodeURIComponent(value as string));else if((parameter.in as string)==='query')path+=(path.includes('?')?'&':'?')+encodeURIComponent(name)+'='+encodeURIComponent(value as string);else headers[name]=value as string;
   }
   if(spec.request && args.body && typeof args.body==='object' && 'clientPurpose' in args.body && args.body.clientPurpose!=="PASSENGER")throw new PassengerApiError(400);
   if(spec.request&&!valid(args.body,spec.request))throw new PassengerApiError(400);

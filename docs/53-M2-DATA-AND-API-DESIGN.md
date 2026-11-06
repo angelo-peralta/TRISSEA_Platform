@@ -336,3 +336,22 @@ and locked transactions. Keyed digests index encrypted flow/provider material;
 there are no plaintext contact or provider-token indexes. Separate Keycloak
 PostgreSQL ownership never grants access to these application tables.
 Exact schema/migration/cookie/realm boundaries are in [doc 61](61-M2-KEYCLOAK-ADMIN.md).
+
+## M2.6 synthetic verification implementation
+
+Migration 0007 adds seven verification-domain tables for evidence heads/versions,
+cases, submissions, assignments, decisions and encrypted request receipts. All
+bindings carry `city_tenant_id`, `toda_id` and the owned relationship; composite
+foreign keys prevent cross-scope references. Immutable rounds preserve evidence
+and decision history. Deferred SQL constraint triggers enforce current pointers.
+The restricted projection function updates only synthetic driver facts and writes
+the decision audit/outbox atomically. Runtime credentials cannot approve directly.
+
+OpenAPI v0.9.0 adds five owner-only DRIVER routes and six assigned reviewer routes.
+Driver selectors cannot include status, permits, documents or reviewer identity.
+Review commands require expected case/evidence versions, cookie, exact Origin,
+CSRF and an idempotency key. OFFICER and TODA_MANAGER routes remain separate.
+Cursor lists and bounded recent history prevent unbounded reads. No upload,
+assignment/delegation, personal-document or operating-permit endpoint exists.
+See [doc 62](62-M2-SYNTHETIC-VERIFICATION.md) for the state machine, evidence
+invalidation, isolated reproduction and actual acceptance status.

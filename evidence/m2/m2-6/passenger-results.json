@@ -1,0 +1,25 @@
+{
+  "database": "trissea_m2_test_367e3c3aede4",
+  "executedAt": "2026-11-06T07:55:34.435Z",
+  "syntheticOnly": true,
+  "checks": [
+    "Applied 0004_passenger_auth",
+    "Rolled back 0004_passenger_auth",
+    "Applied 0004_passenger_auth",
+    "Fresh/repeated/failed transaction/down/reapply preserve M1-M2.2 ledger and unrelated table; no seeded identities",
+    "Drizzle/PostgreSQL consistency: 4 tables, columns/defaults/nullability and all declared constraints/indexes",
+    "Real PostgreSQL non-owner login and Redis PONG; real AppModule global default-deny guard and registered passenger routes",
+    "Positive mock OTP -> signed JWT -> own profile -> required synthetic consent -> encrypted/CAS/idempotent profile -> session list -> logout/revocation",
+    "Five invalid attempts lock; expired Redis proof denied; wrong purpose/proof denied; concurrent identical verification returns one session/redemption; changed retry denied",
+    "Same-key request sends once; payload conflict/cooldown/hourly destination limit enforced; Redis proof loss cannot authenticate or reset durable send budget",
+    "Verified phone maps to one global user with separate sessions; cross-account session access denied; own other-session revocation immediate",
+    "Concurrent same-key refresh creates one successor; wrong client proof does not revoke; changed/expired old-token reuse revokes family; account restriction immediately denies JWT/refresh",
+    "Injected post-consume DB outage yields 503; changed request cannot redeem receipt; original retry succeeds once after recovery",
+    "Generated stateless typed client: all ten implemented operations exercised with runtime request/response schema validation, including empty 204",
+    "Malformed/oversize payloads bounded and sanitized; mixed credentials denied; driver/booking unavailable; audit/outbox present",
+    "Forced profile RLS and pooled context cleanup; no raw phones/JWT/refresh/proof in persisted identity/session/audit/outbox rows; concurrent verification-IP limit 30/min",
+    "Concurrent request idempotency; destination 10/day, device 10/hour and 20/day, IP 20/hour and global 100/day durable limits enforced using synthetic aged fixtures",
+    "Closed Redis transport: 503, no credential issuance or SMS",
+    "Closed PostgreSQL transport: new challenge 503, no mock delivery"
+  ]
+}

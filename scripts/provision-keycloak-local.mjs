@@ -4,10 +4,10 @@ export async function bootstrapClient(env){
  let credential;
  async function authorize(){
  if(credential&&credential.expiresAt>Date.now()+5000)return credential.token;
- const response=await fetch(base+'/realms/master/protocol/openid-connect/token',{method:'POST',body:new URLSearchParams({grant_type:'password',client_id:'admin-cli',username:env.KEYCLOAK_BOOTSTRAP_USER,password:env.KEYCLOAK_BOOTSTRAP_PASSWORD}),signal:AbortSignal.timeout(5000)});
+ const response=await fetch(base+'/realms/master/protocol/openid-connect/token',{method:'POST',body:new URLSearchParams({grant_type:'password',client_id:'admin-cli',username:env.KEYCLOAK_BOOTSTRAP_USER,password:env.KEYCLOAK_BOOTSTRAP_PASSWORD}),signal:AbortSignal.timeout(15000)});
  const result=await response.json();if(!response.ok||!result.access_token)throw new Error('Bootstrap unavailable');credential={token:result.access_token,expiresAt:Date.now()+result.expires_in*1000};return credential.token;
  }
- return async(path,method='GET',body)=>{const token=await authorize(),r=await fetch(base+'/admin/realms/'+realm+path,{method,headers:{Authorization:`Bearer ${token}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(5000)});if(!r.ok)throw new Error(`Synthetic realm provisioning failed (${r.status})`);return r.status===204||r.status===201?null:r.json();};
+ return async(path,method='GET',body)=>{const token=await authorize(),r=await fetch(base+'/admin/realms/'+realm+path,{method,headers:{Authorization:`Bearer ${token}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(15000)});if(!r.ok)throw new Error(`Synthetic realm provisioning failed (${r.status})`);return r.status===204||r.status===201?null:r.json();};
 }
 export async function provision(env){
  const api=await bootstrapClient(env),current=await api('');

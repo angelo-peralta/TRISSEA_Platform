@@ -23,6 +23,13 @@ jobs:
       - run: pnpm keycloak:provision
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:admin:auth
+      - run: pnpm test:verification
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-synthetic-verification-results
+          path: .cache/m2-verification/results.json
+          include-hidden-files: true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -53,7 +60,7 @@ jobs:
           name: m2-admin-keycloak-results
           path: |
             .cache/m2-admin/results.json
-            evidence/m2/m2-5/*.png
+            .cache/m2-admin/screenshots/*.png
           include-hidden-files: true
       - if: always()
         run: if [ -f .env.local ]; then docker compose --env-file .env.local -f infra/compose.m2-keycloak.yml stop; fi

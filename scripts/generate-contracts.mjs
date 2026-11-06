@@ -52,17 +52,17 @@ function generateMobileClient(document,purpose) {
   const label=purpose==='DRIVER'?'Driver':'Passenger';
   const specs={};const inputs=[],operationTypes=[];
   for(const [path,item] of Object.entries(document.paths))for(const [method,op] of Object.entries(item)){
-    if(purpose==='PASSENGER'?op['x-implemented-in']!=='M2.3-local-synthetic':!(op['x-driver-operation-id']||op['x-implemented-in']==='M2.4-local-synthetic'))continue;
+    if(purpose==='PASSENGER'?op['x-implemented-in']!=='M2.3-local-synthetic':!(op['x-driver-operation-id']||op['x-implemented-in']==='M2.4-local-synthetic'||(op['x-implemented-in']==='M2.6-local-synthetic'&&op['x-client-purpose']==='DRIVER')))continue;
     const operationId=purpose==='DRIVER'?(op['x-driver-operation-id']??op.operationId):op.operationId;
     operationTypes.push(JSON.stringify(operationId)+': Omit<Operations['+JSON.stringify(op.operationId)+'],"response"> & {response: '+label+'Purpose<Operations['+JSON.stringify(op.operationId)+']["response"]>};');
     const success=Object.entries(op.responses).find(([code])=>/^2\d\d$/.test(code));
     const fields=[...(op.requestBody?['body: '+label+'Purpose<Operations['+JSON.stringify(op.operationId)+']["body"]>;']:[]),...(op.security?[]:['accessToken: string;'])];
     const parameters=(op.parameters??[]).map(p=>p.$ref?document.components.parameters[p.$ref.split('/').at(-1)]:p);
-    for(const p of parameters.filter(p=>p.name!=='X-Client-Purpose'))fields.push(`${JSON.stringify(p.name==='Idempotency-Key'?'idempotencyKey':p.name==='X-Device-Id'?'deviceId':p.name==='X-Client-Proof'?'clientProof':p.name)}: string;`);
+    for(const p of parameters.filter(p=>p.name!=='X-Client-Purpose'))fields.push(`${JSON.stringify(p.name==='Idempotency-Key'?'idempotencyKey':p.name==='X-Device-Id'?'deviceId':p.name==='X-Client-Proof'?'clientProof':p.name)}${p.required?'':'?'}: string;`);
     inputs.push(`${JSON.stringify(operationId)}: { ${fields.join(' ')} signal?: AbortSignal };`);
     specs[operationId]={path,method:method.toUpperCase(),parameters,authenticated:!op.security,request:op.requestBody?.content['application/json'].schema??null,response:success[1].content?.['application/json'].schema??null,status:Number(success[0])};
   }
-  if(Object.keys(specs).length!==(purpose==='DRIVER'?15:10))throw new Error('Unexpected mobile operation count');
+  if(Object.keys(specs).length!==(purpose==='DRIVER'?20:10))throw new Error('Unexpected mobile operation count');
   const names=new Set();function collect(schema){if(!schema)return;if(schema.$ref){const name=schema.$ref.split('/').at(-1);if(!names.has(name)){names.add(name);collect(document.components.schemas[name]);}}for(const value of Object.values(schema.properties??{}))collect(value);if(schema.items)collect(schema.items);}
   for(const spec of Object.values(specs)){collect(spec.request);collect(spec.response);}
   const schemas=Object.fromEntries([...names].map(name=>[name,document.components.schemas[name]]));
@@ -99,8 +99,9 @@ export function create${label}Client(baseUrl:string,fetcher:typeof fetch=fetch){
   if(spec.authenticated){if(typeof args.accessToken!=='string'||!args.accessToken)throw new ${label}ApiError(400);headers.Authorization='Bearer '+args.accessToken;}
   for(const parameter of spec.parameters){const name=parameter.name,field=name==='Idempotency-Key'?'idempotencyKey':name==='X-Device-Id'?'deviceId':name==='X-Client-Proof'?'clientProof':name;const value=args[field];
    if(name==='X-Client-Purpose'){headers[name]=${JSON.stringify(purpose)};continue;}
+   if(value===undefined&&!parameter.required)continue;
    if(!valid(value,parameter.schema))throw new ${label}ApiError(400);
-   if(parameter.in==='path')path=path.replace('{'+name+'}',encodeURIComponent(value as string));else headers[name]=value as string;
+   if(parameter.in==='path')path=path.replace('{'+name+'}',encodeURIComponent(value as string));else if((parameter.in as string)==='query')path+=(path.includes('?')?'&':'?')+encodeURIComponent(name)+'='+encodeURIComponent(value as string);else headers[name]=value as string;
   }
   if(spec.request && args.body && typeof args.body==='object' && 'clientPurpose' in args.body && args.body.clientPurpose!==${JSON.stringify(purpose)})throw new ${label}ApiError(400);
   if(spec.request&&!valid(args.body,spec.request))throw new ${label}ApiError(400);

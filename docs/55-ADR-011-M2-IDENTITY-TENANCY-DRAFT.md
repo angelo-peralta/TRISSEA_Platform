@@ -106,3 +106,10 @@ audience, consent and own-resource routes. Seven synthetic-only tables form the
 pending driver intake and constrained eligibility handoff; they do not implement
 M2.6 legal/document review. Dedicated non-owner locking and owner/purpose RLS
 preserve current DB authority without runtime approval privileges. See doc 60.
+
+M2.6 extends that boundary with synthetic-only versioned cases and reviewed
+decisions. It reuses the approved role vocabulary and SAME application database,
+with a separate non-owner connection and hardened NOLOGIN projection owner.
+Assignment never substitutes for a scoped grant. Case approval creates no city
+membership, staff role or permit assertion. Real evidence processing and reviewer
+assignment/delegation procedures remain outside architecture approval. See doc 62.

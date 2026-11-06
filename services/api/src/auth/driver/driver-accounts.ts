@@ -9,6 +9,8 @@ import { hasPassengerConsent } from '../passenger/passenger-sessions';
 import { PhoneAuthError,equalDigest,idempotency,objectInput,uuid } from '../passenger/primitives';
 import { evaluateDriverEligibility,type DriverEligibilityFacts } from './driver-eligibility';
 export class DriverAccounts {
+ private verification?:{current(tx:AuthTransaction,userId:string,cityTenantId:string,todaId:string,relationshipId:string):Promise<boolean>};
+ useVerificationEvidence(port:NonNullable<DriverAccounts['verification']>){this.verification=port;}
  constructor(readonly secrets:PassengerSecrets,readonly settings:PassengerSettings,readonly sharedProfiles:PassengerProfiles){}
  async me(tx:AuthTransaction,userId:string,sessionId:string){
   const [row]=await tx.select().from(d.driverProfiles).where(eq(d.driverProfiles.userId,userId));if(!row)throw new PhoneAuthError('AUTH_FAILED');
@@ -111,6 +113,8 @@ export class DriverAccounts {
    profile:profile?convert(profile):null,cityState:city?.state??'',todaState:toda?.state??'',cityMembershipState:membership?.state??null,intake:intake??null,
    affiliation:convert(affiliation),relationship:relationship?convert(relationship):null,vehicle:vehicle?convert(vehicle):null,
    assertion:assertion?{...assertion,effectiveFrom:assertion.effectiveFrom.getTime(),expiresAt:assertion.expiresAt.getTime(),revokedAt:assertion.revokedAt?.getTime()??null}:null};
-  return {cityTenantId,todaId,...evaluateDriverEligibility(facts)};
+  const result=evaluateDriverEligibility(facts);
+  if(this.verification&&(!relationship||!await this.verification.current(tx,userId,cityTenantId,todaId,relationship.id))){result.identityEligible=false;result.reasons.push('VERIFICATION_CASES_NOT_CURRENT');}
+  return {cityTenantId,todaId,...result};
  }
 }
