@@ -316,3 +316,23 @@ intake configuration is owner-provisioned; requesting affiliation grants neither
 city membership nor a staff role. Every eligibility result keeps operational and
 real-driver approval false, even for positive synthetic fixtures. M2 always denies
 the existing future shift/location/offer routes; no operational success is claimed.
+
+## M2.5 implemented contract reconciliation
+
+MVP v0.8.0 implements POST `/admin/auth/login`, GET `/admin/auth/callback`,
+GET `/admin/auth/session`, POST `/admin/auth/logout` and read-only
+GET `/admin/access/todas/{todaId}`. These supersede proposed `/auth/admin/*` and
+browser-refresh paths above. Reauthentication uses the same fresh password/TOTP
+flow; provider refresh is disabled. Cookie-based operations have an explicit
+security scheme; mobile bearer credentials cannot substitute for them. Generated
+backend/shared DTOs match the contract. The Vite integration keeps CSRF only in
+memory; provider tokens never leave the BFF.
+
+0006 adds two private authentication-boundary tables, admin_oidc_flows and
+admin_browser_sessions, and a non-owner role/locking function. It preserves the
+0001–0005 ledger. Initial unauthenticated credential lookup requires auth-boundary
+metadata access; app authorization uses the existing current-user/city/TODA RLS
+and locked transactions. Keyed digests index encrypted flow/provider material;
+there are no plaintext contact or provider-token indexes. Separate Keycloak
+PostgreSQL ownership never grants access to these application tables.
+Exact schema/migration/cookie/realm boundaries are in [doc 61](61-M2-KEYCLOAK-ADMIN.md).

@@ -18,6 +18,11 @@ jobs:
       - run: pnpm test:authorization:db
       - run: pnpm test:passenger:auth
       - run: pnpm test:driver:auth
+      - run: pnpm keycloak:prepare
+      - run: pnpm keycloak:up
+      - run: pnpm keycloak:provision
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:admin:auth
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -42,5 +47,15 @@ jobs:
           name: m2-driver-auth-results
           path: .cache/m2-driver/results.json
           include-hidden-files: true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2-admin-keycloak-results
+          path: |
+            .cache/m2-admin/results.json
+            evidence/m2/m2-5/*.png
+          include-hidden-files: true
+      - if: always()
+        run: if [ -f .env.local ]; then docker compose --env-file .env.local -f infra/compose.m2-keycloak.yml stop; fi
       - if: always()
         run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml stop

@@ -1,6 +1,6 @@
 # M2 technical implementation plan
 
-Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.4 local backend acceptance recorded; review stop before M2.5. Native integration and production gates remain pending.**
+Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.5 local engineering acceptance recorded. Stop before M2.6. Native integration and production gates remain pending.**
 
 ## Prerequisite and scope
 
@@ -298,3 +298,11 @@ synthetic eligibility handoff are implemented. See
 [M2.4 implementation/evidence](60-M2-DRIVER-AUTHENTICATION.md). This does not approve
 real verification rules or implement the M2.6 reviewer/document workflows.
 Native login/storage testing remains M2.7. Stop before Keycloak M2.5 for review.
+
+M2.5 update: owner approved continuation after M2.4. Real pinned local Keycloak,
+password/TOTP OIDC with PKCE, current-factor checks, internal subject mapping,
+opaque BFF cookies, CSRF and per-resource PostgreSQL authorization are implemented.
+The five implemented routes and migration 0006 supersede the proposed admin route
+names above. No provider refresh or public staff registration is activated.
+See [configuration, review boundaries and evidence](61-M2-KEYCLOAK-ADMIN.md).
+Earlier slice-stop statements describe historical gates. Current stop is M2.6.

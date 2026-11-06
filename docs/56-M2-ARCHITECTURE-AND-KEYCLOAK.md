@@ -97,3 +97,10 @@ Primary implementation references reviewed for this boundary:
 [Keycloak containers](https://www.keycloak.org/server/containers),
 [PostgreSQL 17 RLS](https://www.postgresql.org/docs/17/ddl-rowsecurity.html),
 [Drizzle constraints](https://orm.drizzle.team/docs/indexes-constraints).
+
+M2.5 implementation update (2026-11-06): owner approved the Keycloak slice after
+M2.4. [Doc 61](61-M2-KEYCLOAK-ADMIN.md) is the current concrete realm/client,
+MFA-assurance, internal-mapping, cookie/session, migration and environment
+contract. A real local provider replaces the earlier denied admin proof adapter
+only behind the explicit disposable-synthetic flag. Independent production
+security/revocation review and all external gates remain unresolved.

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: TRISSEA Tuguegarao MVP API
-  version: 0.7.0
-  description: M1 health and explicitly enabled M2.3/M2.4 local-synthetic passenger/driver identity are implemented. Other operations remain future design. Legal, privacy and public-operation approval gates remain closed.
+  version: 0.8.0
+  description: M1 health, M2.3/M2.4 passenger/driver identity, and M2.5 Keycloak administrator BFF are implemented only behind local-synthetic flags. Other operations remain future design. Live SMS, recovery, real identity documents and production activation remain disabled.
 servers:
 - url: https://api.example.invalid/v1
   description: placeholder
@@ -19,6 +19,12 @@ tags:
 - name: Ops
 components:
   securitySchemes:
+    adminCookie:
+      type: apiKey
+      in: cookie
+      name: trissea_admin_local
+      description: Local-only HttpOnly host-only SameSite=Strict cookie. Production contract requires
+        __Host-trissea-admin Secure; production activation is gated. No bearer/provider token accepted.
     bearerAuth:
       type: http
       scheme: bearer
@@ -54,6 +60,77 @@ components:
           schema:
             $ref: '#/components/schemas/PhoneAuthError'
   schemas:
+    AdminLoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientProof
+      properties:
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43}$
+          description: 256-bit CSPRNG browser attempt proof held in memory. Same key+proof permits a bounded
+            retry; changed proof conflicts.
+    AdminLoginResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - authorizationUrl
+      properties:
+        authorizationUrl:
+          type: string
+          format: uri
+          description: Approved Keycloak authorization URL with state and S256 PKCE, no provider token.
+    AdminSession:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - sessionId
+        - clientPurpose
+        - mfaVerified
+        - csrfToken
+        - permissionsResolvedPerResource
+        - operationalServicesEnabled
+      properties:
+        userId: &a1
+          type: string
+          format: uuid
+        sessionId: *a1
+        clientPurpose:
+          type: string
+          const: ADMIN
+        mfaVerified:
+          type: boolean
+          const: true
+        csrfToken:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{64}$
+        permissionsResolvedPerResource:
+          type: boolean
+          const: true
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+    AdminScopeAccess:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - todaId
+        - canManageMemberships
+        - operationalServicesEnabled
+      properties:
+        cityTenantId: &a2
+          type: string
+          format: uuid
+        todaId: *a2
+        canManageMemberships:
+          type: boolean
+          const: true
+        operationalServicesEnabled:
+          type: boolean
+          const: false
     FutureObject: &id001
       type: object
     PhoneChallengeRequest:
@@ -2063,3 +2140,165 @@ paths:
           content:
             application/json:
               schema: *id001
+  /admin/auth/login:
+    post:
+      tags:
+        - Identity
+      operationId: startAdminLogin
+      summary: Start bounded password/TOTP OIDC flow or reauthenticate; no public registration
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "200":
+          description: Bound authorization URL and short-lived HttpOnly SameSite=Lax flow cookie
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginResponse"
+        "400": &a1
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "429": *a1
+        "503": *a1
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - in: header
+          name: Origin
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginRequest"
+  /admin/auth/callback:
+    get:
+      tags:
+        - Identity
+      operationId: completeAdminLogin
+      summary: Consume one browser-bound OIDC state, validate code/nonce/PKCE/current TOTP and approved
+        internal mapping
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "303":
+          description: Rotate opaque app cookie, clear flow cookie and redirect to configured same-origin
+            dashboard. Provider tokens never reach the SPA.
+        "400": &a2
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a2
+        "403": *a2
+        "409": *a2
+        "429": *a2
+        "503": *a2
+      security: []
+      parameters:
+        - in: query
+          name: code
+          required: true
+          schema: &a3
+            type: string
+        - in: query
+          name: state
+          required: true
+          schema: *a3
+  /admin/auth/session:
+    get:
+      tags:
+        - Identity
+      operationId: getAdminSession
+      summary: Current application identity, DB session, provider factor and MFA assurance; grants
+        resolved per resource
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "200":
+          description: Own application session and in-memory CSRF credential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "400": &a4
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a4
+        "403": *a4
+        "409": *a4
+        "429": *a4
+        "503": *a4
+      security:
+        - adminCookie: []
+  /admin/auth/logout:
+    post:
+      tags:
+        - Identity
+      operationId: logoutAdmin
+      summary: Revoke current application session transactionally; exact Origin and CSRF required
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "204":
+          description: Revoked application session and cleared cookie. A replay is denied because the session
+            is revoked; no duplicate mutation.
+        "400": &a5
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a5
+        "403": *a5
+        "409": *a5
+        "429": *a5
+        "503": *a5
+      security:
+        - adminCookie: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - in: header
+          name: Origin
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: X-CSRF-Token
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: []
+              properties: {}
+  /admin/access/todas/{todaId}:
+    get:
+      tags:
+        - Identity
+      operationId: getAdminTodaAccess
+      summary: Read-only authorization probe; current TODA_MANAGER grant in this city/TODA and MFA
+        freshness <= 5 minutes
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "200":
+          description: Authorized scope only, no operational write
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminScopeAccess"
+        "400": &a6
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a6
+        "403": *a6
+        "409": *a6
+        "429": *a6
+        "503": *a6
+      security:
+        - adminCookie: []
+      parameters:
+        - in: path
+          name: todaId
+          required: true
+          schema:
+            type: string
+            format: uuid

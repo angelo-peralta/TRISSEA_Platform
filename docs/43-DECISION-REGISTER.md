@@ -80,7 +80,7 @@ Conservative existing-vocabulary catalog edges are listed in doc 37 / doc 58.
 | ID | Unresolved detail | Status | Until decided |
 | --- | --- | --- | --- |
 | M2-A01 | Narrow metadata-only permission for SECURITY_AUDITOR; future fare activation and GPS permission assignments | REQUIRES_SECURITY | No new audit-read permission or public endpoint; fare.activate/gps.read.live remain unassigned; no operational handler |
-| M2-A02 | Current Keycloak factor assurance method and out-of-band revocation bounds | REQUIRES_SECURITY | M2.5 must prove it; default proof verifier denies, synthetic tests are not a live MFA pass |
+| M2-A02 | Current Keycloak factor assurance method and out-of-band revocation bounds | LOCAL METHOD IMPLEMENTED / PRODUCTION REQUIRES_SECURITY | M2.5 uses pinned required pwd+otp executions, signed AMR and current-factor/session/config reads; bounded in-flight proof is not a production distributed revocation guarantee; see doc 61 |
 
 M2.2 does not approve Gate D role delegation/bootstrap/recovery, or any Gate A/B/C/E
 activation. Synthetic assigned-case/fare resources test policy only; they are not
@@ -124,3 +124,22 @@ Shift/location/offer endpoints deny server-side. Gates A–E remain closed;
 production security values, key handling, retention and native secure storage
 acceptance remain unresolved. See [doc 60](60-M2-DRIVER-AUTHENTICATION.md).
 Stop before M2.5; no publication, deployment, recovery or privileged delegation.
+
+## M2.5 administrator integration review scope — 2026-11-06
+
+Owner approved continuation after M2.4. The selected local realm and BFF use real
+Keycloak 26.8.2 password/TOTP, confidential Authorization Code + S256 PKCE,
+required signed pwd+otp AMR, current identity/factor/session/configuration checks
+and explicit internal mapping. Roles and scope remain PostgreSQL authority.
+Cookie rotation, CSRF/Origin, local revocation/audit/outbox and bounded anonymous
+flow budgets are implemented. No business, legal or driver-authority policy changed.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P08 | Local IdP read-service privileges, 1h absolute app session, 15m idle, 5m sensitive freshness, <=5s in-flight proof, 20/IP/min + 100/hour flow budgets | DEVELOPMENT ONLY / PRODUCTION REQUIRES_SECURITY | Reassess measured failure/revocation bounds, abuse limits, secret custody, provider hardening and retention before activation |
+| M2-P09 | Real administrator invitation/bootstrap ownership, factor replacement and recovery | GATE D CLOSED | Only explicitly authorized isolated synthetic fixtures; no public registration, operational role delegation, recovery codes or reset shortcuts |
+
+[Doc 61](61-M2-KEYCLOAK-ADMIN.md) records current test results and outstanding
+checks. The implementation does not grant Gate A live sending, B real personal
+data, C driver operation, D recovery/delegation or E public deployment. Current
+stop is before M2.6; no GitHub publication was authorized for this slice.

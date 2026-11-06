@@ -2,8 +2,8 @@
 
 Date: 2026-11-05. Status: **ACCEPTED ARCHITECTURE / LOCAL DEVELOPMENT ONLY**.
 Approval: explicit platform-owner M2 implementation directive in this session.
-M2.0/M2.1 were authorized, followed by owner approval for M2.2, M2.3 and M2.4;
-review stop before M2.5. Historical DRAFT filename is
+M2.0/M2.1 were authorized, followed by owner approval for M2.2, M2.3, M2.4 and M2.5;
+current review stop before M2.6. Historical DRAFT filename is
 retained for links. Production/legal/privacy gates are not approved.
 Owners requested: platform owner, security owner, privacy owner and authorized
 city/TODA verification-policy owners. Related unresolved decisions: D11, D13,

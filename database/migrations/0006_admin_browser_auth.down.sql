@@ -1,0 +1,10 @@
+DROP FUNCTION identity.lock_admin_identity(uuid,uuid);
+DROP TABLE identity.admin_browser_sessions;
+DROP TABLE identity.admin_oidc_flows;
+DROP FUNCTION identity.protect_admin_flow();
+DROP POLICY admin_auth_sessions ON identity.app_sessions;
+DROP POLICY admin_auth_user_lock ON identity.app_users;
+DROP POLICY admin_auth_user ON identity.app_users;
+REVOKE ALL ON identity.app_users,identity.auth_identities,identity.administrative_identity_mappings,identity.app_sessions,identity.refresh_credentials,identity.audit_events,identity.outbox_events FROM trissea_m2_admin_auth;
+REVOKE SELECT(id,state,auth_version,version),UPDATE(version) ON identity.app_users FROM trissea_m2_admin_auth;
+REVOKE SELECT(session_id,revoked_at),UPDATE(revoked_at) ON identity.refresh_credentials FROM trissea_m2_admin_auth;

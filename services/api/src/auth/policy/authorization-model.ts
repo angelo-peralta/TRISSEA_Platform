@@ -55,6 +55,8 @@ export const actionPolicies = Object.freeze({
   DRIVER_INTAKE_SELF:{...self('ACCOUNT',true),clientPurpose:'DRIVER' as const,activeSelf:true},
   DRIVER_INTAKE_READ_SELF:{...self('ACCOUNT'),clientPurpose:'DRIVER' as const,activeSelf:true},
   DRIVER_REVOKE_SELF:{...self('SESSION',true,true),clientPurpose:'DRIVER' as const},
+  ADMIN_READ_SELF:{...self('ACCOUNT'),clientPurpose:'ADMIN' as const},
+  ADMIN_LOGOUT_SELF:{...self('SESSION',true,true),clientPurpose:'ADMIN' as const},
   TODA_MEMBERS_MANAGE: scoped('TODA', 'toda.members.manage', ['TODA_MANAGER'], ['TODA'], { fresh: true }),
   DRIVER_VERIFY: scoped('VERIFICATION_CASE', 'driver.verify', ['VERIFICATION_OFFICER'], ['CITY', 'TODA'], { fresh: true, assigned: true, noSelfApproval: true }),
   FARE_DRAFT: scoped('FARE_POLICY', 'fare.draft', ['CITY_FARE_EDITOR'], ['CITY']),

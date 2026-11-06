@@ -7,7 +7,12 @@ import type { GrantRecord, ResourceKind, ResourceRecord, SessionProof, SubjectRe
 
 export type PolicyTransaction = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 export abstract class AuthorizationDatabase {
-  abstract transaction<T>(work: (tx: PolicyTransaction) => Promise<T>): Promise<T>;
+  abstract transaction<T>(work: (tx: PolicyTransaction) => Promise<T>,purpose?:'PASSENGER'|'DRIVER'|'ADMIN'): Promise<T>;
+}
+
+export class RoutedAuthorizationDatabase extends AuthorizationDatabase{
+ constructor(readonly mobile:AuthorizationDatabase,readonly browser:AuthorizationDatabase){super();}
+ transaction<T>(work:(tx:PolicyTransaction)=>Promise<T>,purpose?:'PASSENGER'|'DRIVER'|'ADMIN'){return (purpose==='ADMIN'?this.browser:this.mobile).transaction(work);}
 }
 @Injectable()
 export class UnavailableAuthorizationDatabase extends AuthorizationDatabase {

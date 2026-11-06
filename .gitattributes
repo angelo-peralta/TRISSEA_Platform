@@ -8,5 +8,6 @@ database/migrations/0002_*.sql text eol=lf
 database/migrations/0003_*.sql text eol=lf
 database/migrations/0004_*.sql text eol=lf
 database/migrations/0005_*.sql text eol=lf
+database/migrations/0006_*.sql text eol=lf
 packages/contracts/src/*-client.ts text eol=lf
 services/api/src/contracts/generated/*.ts text eol=lf

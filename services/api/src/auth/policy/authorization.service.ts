@@ -67,7 +67,7 @@ export class AuthorizationService {
         const finalDecision = decideAuthorization(binding,finalSubject,await withScopeStates(tx,attemptResource),await loadGrants(tx,binding,attemptResource),action,await databaseTime(tx),this.settings);
         if (!finalDecision.allowed) throw new InterruptedPolicy(finalDecision.reason);
         return { allowed: true as const, value };
-      });
+      },binding.purpose);
     } catch (error) {
       // The original transaction rolled back. Record only safe identifiers/reasons in a new transaction.
       try {
@@ -75,7 +75,7 @@ export class AuthorizationService {
           await setPolicyContext(tx,binding,null,null);
           attemptSubject = await loadSubject(tx,binding);
           await audit(tx,'DENIED',error instanceof InterruptedPolicy ? error.reason : 'TRANSACTION_ABORTED');
-        });
+        },binding.purpose);
       } catch { throw new ServiceUnavailableException('Authorization temporarily unavailable'); }
       if (error instanceof InterruptedPolicy) throw httpDenial(error.reason);
       if (error instanceof HttpException) throw error; // validated domain errors; public bootstrap filter redacts values

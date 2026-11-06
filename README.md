@@ -64,5 +64,12 @@ ignored disposable environment; `pnpm.cmd dev:driver:api` serves it on loopback
 4101. Run `pnpm.cmd test:driver:auth` for the isolated mock harness. Native
 authentication/storage and real verification acceptance remain pending.
 
+[M2.5 Keycloak administrator integration](docs/61-M2-KEYCLOAK-ADMIN.md) provides
+an isolated password/TOTP provider, encrypted BFF session handling and a functional
+admin identity panel. Use `keycloak:prepare`, `keycloak:up`, `keycloak:provision`,
+`admin:prepare` and `test:admin:auth`; runtime commands are `dev:admin:api` and
+`dev:admin:identity`. No default TRISSEA administrator or public registration is
+created. Local evidence does not approve production or recovery/delegation.
+
 ## Release safety
 Screenshot figures alone do not establish a lawful origin→destination price or private vehicle hire tariff. **No production fare activation until signed applicable city/TODA source, road/MTOP service area approval, identity/privacy controls and physical device testing.** Old design docs should be read with the v1.5 status document, which supersedes conflicting launch-order recommendations.

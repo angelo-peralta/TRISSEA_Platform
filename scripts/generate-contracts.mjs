@@ -43,7 +43,7 @@ export function generate(document) {
       operations.push(`  ${JSON.stringify(operation.operationId)}: { method: ${JSON.stringify(method.toUpperCase())}; path: ${JSON.stringify(path)}; body: ${request ? schemaType(request) : 'never'}; response: ${response?.content?.['application/json']?.schema?schemaType(response.content['application/json'].schema):'void'} };`);
     }
   }
-  return `// Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.\n// Only x-implemented-in operations are implemented; M2.3/M2.4 require the local-synthetic flags.\nexport interface Schemas {\n${schemas}\n}\nexport interface Operations {\n${operations.join('\n')}\n}\nexport type HealthResponse = Operations['getHealth']['response'];\n`;
+  return `// Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.\n// Only x-implemented-in operations are implemented; M2.3/M2.4/M2.5 require local-synthetic flags.\nexport interface Schemas {\n${schemas}\n}\nexport interface Operations {\n${operations.join('\n')}\n}\nexport type HealthResponse = Operations['getHealth']['response'];\n`;
 }
 
 export const generatePassengerClient=document=>generateMobileClient(document,'PASSENGER');

@@ -201,3 +201,13 @@ database lock wait proves a concurrent verification downgrade serializes with an
 eligibility read. Eligible synthetic fixtures still receive server-side denials
 for shifts, GPS and offers. No native secure-storage/login, real verification,
 Keycloak MFA or operational acceptance follows from these backend checks.
+
+M2.5 update: the owner approved continuation after M2.4. Actual isolated Keycloak
+26.8.2 and Playwright now exercise password/TOTP, signed AMR, one-use code flows,
+current factors, cookie/Origin/CSRF, scoped grants and application revocation.
+This is real local provider integration, not live SMS or production acceptance.
+The current execution record and remaining checks are maintained in
+[doc 61](61-M2-KEYCLOAK-ADMIN.md). Provider assurance is re-read for every protected
+request, bounded for at most five seconds during local authorization; production
+out-of-band revocation guarantees still require independent review. Gate D real
+bootstrap/recovery/delegation and Gates A/B/C/E remain closed. Stop before M2.6.

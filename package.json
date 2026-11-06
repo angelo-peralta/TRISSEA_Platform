@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.20.0",
-  "engines": { "node": ">=22.13.0 <23", "pnpm": "11.20.0" },
+  "engines": {
+    "node": ">=22.13.0 <23",
+    "pnpm": "11.20.0"
+  },
   "scripts": {
     "dev:api": "pnpm --filter @trissea/api dev",
     "dev:admin": "pnpm --filter @trissea/admin dev",
@@ -36,19 +39,30 @@
     "passenger:prepare": "pnpm --filter @trissea/api build && node --env-file=.env.m2-test scripts/prepare-passenger-local.mjs",
     "dev:passenger:api": "node --env-file=.env.m2-passenger services/api/dist/main.js",
     "driver:prepare": "pnpm --filter @trissea/api build && node --env-file=.env.m2-test scripts/prepare-passenger-local.mjs --driver",
-    "dev:driver:api": "node --env-file=.env.m2-driver services/api/dist/main.js"
+    "dev:driver:api": "node --env-file=.env.m2-driver services/api/dist/main.js",
+    "admin:prepare": "pnpm --filter @trissea/api build && node --env-file=.env.local scripts/prepare-admin-database.mjs",
+    "test:admin:auth": "pnpm --filter @trissea/api exec tsc && node --test scripts/test-admin-auth.mjs",
+    "keycloak:prepare": "node scripts/prepare-keycloak-local.mjs",
+    "dev:admin:api": "node --env-file=.env.local services/api/dist/main.js",
+    "keycloak:provision": "node --env-file=.env.local scripts/provision-keycloak-local.mjs",
+    "keycloak:up": "docker compose --env-file .env.local -f infra/compose.m2-keycloak.yml up -d --wait",
+    "dev:admin:identity": "node --env-file=.env.local apps/admin/node_modules/vite/bin/vite.js --config apps/admin/vite.config.ts apps/admin"
   },
   "devDependencies": {
-    "@expo/config-plugins": "57.0.11",
     "@eslint/js": "9.39.5",
+    "@expo/config-plugins": "57.0.11",
+    "@playwright/test": "1.64.1",
     "@types/node": "20.19.43",
     "eslint": "9.39.5",
     "eslint-plugin-react-hooks": "7.1.1",
     "expo-doctor": "1.20.2",
     "globals": "17.11.0",
+    "otpauth": "9.6.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.64.0",
     "yaml": "2.9.0"
   },
-  "dependencies": { "postgres": "3.4.9" }
+  "dependencies": {
+    "postgres": "3.4.9"
+  }
 }

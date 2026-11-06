@@ -1,6 +1,10 @@
 // Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.
-// Only x-implemented-in operations are implemented; M2.3/M2.4 require the local-synthetic flags.
+// Only x-implemented-in operations are implemented; M2.3/M2.4/M2.5 require local-synthetic flags.
 export interface Schemas {
+  "AdminLoginRequest": { "clientProof": string; };
+  "AdminLoginResponse": { "authorizationUrl": string; };
+  "AdminSession": { "userId": string; "sessionId": string; "clientPurpose": "ADMIN"; "mfaVerified": true; "csrfToken": string; "permissionsResolvedPerResource": true; "operationalServicesEnabled": false; };
+  "AdminScopeAccess": { "cityTenantId": string; "todaId": string; "canManageMemberships": true; "operationalServicesEnabled": false; };
   "FutureObject": Record<string, unknown>;
   "PhoneChallengeRequest": { "phone": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; };
   "PhoneChallengeResponse": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deliveryMode": "MOCK"; };
@@ -72,5 +76,10 @@ export interface Operations {
   "approveFareDraft": { method: "POST"; path: "/admin/fares/{policyId}/approve"; body: { "decision": "APPROVE" | "REJECT"; "reason": string; }; response: Record<string, unknown> };
   "listTodas": { method: "GET"; path: "/admin/todas"; body: never; response: Record<string, unknown> };
   "listOperationalRides": { method: "GET"; path: "/admin/rides"; body: never; response: Record<string, unknown> };
+  "startAdminLogin": { method: "POST"; path: "/admin/auth/login"; body: Schemas["AdminLoginRequest"]; response: Schemas["AdminLoginResponse"] };
+  "completeAdminLogin": { method: "GET"; path: "/admin/auth/callback"; body: never; response: void };
+  "getAdminSession": { method: "GET"; path: "/admin/auth/session"; body: never; response: Schemas["AdminSession"] };
+  "logoutAdmin": { method: "POST"; path: "/admin/auth/logout"; body: Record<string, never>; response: void };
+  "getAdminTodaAccess": { method: "GET"; path: "/admin/access/todas/{todaId}"; body: never; response: Schemas["AdminScopeAccess"] };
 }
 export type HealthResponse = Operations['getHealth']['response'];

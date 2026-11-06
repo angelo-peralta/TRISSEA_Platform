@@ -54,11 +54,11 @@ test('M2.4 migrations preserve prior ledger, synthetic user and unrelated data o
  fixture.ledger=await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`;
  await owner`INSERT INTO identity.app_users DEFAULT VALUES`;
  const failed={begin:callback=>owner.begin(async tx=>{await callback(tx);await tx`SELECT 1/0`;})};
- await assert.rejects(runMigrations(failed,'up',{allowIdentity:true,report:()=>{}}));assert.equal((await owner`SELECT to_regclass('identity.driver_profiles') AS t`)[0].t,null);
- await runMigrations(owner,'up',{allowIdentity:true,report:note});await runMigrations(owner,'up',{allowIdentity:true,report:note});await runMigrations(owner,'down',{allowIdentity:true,report:note});
+ await assert.rejects(runMigrations(failed,'up',{through:'0005_driver_identity',allowIdentity:true,report:()=>{}}));assert.equal((await owner`SELECT to_regclass('identity.driver_profiles') AS t`)[0].t,null);
+ await runMigrations(owner,'up',{through:'0005_driver_identity',allowIdentity:true,report:note});await runMigrations(owner,'up',{through:'0005_driver_identity',allowIdentity:true,report:note});await runMigrations(owner,'down',{through:'0005_driver_identity',allowIdentity:true,report:note});
  assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,fixture.ledger);
  assert.equal((await owner`SELECT count(*)::int AS n FROM identity.app_users`)[0].n,1);assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'synthetic-driver-preservation');
- await runMigrations(owner,'up',{allowIdentity:true,report:note});assert.equal((await owner`SELECT count(*)::int AS n FROM identity.driver_intake_scopes`)[0].n,0);
+ await runMigrations(owner,'up',{through:'0005_driver_identity',allowIdentity:true,report:note});assert.equal((await owner`SELECT count(*)::int AS n FROM identity.driver_intake_scopes`)[0].n,0);
  note('0005 fresh/no-op/transaction failure/down/reapply preserves M1-M2.3 ledger, prior synthetic user and unrelated table; no intake or driver seeds');
 });
 test('all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL', async () => {
@@ -289,9 +289,9 @@ test('Redis and PostgreSQL transport loss cannot issue driver credentials or sen
 test('populated driver rollback/reapply preserves prior auth records, audit, ledger and unrelated sentinel',async()=>{
  await app.close();app=undefined;
  const counts=await owner`SELECT (SELECT count(*) FROM identity.app_users)::int AS users,(SELECT count(*) FROM identity.app_sessions)::int AS sessions,(SELECT count(*) FROM identity.audit_events)::int AS audits,(SELECT count(*) FROM identity.refresh_credentials)::int AS refresh`;
- await runMigrations(owner,'down',{allowIdentity:true,report:note});assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,fixture.ledger);
+ await runMigrations(owner,'down',{through:'0005_driver_identity',allowIdentity:true,report:note});assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,fixture.ledger);
  assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'synthetic-driver-preservation');
  assert.deepEqual(await owner`SELECT (SELECT count(*) FROM identity.app_users)::int AS users,(SELECT count(*) FROM identity.app_sessions)::int AS sessions,(SELECT count(*) FROM identity.audit_events)::int AS audits,(SELECT count(*) FROM identity.refresh_credentials)::int AS refresh`,counts);
- await runMigrations(owner,'up',{allowIdentity:true,report:note});assert.equal((await owner`SELECT count(*)::int AS n FROM identity.driver_profiles`)[0].n,0);
+ await runMigrations(owner,'up',{through:'0005_driver_identity',allowIdentity:true,report:note});assert.equal((await owner`SELECT count(*)::int AS n FROM identity.driver_profiles`)[0].n,0);
  note('Disposable populated 0005 down/reapply preserves all earlier auth users/sessions/audit/refresh, M1-M2.3 ledger and unrelated data');
 });

@@ -1,0 +1,42 @@
+{
+  "recordedAt": "2026-11-06T02:18:07.879Z",
+  "docker": "29.8.0",
+  "services": [
+    {
+      "Name": "trissea-m2-keycloak-keycloak-1",
+      "Service": "keycloak",
+      "Image": "quay.io/keycloak/keycloak:26.8.2@sha256:4340d05ee7d15be34293868d495ac772d61f1a4d0e43d53bae2e75e2f05de185",
+      "State": "running",
+      "Health": "healthy",
+      "Publishers": [
+        {
+          "URL": "127.0.0.1",
+          "TargetPort": 8080,
+          "PublishedPort": 18080,
+          "Protocol": "tcp"
+        },
+        {
+          "URL": "127.0.0.1",
+          "TargetPort": 9000,
+          "PublishedPort": 19000,
+          "Protocol": "tcp"
+        }
+      ]
+    },
+    {
+      "Name": "trissea-m2-keycloak-postgres-1",
+      "Service": "postgres",
+      "Image": "postgis/postgis:17-3.5@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6",
+      "State": "running",
+      "Health": "healthy",
+      "Publishers": [
+        {
+          "URL": "",
+          "TargetPort": 5432,
+          "PublishedPort": 0,
+          "Protocol": "tcp"
+        }
+      ]
+    }
+  ]
+}

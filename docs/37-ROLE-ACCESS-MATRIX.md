@@ -69,6 +69,13 @@ an explicitly configured synthetic TODA creates a pending request, not membershi
 or a grant. A synthetic eligible fixture is still denied online/GPS/dispatch.
 See [driver boundary/evidence](60-M2-DRIVER-AUTHENTICATION.md).
 
+M2.5 adds no role or permission identifier. Real Keycloak password/TOTP proof
+maps only through an approved internal KEYCLOAK identity; provider roles cannot
+create TRISSEA grants. The read-only TODA access probe requires the existing
+TODA_MANAGER / toda.members.manage / exact TODA tuple and fresh MFA. Every
+protected request rechecks current app/IdP state. Own admin session/logout keys
+grant no operational authority. See [doc 61](61-M2-KEYCLOAK-ADMIN.md).
+
 ## Required tests
 
 Cross-TODA IDOR; wrong-city admin; self-approval of fare; suspended driver accepts offer; support access without case; unauthorized GPS query; missing MFA; stolen token; privilege escalation; bulk export denial; admin creates booking on behalf of passenger only under logged consent/helpdesk case.

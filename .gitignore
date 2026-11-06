@@ -4,6 +4,7 @@
 *.tsbuildinfo
 .env.*
 !.env.example
+!.env.production.example
 node_modules/
 .pnpm-store/
 .expo/
