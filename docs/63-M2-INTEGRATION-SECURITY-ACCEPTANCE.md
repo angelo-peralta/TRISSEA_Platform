@@ -305,3 +305,52 @@ restart passed. Existing Android checkpoints remain historical emulator evidence
 physical/iOS/manual screen-reader checks were not repeated or promoted to passes.
 The owner now authorizes the reviewed M2 feature-branch commit/push and draft PR.
 Merge, production, operational capabilities and M3 remain prohibited.
+
+## Review fix - assigned queue pagination (2026-11-09)
+
+The administration panel previously discarded `VerificationCases.nextCursor`.
+Because completed cases stay in the UUID-ordered queue, reloading its first 20
+records could never expose later submissions. Both driver/vehicle and TODA
+membership queues now retain the cursor and expose **Load more assigned cases**,
+forwarding it as the API's `after` query parameter and appending the returned page.
+No backend contract, page limit, assignment rule or migration changed.
+
+The button disappears at the final page and is disabled while a request runs.
+Reload starts from the first page. Temporary next-page network/server failures
+retain the loaded rows and cursor for retry. Invalid/nonadvancing cursors,
+duplicate rows, wrong scope and denied access clear retained review data.
+Pagination also clears on queue/TODA changes, hidden-tab cleanup and successful
+decisions; existing abort/epoch checks prevent stale responses restoring data.
+Every page and decision still requires current server-side authority.
+
+Actual validation against the canonical local stack and fresh manifest-verified
+disposable databases:
+
+| Command / check | Observed result |
+| --- | --- |
+| `pnpm.cmd test:m2:browser` before the fix | Exit 1; 5 passed / 1 failed, at the missing next-page action |
+| `pnpm.cmd test:m2:browser` after the fix | Exit 0; all 6 passed |
+| `pnpm.cmd validate` | Exit 0; 156 tests, contracts, lint, TypeScript and API/admin builds passed |
+| `pnpm.cmd test:m2:integration` | Exit 0; 8 HTTP tests passed |
+| `pnpm.cmd lint` on the final browser harness | Exit 0 |
+| `pnpm.cmd dev:infra:check` | Healthy four-service `trissea-dev`, PostGIS, Redis PONG, role/DB isolation and no sibling bind dependencies |
+
+The added Playwright regression creates 44 assigned driver/vehicle cases and 43
+membership cases through real synthetic intake/submission flows and test-only
+private IPC assignment. Both queues span three pages, including already approved
+records. It checks each forwarded cursor, exact accumulated counts, unique IDs,
+final-page inspection **and approval**, terminal button removal, reload, a
+simulated HTTP 503 page failure/retry, simulated HTTP 403 cleanup and queue/TODA/
+visibility resets. Existing real Keycloak password/TOTP, current-grant revocation,
+CSRF, lost-response retry and browser-storage privacy checks pass in the same run.
+HTTP failure injection tests the UI; it does not claim an actual provider outage.
+
+[Execution evidence](../evidence/m2/verification-pagination/validation.json),
+[browser results](../evidence/m2/verification-pagination/browser-results.json),
+[first page and retry action](../evidence/m2/verification-pagination/driver-queue-first-page.png),
+[all 44 driver/vehicle cases](../evidence/m2/verification-pagination/driver-queue-paginated.png),
+and [all 43 membership cases at 390px](../evidence/m2/verification-pagination/membership-queue-paginated.png)
+record this review fix. Inputs are masked and records are synthetic. This is
+desktop/mobile-width Chromium acceptance; no new Android, physical-device or
+manual screen-reader pass is claimed. No retained application/IdP database,
+credential, environment, dependency or production capability was changed.
