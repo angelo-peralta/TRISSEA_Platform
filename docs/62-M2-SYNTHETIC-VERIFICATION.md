@@ -274,3 +274,12 @@ verification tables. Combined HTTP/browser/Android harnesses target migration
 0008; Android's migration-count assertion changed from seven to eight, without
 claiming a new native device run. Actual commands and results are recorded in
 [evidence/m2/verification-siblings](../evidence/m2/verification-siblings/).
+
+
+The larger sibling fixture set also exposed a test-only first-page assumption:
+the reviewer queue is paginated at 20 rows and UUID ordering is random. One
+push-triggered CI run failed to find its assigned case on the first page while
+the PR-triggered run passed. The regression now follows all queue cursors, requires
+multiple pages, checks cursor progress/duplicate IDs and verifies both authorized
+presence and unauthorized exclusion across the entire queue. API page limits and
+scope rules were not changed.

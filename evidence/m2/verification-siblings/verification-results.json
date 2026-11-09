@@ -1,6 +1,6 @@
 {
-  "executedAt": "2026-11-09T12:48:42.416Z",
-  "database": "trissea_m2_test_54beef7b7a17",
+  "executedAt": "2026-11-09T13:05:39.862Z",
+  "database": "trissea_m2_test_a9a51c38c7f0",
   "syntheticOnly": true,
   "tests": [
     {
@@ -67,8 +67,8 @@
   "checks": [
     "Applied 0007_synthetic_verification",
     "Rolled back 0007_synthetic_verification",
-    "Applied 0007_synthetic_verification",
     "0007 fresh/no-op/concurrent apply/failed commit/down/reapply preserved 0001–0006 ledger, prior user and unrelated sentinel; no users/evidence/reviewers/grants seeded",
+    "Applied 0008_verification_projection_versions",
     "Rolled back 0008_verification_projection_versions",
     "Applied 0008_verification_projection_versions",
     "0008 failed transaction/concurrent no-op/down/reapply preserves 0001-0007 checksums, target function ownership/grants, synthetic user and sentinel; no target backfill",

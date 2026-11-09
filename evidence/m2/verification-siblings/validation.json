@@ -101,5 +101,27 @@
   "existingDatabasesMigrated": false,
   "apiContractChanged": false,
   "nativeUiRerun": false,
-  "productionCapabilitiesEnabled": false
+  "productionCapabilitiesEnabled": false,
+  "paginationFollowup": {
+    "ci": {
+      "run": 42621501247,
+      "event": "push",
+      "commit": "a7708428324cf32ca5e5e9daa3aeb4fa26f738c1",
+      "result": "FAILED",
+      "failure": "Queue assertion assumed the assigned case was on the first page after fixtures grew beyond 20 cases"
+    },
+    "fix": "Traverse all reviewer queue cursors; assert multiple pages, cursor progress, unique IDs and authorized/unauthorized scope across every page. No API change.",
+    "verification": {
+      "command": "pnpm.cmd test:verification",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "validation": {
+      "exitCode": 0,
+      "command": "pnpm.cmd validate",
+      "finishedAt": "2026-11-09T13:08:43.6691860Z"
+    }
+  }
 }
