@@ -379,3 +379,13 @@ the exact original key/body for bounded server idempotency; changed versions
 require inspection again. No client can provision a reviewer, evidence, grant or
 permit. Test fixtures and mock-message capture use private parent/child IPC only,
 never an API endpoint. See [doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md).
+
+
+### Verification target version correction
+
+Migration 0008 adds internal `verification_projection_versions` metadata with
+one foreign-key-bound projection count per target. Evidence snapshots use the
+general row version minus guarded projection count; general optimistic/eligibility
+versions remain unchanged. This preserves independent sibling approvals without
+ignoring genuine target, policy or evidence changes. No public field or endpoint
+changes. See the [review fix and migration boundaries](62-M2-SYNTHETIC-VERIFICATION.md#review-fix---independent-sibling-approvals-2026-11-09).

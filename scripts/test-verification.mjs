@@ -35,6 +35,22 @@ test('0007 incremental/fresh/repeated/failed commit/rollback/reapply preserves p
  await Promise.all([runMigrations(owner,'up',{through:'0007_synthetic_verification',allowIdentity:true,report:note}),runMigrations(owner,'up',{through:'0007_synthetic_verification',allowIdentity:true,report:()=>{}})]);note('0007 fresh/no-op/concurrent apply/failed commit/down/reapply preserved 0001–0006 ledger, prior user and unrelated sentinel; no users/evidence/reviewers/grants seeded');
 });
 
+test('0008 projection-version migration preserves the prior ledger and restores 0007 on failed commit/down/reapply',async()=>{
+ const ledger=await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,[original]=await owner`SELECT pg_get_functiondef('identity.verification_target(uuid)'::regprocedure) AS body`;
+ const failed={begin:work=>owner.begin(async tx=>{await work(tx);await tx`SELECT 1/0`;})};
+ await assert.rejects(runMigrations(failed,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:()=>{}}));
+ assert.equal((await owner`SELECT to_regclass('identity.verification_projection_versions') AS t`)[0].t,null);
+ assert.equal((await owner`SELECT pg_get_functiondef('identity.verification_target(uuid)'::regprocedure) AS body`)[0].body,original.body);
+ await Promise.all([runMigrations(owner,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:note}),runMigrations(owner,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:()=>{}})]);
+ assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_projection_versions`)[0].n,0);
+ await runMigrations(owner,'down',{allowIdentity:true,report:note});
+ assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,ledger);
+ assert.equal((await owner`SELECT pg_get_functiondef('identity.verification_target(uuid)'::regprocedure) AS body`)[0].body,original.body);
+ await runMigrations(owner,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:note});
+ assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'synthetic-verification-preservation');
+ note('0008 failed transaction/concurrent no-op/down/reapply preserves 0001-0007 checksums, target function ownership/grants, synthetic user and sentinel; no target backfill');
+});
+
 test('combined actual Nest module starts with three least-privilege logins in one disposable application database',async context=>{
  const urls={};for(const [label,groups]of [['mobile','trissea_m2_auth,trissea_m2_authorization'],['admin','trissea_m2_admin_auth,trissea_m2_authorization'],['verification','trissea_m2_verification,trissea_m2_authorization']]){
   console.info('Setup: provisioning isolated',label,'login');
@@ -161,7 +177,13 @@ test('all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL
 test('driver can submit synthetic cases; assigned real-TOTP reviewer approves scoped driver/vehicle and TODA manager reviews membership',async()=>{
  fixtures.drivers=new Map();fixtures.officer=await staff();fixtures.manager=await staff('TODA_MANAGER');const d=await driver();fixtures.drivers.set(d.userId,d);fixtures.driver=d;
  const list=await http('GET','/driver/me/verification/evidence',undefined,d);assert.deepEqual(list.items,[]);
- for(const kind of ['DRIVER','VEHICLE','TODA_MEMBERSHIP']){const reviewer=kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer,item=await submitted(d,kind,reviewer),path=kind==='TODA_MEMBERSHIP'?'memberships':'cases';
+ // Existing SUBMITTED cases must survive upgrading the function without rewritten snapshots.
+ await runMigrations(owner,'down',{allowIdentity:true,report:()=>{}});
+ const pending=[];for(const kind of ['DRIVER','VEHICLE','TODA_MEMBERSHIP'])pending.push(await submitted(d,kind,kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer));
+ const snapshots=await owner`SELECT s.* FROM identity.verification_submissions s JOIN identity.verification_cases c ON c.id=s.case_id WHERE c.user_id=${d.userId} ORDER BY s.case_id`;
+ await runMigrations(owner,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:()=>{}});
+ assert.deepEqual(await owner`SELECT s.* FROM identity.verification_submissions s JOIN identity.verification_cases c ON c.id=s.case_id WHERE c.user_id=${d.userId} ORDER BY s.case_id`,snapshots);
+ for(const item of pending){const kind=item.case.kind,reviewer=kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer,path=kind==='TODA_MEMBERSHIP'?'memberships':'cases';
   const result=await http('POST','/admin/verifications/'+path+'/'+item.case.id+'/decisions',decision(item.case,item.evidence),reviewer);assert.equal(result.state,'APPROVED');assert.equal(result.operationalServicesEnabled,false);
  }
  assert.equal((await owner`SELECT state FROM identity.driver_profiles WHERE user_id=${d.userId}`)[0].state,'VERIFIED');assert.equal((await owner`SELECT seat_capacity FROM identity.driver_synthetic_vehicles WHERE id=${d.vehicleId}`)[0].seat_capacity,2);
@@ -184,6 +206,44 @@ test('current evidence is required even for an otherwise eligible synthetic fixt
  const stale=await detail(d,row.id);assert.equal(stale.state,'APPROVED');assert.equal(stale.effectiveState,'STALE');assert.equal(stale.evidenceCurrent,false);const denied=await http('GET',path,undefined,d);assert.equal(denied.identityEligible,false);assert.ok(denied.reasons.includes('VERIFICATION_CASES_NOT_CURRENT'));
  for(const [method,url]of [['POST','/driver/shifts'],['POST','/driver/locations'],['GET','/driver/offers']])await http(method,url,undefined,d,403);
  note('Explicit owner-only synthetic permit assertion proves positive identity eligibility with all operational flags false; replacing accepted evidence immediately denies eligibility and marks case STALE');
+});
+
+test('independently submitted sibling cases complete in every approval order and concurrently without revising evidence',async()=>{
+ const kinds=['DRIVER','VEHICLE','TODA_MEMBERSHIP'],orders=[];for(const a of kinds)for(const b of kinds.filter(k=>k!==a))orders.push([a,b,kinds.find(k=>k!==a&&k!==b)]);
+ for(const order of [...orders,null]){
+  const d=await driver(),items=new Map();for(const kind of kinds)items.set(kind,await submitted(d,kind,kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer));
+  const before=await owner`SELECT s.* FROM identity.verification_submissions s JOIN identity.verification_cases c ON c.id=s.case_id WHERE c.user_id=${d.userId} ORDER BY s.case_id`;
+  const approve=kind=>review(items.get(kind),kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer);
+  const results=order?await (async()=>{const out=[];for(const kind of order)out.push(await approve(kind));return out;})():await Promise.all(kinds.map(approve));
+  assert.ok(results.every(r=>r.state==='APPROVED'&&r.round===1&&r.operationalServicesEnabled===false));
+  assert.deepEqual(await owner`SELECT s.* FROM identity.verification_submissions s JOIN identity.verification_cases c ON c.id=s.case_id WHERE c.user_id=${d.userId} ORDER BY s.case_id`,before);
+  const counts=await owner`SELECT projection_count FROM identity.verification_projection_versions WHERE profile_user_id=${d.userId} OR affiliation_id=${d.affiliationId} OR vehicle_id=${d.vehicleId} OR relationship_id=${d.relationshipId}`;
+  assert.equal(counts.length,4);assert.ok(counts.every(r=>r.projection_count===1));
+  const facts=await owner`SELECT p.version AS profile,a.version AS affiliation,v.version AS vehicle,r.version AS relationship FROM identity.driver_profiles p JOIN identity.driver_vehicle_relationships r ON r.user_id=p.user_id JOIN identity.driver_toda_affiliations a ON a.id=r.affiliation_id JOIN identity.driver_synthetic_vehicles v ON v.id=r.vehicle_id WHERE r.id=${d.relationshipId}`;
+  assert.deepEqual({...facts[0]},{profile:2,affiliation:2,vehicle:2,relationship:2});
+  const history=await owner`SELECT d.outcome FROM identity.verification_decisions d JOIN identity.verification_cases c ON c.id=d.case_id WHERE c.user_id=${d.userId}`;assert.equal(history.length,3);assert.ok(history.every(r=>r.outcome==='APPROVE'));
+  const events=await owner`SELECT a.id FROM identity.audit_events a JOIN identity.outbox_events o ON o.audit_event_id=a.id JOIN identity.verification_cases c ON c.id=a.resource_id WHERE c.user_id=${d.userId} AND a.action='verification.approved'`;assert.equal(events.length,3);
+ }
+ note('All six sibling approval permutations and simultaneous reviews succeed on original round-1 evidence; general row versions still advance and each decision has one atomic audit/outbox');
+});
+
+test('projection credits cannot hide genuine target revisions or be forged by callers',async()=>{
+ for(const target of ['profile','affiliation','vehicle','relationship']){
+  const d=await driver(),pending=new Map();for(const kind of ['DRIVER','VEHICLE','TODA_MEMBERSHIP'])pending.set(kind,await submitted(d,kind,kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer));
+  // First project a different target, then mutate an evidence-relevant version.
+  const approvedKind=target==='affiliation'?'DRIVER':'TODA_MEMBERSHIP';await review(pending.get(approvedKind),approvedKind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer);
+  if(target==='profile')await owner`UPDATE identity.driver_profiles SET version=version+1 WHERE user_id=${d.userId}`;
+  if(target==='affiliation')await owner`UPDATE identity.driver_toda_affiliations SET version=version+1 WHERE id=${d.affiliationId}`;
+  if(target==='vehicle')await owner`UPDATE identity.driver_synthetic_vehicles SET version=version+1,seat_capacity=3 WHERE id=${d.vehicleId}`;
+  if(target==='relationship')await owner`UPDATE identity.driver_vehicle_relationships SET version=version+1 WHERE id=${d.relationshipId}`;
+  const kind=target==='affiliation'?'TODA_MEMBERSHIP':'VEHICLE',item=pending.get(kind);await review(item,kind==='TODA_MEMBERSHIP'?fixtures.manager:fixtures.officer,'APPROVE',409);
+  assert.equal((await detail(d,item.case.id)).state,'SUBMITTED');assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_decisions WHERE case_id=${item.case.id}`)[0].n,0);
+ }
+ await assert.rejects(owner`INSERT INTO identity.verification_projection_versions(profile_user_id) VALUES(${fixtures.driver.userId})`,e=>e.code==='23514');
+ await assert.rejects(owner`UPDATE identity.verification_projection_versions SET projection_count=projection_count+1`,e=>e.code==='23514');
+ await assert.rejects(connection`SELECT * FROM identity.verification_projection_versions`,e=>e.code==='42501');
+ await assert.rejects(connection`UPDATE identity.verification_projection_versions SET projection_count=projection_count+1`,e=>e.code==='42501');
+ note('All four genuine target version changes still reject approval, including cross-kind profile changes after a sibling projection; direct metadata insertion/update/read remains denied');
 });
 
 test('ownership, assignment, exact role/scope, CSRF and input boundaries deny unauthorized review',async()=>{
@@ -220,7 +280,7 @@ test('idempotent retries and concurrent decisions produce one projection and one
  await review(item,fixtures.officer,'REJECT',409,headers);assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_decisions WHERE case_id=${item.case.id}`)[0].n,1);assert.equal((await owner`SELECT version FROM identity.driver_synthetic_vehicles WHERE id=${d.vehicleId}`)[0].version,2);
  const other=await submitted(d,'DRIVER',fixtures.officer);const responses=await Promise.all(Array.from({length:2},()=>app.inject({method:'POST',url:'/v1/admin/verifications/cases/'+other.case.id+'/decisions',headers:{cookie:fixtures.officer.cookie,origin,'x-csrf-token':fixtures.officer.csrf,'idempotency-key':randomUUID()},payload:decision(other.case,other.evidence)})));assert.deepEqual(responses.map(x=>x.statusCode).sort(),[200,409]);
  const fail=await submitted(d,'TODA_MEMBERSHIP',fixtures.manager);await owner.unsafe("CREATE FUNCTION public.fail_verification_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='verification.approved' THEN RAISE EXCEPTION 'synthetic audit outage';END IF;RETURN NEW;END $$");await owner.unsafe('CREATE TRIGGER synthetic_audit_failure BEFORE INSERT ON identity.audit_events FOR EACH ROW EXECUTE FUNCTION public.fail_verification_audit()');
- try{await review(fail,fixtures.manager,'APPROVE',503);assert.equal((await detail(d,fail.case.id)).state,'SUBMITTED');assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_decisions WHERE case_id=${fail.case.id}`)[0].n,0);assert.equal((await owner`SELECT state FROM identity.driver_toda_affiliations WHERE id=${d.affiliationId}`)[0].state,'PENDING');}finally{await owner.unsafe('DROP TRIGGER synthetic_audit_failure ON identity.audit_events');await owner.unsafe('DROP FUNCTION public.fail_verification_audit()');}
+ try{await review(fail,fixtures.manager,'APPROVE',503);assert.equal((await detail(d,fail.case.id)).state,'SUBMITTED');assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_decisions WHERE case_id=${fail.case.id}`)[0].n,0);assert.equal((await owner`SELECT state FROM identity.driver_toda_affiliations WHERE id=${d.affiliationId}`)[0].state,'PENDING');assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_projection_versions WHERE affiliation_id=${d.affiliationId}`)[0].n,0);}finally{await owner.unsafe('DROP TRIGGER synthetic_audit_failure ON identity.audit_events');await owner.unsafe('DROP FUNCTION public.fail_verification_audit()');}
  assert.equal((await review(fail,fixtures.manager)).state,'APPROVED');note('Concurrent same-key requests return identical original result; changed-body 409; distinct-key decisions have one winner; forced audit failure rolls back decision/projection/receipt/outbox then retry succeeds');
 });
 
@@ -251,7 +311,10 @@ test('SQL privileges, RLS and pooled contexts isolate users/scopes and prohibit 
 });
 
 test('populated 0007 rollback/reapply preserves prior driver facts, migration checksums and unrelated records',async()=>{
+ const verificationBefore=await owner`SELECT to_jsonb(c) AS row FROM identity.verification_cases c ORDER BY id`,submissionsBefore=await owner`SELECT to_jsonb(s) AS row FROM identity.verification_submissions s ORDER BY case_id,round`;
+ await runMigrations(owner,'down',{allowIdentity:true,report:note});
+ assert.deepEqual(await owner`SELECT to_jsonb(c) AS row FROM identity.verification_cases c ORDER BY id`,verificationBefore);assert.deepEqual(await owner`SELECT to_jsonb(s) AS row FROM identity.verification_submissions s ORDER BY case_id,round`,submissionsBefore);
  const before=await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations WHERE id<>'0007_synthetic_verification' ORDER BY id`,profiles=await owner`SELECT user_id,state,version FROM identity.driver_profiles ORDER BY user_id`;
  await runMigrations(owner,'down',{allowIdentity:true,report:note});assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,before);assert.deepEqual(await owner`SELECT user_id,state,version FROM identity.driver_profiles ORDER BY user_id`,profiles);assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'synthetic-verification-preservation');await runMigrations(owner,'up',{through:'0007_synthetic_verification',allowIdentity:true,report:note});
- assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_cases`)[0].n,0);note('Populated disposable rollback removes ONLY 0007 metadata, preserves earlier driver facts/ledger/sentinel; reapply empty-case guard keeps old projections ineligible');
+ assert.equal((await owner`SELECT count(*)::int AS n FROM identity.verification_cases`)[0].n,0);await runMigrations(owner,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:note});note('Populated 0008 down preserves cases/submissions, then disposable rollback removes ONLY 0007 metadata, preserves earlier driver facts/ledger/sentinel; reapply empty-case guard keeps old projections ineligible');
 });

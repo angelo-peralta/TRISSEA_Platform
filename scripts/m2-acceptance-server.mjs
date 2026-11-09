@@ -24,7 +24,7 @@ async function setup(){
  stage='disposable database';control=postgres(url.href,{...options,connection:{...options.connection,statement_timeout:60000}});await control.unsafe(`CREATE DATABASE "${database}"`);url.pathname='/'+database;assertDisposableIdentityDatabase(url.href,env.NODE_ENV,env.M2_DISPOSABLE_DATABASE);owner=postgres(url.href,options);
  await owner`CREATE TABLE m2_disposable_manifest(key text PRIMARY KEY,value text NOT NULL)`;await owner`INSERT INTO m2_disposable_manifest VALUES('identity-test',${database})`;
  await owner`CREATE TABLE unrelated_preservation(id integer PRIMARY KEY,value text NOT NULL)`;await owner`INSERT INTO unrelated_preservation VALUES(1,'synthetic-m2-7-preservation')`;
- stage='migrations';await runMigrations(owner,'up',{through:'0007_synthetic_verification',allowIdentity:true,report:()=>{}});
+ stage='migrations';await runMigrations(owner,'up',{through:'0008_verification_projection_versions',allowIdentity:true,report:()=>{}});
  const urls={};for(const [name,groups]of [['mobile','trissea_m2_auth,trissea_m2_authorization'],['admin','trissea_m2_admin_auth,trissea_m2_authorization'],['verification','trissea_m2_verification,trissea_m2_authorization']]){
   const login='m2_accept_'+name+'_'+suffix,password=randomBytes(32).toString('hex');await control.unsafe(`CREATE ROLE "${login}" LOGIN PASSWORD '${password}' NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE IN ROLE ${groups}`);await owner.unsafe(`GRANT SELECT ON m2_disposable_manifest TO "${login}"`);const u=new URL(url);u.username=login;u.password=password;urls[name]=u.href;
  }

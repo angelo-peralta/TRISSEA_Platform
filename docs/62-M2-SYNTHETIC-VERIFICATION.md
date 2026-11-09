@@ -223,3 +223,54 @@ verification screens, broader accessibility and physical-device checks remain
 M2.7 or later approval work. Keycloak browser evidence proves authentication steps,
 not a new administrative verification UI. No container security scan or production
 capacity, backup/restore or deployment acceptance is claimed.
+
+
+## Review fix - independent sibling approvals (2026-11-09)
+
+Submitting DRIVER, VEHICLE and TODA_MEMBERSHIP before any approval previously
+produced matching target-version snapshots. The first approval advanced a general
+row version and made unchanged sibling evidence appear stale. The acceptance
+flow now submits all three first; it reproduced HTTP 409 on the second approval
+before the fix.
+
+Incremental migration `0008_verification_projection_versions` separates guarded
+projection changes from evidence-relevant revisions. An internal, FORCE-RLS
+projection-count table has explicit target foreign keys and unique bindings.
+`verification_target` returns general row version minus the target's projection
+count (zero when absent). General row versions still advance on each projection,
+so optimistic checks and eligibility assertions retain their original semantics.
+All four target comparisons, evidence-head revisions, intake/policy checks,
+account restrictions, locks, reviewer scope, MFA and audit/outbox remain enforced.
+No API contract, operational capability or permission was added.
+
+Only nested decision projections under the existing NOLOGIN verification writer
+may maintain counts. Runtime roles cannot read/write the table, caller-set flags
+are irrelevant, and ordinary owner/source revisions receive no projection credit.
+Counts roll back atomically with the decision, parent facts, receipt and audit.
+The two new trigger functions use SECURITY INVOKER and pinned search paths; the
+existing target function retains its owner, security mode and grants.
+
+The unchanged round-1 submissions now complete in all six approval orders and
+with concurrent reviews. Tests also prove that four genuine target changes
+(including a cross-kind profile change) still reject approval, metadata cannot be
+forged, and forced audit failure leaves no count behind. The upgrade test creates
+all three SUBMITTED cases under 0007, applies 0008 and approves them without
+rewriting any submission or evidence revision.
+
+Existing 0001-0007 files/checksums are unchanged. Tests use only fresh random,
+manifest-verified databases in canonical `trissea-dev`; no retained development
+or operational database was migrated. The migration does not guess credits for
+projections that occurred before installation or repair already-stale records.
+Any historical repair needs an explicitly reviewed data procedure. The down file
+is disposable-fixture-only: it restores the prior function and discards the new
+derived counts while retaining prior cases, submissions, facts and ledger data.
+Do not reuse pending snapshots after a populated rollback; operational rollback
+requires a forward repair plan. The original populated 0007 rollback test is
+preserved after rolling back 0008 on its isolated fixture.
+
+The verification suite now has 15 tests, including migration failure/repeated/
+concurrent apply, rollback/reapply and Drizzle/catalog parity for all eight
+verification tables. Combined HTTP/browser/Android harnesses target migration
+0008; Android's migration-count assertion changed from seven to eight, without
+claiming a new native device run. Actual commands and results are recorded in
+[evidence/m2/verification-siblings](../evidence/m2/verification-siblings/).

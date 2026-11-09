@@ -1,11 +1,22 @@
 import {sql} from 'drizzle-orm';
 import {uuid,text,integer,timestamp,primaryKey,unique,foreignKey,check,index,uniqueIndex} from 'drizzle-orm/pg-core';
 import {identity,appUsers,appSessions,cityMemberships} from './identity-schema';
-import {driverVehicleRelationships} from './driver-schema';
+import {driverProfiles,driverTodaAffiliations,driverSyntheticVehicles,driverVehicleRelationships} from './driver-schema';
 const time=(name:string)=>timestamp(name,{withTimezone:true});
 const created=()=>time('created_at').notNull().defaultNow();
 const source=()=>text('source').notNull().default('SYNTHETIC_ONLY');
 const binding=()=>({userId:uuid('user_id').notNull(),cityTenantId:uuid('city_tenant_id').notNull(),todaId:uuid('toda_id').notNull(),relationshipId:uuid('relationship_id').notNull(),kind:text('kind').notNull()});
+// Internal projection counts; runtime roles cannot read or maintain these rows.
+export const verificationProjectionVersions=identity.table('verification_projection_versions',{
+ id:uuid('id').primaryKey().defaultRandom(),profileUserId:uuid('profile_user_id'),affiliationId:uuid('affiliation_id'),vehicleId:uuid('vehicle_id'),relationshipId:uuid('relationship_id'),
+ projectionCount:integer('projection_count').notNull().default(1),source:source(),createdAt:created(),
+},t=>[foreignKey({name:'verification_projection_profile',columns:[t.profileUserId],foreignColumns:[driverProfiles.userId]}),
+ foreignKey({name:'verification_projection_affiliation',columns:[t.affiliationId],foreignColumns:[driverTodaAffiliations.id]}),
+ foreignKey({name:'verification_projection_vehicle',columns:[t.vehicleId],foreignColumns:[driverSyntheticVehicles.id]}),
+ foreignKey({name:'verification_projection_relationship',columns:[t.relationshipId],foreignColumns:[driverVehicleRelationships.id]}),
+ unique('verification_projection_profile_once').on(t.profileUserId),unique('verification_projection_affiliation_once').on(t.affiliationId),
+ unique('verification_projection_vehicle_once').on(t.vehicleId),unique('verification_projection_relationship_once').on(t.relationshipId),
+ check('verification_projection_values',sql`num_nonnulls(${t.profileUserId},${t.affiliationId},${t.vehicleId},${t.relationshipId})=1 AND ${t.projectionCount}>0 AND ${t.source}='SYNTHETIC_ONLY'`)]).enableRLS();
 export const verificationEvidenceHeads=identity.table('verification_evidence_heads',{
  id:uuid('id').primaryKey().defaultRandom(),...binding(),currentVersion:integer('current_version').notNull(),source:source(),createdAt:created(),
 },t=>[foreignKey({name:'verification_head_relationship',columns:[t.relationshipId,t.userId,t.cityTenantId,t.todaId],foreignColumns:[driverVehicleRelationships.id,driverVehicleRelationships.userId,driverVehicleRelationships.cityTenantId,driverVehicleRelationships.todaId]}),

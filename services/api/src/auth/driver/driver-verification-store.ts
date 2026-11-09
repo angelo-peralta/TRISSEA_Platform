@@ -4,6 +4,8 @@ import type {AuthTransaction} from '../passenger/passenger-database';
  * projections are implemented by reviewed SQL functions, never direct API writes. */
 export interface DriverVerificationSnapshot {
  userId:string;cityTenantId:string;todaId:string;relationshipId:string;
+ // Evidence-relevant versions exclude guarded decision projections. General
+ // driver row versions continue changing for eligibility/optimistic checks.
  profileVersion:number;affiliationVersion:number;vehicleVersion:number;relationshipVersion:number;intakeVersion:number;policyReference:string;
 }
 export class DriverVerificationStore {
