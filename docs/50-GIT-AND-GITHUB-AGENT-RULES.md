@@ -46,13 +46,15 @@ Examples: `feat/regular-booking`, `fix/driver-offer-race`, `docs/toda-fare-polic
 
 ## 4. Changes, tests, and commits
 
-- Run tests, lint, and type checks appropriate for the changed packages. Report any that cannot run.
+- Follow [the five-phase engineering workflow](15-AGENT-WORKFLOW.md): focused checks during development, then applicable full acceptance once on the final implementation candidate before delivery. Documentation-only work uses documentation/link and applicable skill/configuration checks. Preserve required CI and milestone gates; report any unrun checks and reasons.
+- Final implementation acceptance includes `pnpm.cmd validate`, relevant database/integration tests, `pnpm.cmd audit:dependencies`, `pnpm.cmd environment:check` and required mobile/browser acceptance (`pnpm` on Linux). Do not rerun checks already covered by `validate` solely for extra counts, or repeat unchanged acceptance merely to commit. After fixes, rerun affected checks and full validation where the fixes invalidate its prior result.
 - For changes to booking state, dispatch, fare policies, identity, privacy, or migrations, include regression and permission tests.
 - Inspect `git diff --check`, `git diff`, and `git diff --cached` before committing.
 - Stage only task-related paths (`git add <specific paths>`). Avoid blanket `git add .` when unrelated or generated files exist.
 - Never commit `.env`, credentials, tokens, secret keys, user identity documents, passenger location records, production database exports, or large generated build artifacts.
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`.
 - Do not bypass commit hooks or claim tests passed when they did not.
+- Never publish code with known blocking security or correctness failures.
 - Never amend or rewrite someone else's published commits without authorization.
 
 ## 5. Push rules
@@ -106,12 +108,15 @@ git switch main
 git pull --ff-only origin main
 git switch -c feat/regular-booking
 
-# Work, validate, and inspect changes
-pnpm lint
-pnpm test
+# Final implementation acceptance, once; select additional checks per doc 15.
+# Documentation-only work uses the narrower documentation/skill checks.
+pnpm.cmd validate
+pnpm.cmd audit:dependencies
+pnpm.cmd environment:check
 git diff --check
 git status --short
-git add apps/passenger apps/api
+# Only include these directories if every staged change belongs to the task.
+git add apps/passenger services/api
 git diff --cached
 git commit -m "feat: implement regular booking workflow"
 

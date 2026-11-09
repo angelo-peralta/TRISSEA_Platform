@@ -15,7 +15,8 @@ Follow `AGENTS.md` and `docs/50-GIT-AND-GITHUB-AGENT-RULES.md` if present. If th
 
 ## Deliver
 
-- Validate relevant tests. Run `git diff --check`, inspect `git diff`, and stage explicit task-related paths only. Inspect `git diff --cached`, tracked secrets, and generated artifacts before a conventional commit.
+- Confirm required checks passed for the final candidate using `docs/15-AGENT-WORKFLOW.md`: full implementation acceptance once, or documentation/link and applicable skill/configuration checks for documentation-only work. Do not repeat unchanged acceptance solely to stage or commit. Failed blocking security/correctness checks prevent publication; disclose unrun checks and reasons.
+- Run `git diff --check`, inspect the complete diff and migration/security implications, then stage explicit task-related paths only. Inspect `git diff --cached`, secrets and generated artifacts before a conventional commit. Keep meaningful checkpoints for multi-feature milestones.
 - For push or draft PR, require explicit authorization. Confirm branch is not `main`, remote is correct and history is not divergent before publishing. Never rewrite shared history.
 - PR describes scope, performed tests with actual status, migration/backfill/rollback, security/privacy risk, unresolved policy, UI evidence if applicable and reviewer acceptance checklist. Create a draft PR for work still awaiting review.
 - CI check statuses are observed, never assumed. Address requested reviews without broad unrelated refactoring.

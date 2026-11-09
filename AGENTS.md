@@ -14,9 +14,9 @@ Applies to every coding agent and coding session in this repository. Follow high
 1. **Understand:** reproduce the problem or establish the requested behavior. Trace the existing execution path and identify the root cause or best integration point. Prefer reading callers, tests and contracts over guessing.
 2. **Scope:** state the intended change and its risks in a sentence or two for nontrivial work. Separate unrelated changes. For complex or high-risk work, write a concise implementation plan with acceptance criteria; skip ceremony for straightforward edits.
 3. **Implement:** make the smallest coherent, maintainable change that satisfies the requirement. Follow current naming, code structure, formatting, error handling and dependency conventions. Prefer standard libraries and existing abstractions; do not build speculative frameworks.
-4. **Verify:** add or adjust meaningful regression tests; run targeted checks first, then relevant package/repository checks. Inspect failures instead of hiding them. For race-sensitive operations, prove concurrent and failure behavior.
+4. **Verify:** add or adjust meaningful regression tests; use focused checks after logical changes and reserve full acceptance for the final candidate. Inspect failures instead of hiding them. Prove critical security, transaction, concurrency and failure invariants before expanding implementation.
 5. **Review:** inspect `git diff --check`, the full diff, affected contracts, logs, security boundaries and migration safety. Remove accidental debug code, secrets, unrelated formatting and unneeded generated artifacts.
-6. **Handoff:** report what changed, what was actually tested, the result, remaining risks and requested approvals. Never label tests, launches, CI, emulator checks or deployments as successful unless observed.
+6. **Handoff:** report only what changed, tests and actual results, incomplete work, risks/blockers and Git commit/PR status. Never label tests, launches, CI, emulator checks or deployments as successful unless observed.
 
 For M2 and all review-gated milestones, finish the current approved slice, verify it, and stop for owner review before the next slice. The existence of a roadmap is not authorization to implement every step.
 
@@ -63,7 +63,11 @@ Working style: concise, technically specific and action-oriented. No roleplay, a
 
 ## 8. Test and acceptance expectations
 
-- Run tests relevant to changed layers: typecheck, lint, focused unit/integration, contract parity, migration, authorization and concurrency when needed. Full `pnpm validate` before significant milestone handoff when feasible; report failures and unrun checks explicitly.
+- Follow the five phases and test-selection rules in [the engineering workflow](docs/15-AGENT-WORKFLOW.md). Inspect and plan without running the full suite merely to begin coding, unless investigating a baseline failure requires it.
+- During implementation, finish coherent slices and run directly relevant fast checks after logical changes. Do not repeatedly run full builds, all integration tests, Docker reprovisioning or Android emulator acceptance during routine development.
+- Once implementation is complete, run targeted unit tests, affected contract/type checks and relevant positive, negative and boundary cases. Schema, transactions, authorization or persisted-state changes require appropriate database/integration tests; mocks do not replace proof of real transaction behavior.
+- Run the applicable full acceptance suite once on the final implementation candidate before Git delivery: `pnpm.cmd validate`, relevant database/integration tests, `pnpm.cmd audit:dependencies`, `pnpm.cmd environment:check`, diff/secret review and mobile/browser acceptance where required. On Linux use `pnpm`. Documentation-only changes use documentation/link and applicable skill/configuration checks; no full application or mobile rebuild by default. Preserve required CI and milestone gates.
+- Investigate failures, fix defects and rerun affected checks. Repeat full validation only when fixes invalidate its prior result. Do not duplicate checks already covered by `validate` solely to add test counts, weaken tests, skip security-critical checks or publish known blocking security/correctness failures. Report unrun checks and reasons explicitly.
 - Never equate emulator/browser simulations with physical-device, live-provider or production acceptance. For driver native/background GPS, Expo Go is insufficient; respect `docs/23-EXPO-GPS-ACCEPTANCE.md`.
 - A task is complete only when behavior and acceptance criteria are supported by implemented code and observed tests; disabled external gates remain listed as pending. No empty or fabricated coverage claims.
 
