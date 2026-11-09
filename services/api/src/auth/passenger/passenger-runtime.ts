@@ -1,3 +1,4 @@
+import {testDatabasePort,otpRedisPort} from '../../development-endpoints';
 import { readFile } from 'node:fs/promises';
 import postgres from 'postgres';
 import { Global,Module,type DynamicModule,type OnModuleDestroy,type OnModuleInit } from '@nestjs/common';
@@ -55,8 +56,8 @@ export class PassengerRuntime implements OnModuleInit,OnModuleDestroy {
     let databaseUrl:URL,redisUrl:URL,issuer:URL;
     try {
       databaseUrl=new URL(env.M2_PASSENGER_DATABASE_URL??'');redisUrl=new URL(env.M2_PASSENGER_REDIS_URL??'');issuer=new URL(env.PASSENGER_JWT_ISSUER??'');
-      if(!['postgres:','postgresql:'].includes(databaseUrl.protocol)||!/^\/trissea_m2_test_[a-f0-9]{12}$/.test(databaseUrl.pathname)||databaseUrl.search||databaseUrl.hash
-        ||redisUrl.protocol!=='redis:'||redisUrl.port!=='16380'||redisUrl.search||redisUrl.hash||![databaseUrl,redisUrl,issuer].every(url=>['127.0.0.1','localhost','[::1]'].includes(url.hostname)))throw new Error();
+      if(!['postgres:','postgresql:'].includes(databaseUrl.protocol)||!/^\/trissea_m2_test_[a-f0-9]{12}$/.test(databaseUrl.pathname)||databaseUrl.search||databaseUrl.hash||databaseUrl.port!==testDatabasePort(env)
+        ||redisUrl.protocol!=='redis:'||redisUrl.port!==otpRedisPort(env)||redisUrl.search||redisUrl.hash||![databaseUrl,redisUrl,issuer].every(url=>['127.0.0.1','localhost','[::1]'].includes(url.hostname)))throw new Error();
     }catch{throw new Error('Passenger runtime requires dedicated local infrastructure');}
     let runtime:PassengerRuntime|undefined,connection:postgres.Sql|undefined,otp:RedisOtpStore|undefined;
     try {

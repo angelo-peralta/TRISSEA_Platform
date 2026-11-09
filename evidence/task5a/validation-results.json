@@ -1,0 +1,190 @@
+{
+  "recordedAt": "2026-11-09T06:38:48.714Z",
+  "task": "5A",
+  "status": "IN PROGRESS - approved local cleanup complete; Git template tracking pending",
+  "environment": "LOCAL_SYNTHETIC",
+  "validation": {
+    "command": "pnpm.cmd validate",
+    "startedAt": "2026-11-09T06:32:55.1215309Z",
+    "finishedAt": "2026-11-09T06:33:40.9217574Z",
+    "exitCode": 0,
+    "tests": 145,
+    "batches": [
+      9,
+      15,
+      92,
+      29
+    ]
+  },
+  "backendCommands": [
+    {
+      "command": "pnpm.cmd test:identity:db",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:23:58.8823119Z",
+      "finishedAt": "2026-11-09T06:24:08.0996992Z"
+    },
+    {
+      "command": "pnpm.cmd test:authorization:db",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:24:08.1692687Z",
+      "finishedAt": "2026-11-09T06:24:21.9732008Z"
+    },
+    {
+      "command": "pnpm.cmd test:passenger:auth",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:24:21.9882108Z",
+      "finishedAt": "2026-11-09T06:24:36.8017554Z"
+    },
+    {
+      "command": "pnpm.cmd test:driver:auth",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:24:36.8058266Z",
+      "finishedAt": "2026-11-09T06:24:53.6332407Z"
+    },
+    {
+      "command": "pnpm.cmd test:admin:auth",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:24:53.6362411Z",
+      "finishedAt": "2026-11-09T06:26:40.1638791Z"
+    },
+    {
+      "command": "pnpm.cmd test:verification",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:26:40.1691832Z",
+      "finishedAt": "2026-11-09T06:27:20.7617511Z"
+    },
+    {
+      "command": "pnpm.cmd test:m2:integration",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:27:20.7647521Z",
+      "finishedAt": "2026-11-09T06:27:38.5913640Z"
+    },
+    {
+      "command": "pnpm.cmd test:m2:browser",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:27:38.5947275Z",
+      "finishedAt": "2026-11-09T06:28:08.6247968Z"
+    }
+  ],
+  "mobileCommands": [
+    {
+      "command": "pnpm.cmd mobile:check",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:14:41.2489338Z",
+      "finishedAt": "2026-11-09T06:14:46.4440762Z"
+    },
+    {
+      "command": "pnpm.cmd mobile:doctor",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:14:46.5219547Z",
+      "finishedAt": "2026-11-09T06:15:08.4398469Z"
+    },
+    {
+      "command": "pnpm.cmd mobile:export",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:15:08.4445218Z",
+      "finishedAt": "2026-11-09T06:16:13.3927700Z"
+    },
+    {
+      "command": "pnpm.cmd audit:dependencies",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T06:16:13.3958049Z",
+      "finishedAt": "2026-11-09T06:16:15.3737649Z"
+    }
+  ],
+  "databaseAuthTests": 80,
+  "combinedHttpTests": 8,
+  "browserTests": 5,
+  "configurationUnitTests": 7,
+  "compose": {
+    "files": [
+      "infra/compose.yml",
+      "infra/compose.m2-test.yml",
+      "infra/compose.m2-keycloak.yml"
+    ],
+    "command": "docker compose --env-file .env.local -f <file> config --quiet",
+    "allExitCodes": 0
+  },
+  "additionalExecutedCommands": [
+    {
+      "command": "pnpm.cmd db:verify",
+      "exitCode": 0,
+      "scope": "Read-only M1 PostGIS/UTC/Redis verification"
+    },
+    {
+      "command": "pnpm.cmd environment:check",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/prepare-identity-test.mjs",
+      "exitCode": 0,
+      "existingCredentialsPreserved": true
+    },
+    {
+      "command": "pnpm.cmd foundation:prepare",
+      "exitCode": 0,
+      "existingCredentialsPreserved": true
+    },
+    {
+      "command": "pnpm.cmd keycloak:prepare",
+      "exitCode": 0,
+      "existingCredentialsPreserved": true
+    },
+    {
+      "command": "pnpm.cmd passenger:prepare",
+      "exitCode": 0,
+      "existingCredentialsPreserved": true
+    },
+    {
+      "command": "pnpm.cmd driver:prepare",
+      "exitCode": 0,
+      "existingCredentialsPreserved": true
+    },
+    {
+      "command": "pnpm.cmd admin:prepare",
+      "exitCode": 0,
+      "existingCredentialsPreserved": true
+    }
+  ],
+  "apiProfilesPassed": 4,
+  "metroProfilesPassed": 2,
+  "productionDenialChecksPassed": 3,
+  "migrations": {
+    "modified": false,
+    "operationalMigrationsRun": false,
+    "isolatedFixturesOnly": true,
+    "freshRepeatedConstraintsRollbackReapplyPreservationTransactionsConcurrency": true
+  },
+  "resolvedDuringPreparation": [
+    {
+      "check": "First full validation",
+      "failure": "TypeScript exactOptionalPropertyTypes rejected explicitly undefined optional production-file argument",
+      "resolution": "Conditional options object; final full validation passed"
+    },
+    {
+      "check": "Initial API smoke",
+      "failure": "Harness expected 401 for an intentionally absent M1 identity route",
+      "resolution": "Verified disabled modules and expected 404; enabled M2 profiles retain strict 401 checks; no API behavior weakened"
+    }
+  ],
+  "git": {
+    "branch": "test/m2-security-acceptance",
+    "head": "47a57c4314fafe6478802e0553da991be26e93b5",
+    "staged": false,
+    "commit": false,
+    "push": false,
+    "pullRequest": false,
+    "merge": false
+  },
+  "limitations": [
+    "Exactly four root dotenv files remain; new development template untracked and old template deletion unstaged pending Git review",
+    "GitHub CI definitions/parity reviewed locally; remote CI not run",
+    "No new Android emulator, physical-device, iOS or manual accessibility acceptance",
+    "Existing M1 development database-owner privileges retained; not production hardening",
+    "Sibling and archived dotenv files retained outside active primary loaders; sibling bind-mounted configuration unchanged",
+    "Gates A-E remain closed; no live SMS, real documents, recovery, operations or production activation"
+  ],
+  "next": "Review new template and old-template deletion for separately authorized Git staging; no publication authorized",
+  "postCleanupEvidence": "post-cleanup-validation.json",
+  "cleanupApprovalExecuted": true
+}

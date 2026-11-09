@@ -1,8 +1,8 @@
+import configuration from './environment.cjs';
 import assert from 'node:assert/strict';
 import {randomBytes,randomUUID,generateKeyPairSync} from 'node:crypto';
 import {createRequire} from 'node:module';
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
-import {parseEnv} from 'node:util';
+import {writeFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {before,after,test as nodeTest} from 'node:test';
 import postgres from 'postgres';
@@ -12,7 +12,7 @@ import {bootstrapClient} from './provision-keycloak-local.mjs';
 import {chromium} from '@playwright/test';
 import {Secret,TOTP} from 'otpauth';
 const req=createRequire(new URL('../services/api/package.json',import.meta.url));req('reflect-metadata');
-const controlEnv=parseEnv(await readFile(new URL('../.env.m2-test',import.meta.url),'utf8'));
+const controlEnv=configuration.environmentFor('test');
 const suffix=randomBytes(6).toString('hex'),database=`trissea_m2_test_${suffix}`;
 const options={max:5,onnotice:()=>{},connect_timeout:5,connection:{timezone:'UTC',statement_timeout:15000,lock_timeout:5000}};
 const report={executedAt:new Date().toISOString(),database,syntheticOnly:true,tests:[],checks:[],screenshots:[]};
@@ -21,7 +21,7 @@ const test=(name,work,timeout=90000)=>nodeTest(name,{timeout},async context=>{tr
 let control,owner,connection,app,mobileConnection,adminConnection,mobile,admin,runtime,otp,browser,providerApi,authority,city,todaA,todaB,otherCity,todaC;
 const messages=new Map(),fixtures={};let phoneCounter=1;
 const origin='http://127.0.0.1:5174';
-const keycloakEnv=parseEnv(await readFile(new URL('../.env.local',import.meta.url),'utf8'));
+const keycloakEnv=configuration.loadLocal();
 before(async()=>{const url=new URL(controlEnv.M2_TEST_CONTROL_URL);assertLocalDatabase(url.href,controlEnv.NODE_ENV);assert.equal(url.pathname,'/m2_control');assert.equal(controlEnv.M2_DISPOSABLE_DATABASE,'true');control=postgres(url.href,{...options,connection:{...options.connection,statement_timeout:60000}});await control.unsafe(`CREATE DATABASE "${database}"`);url.pathname='/'+database;assertDisposableIdentityDatabase(url.href,controlEnv.NODE_ENV,'true');owner=postgres(url.href,options);
  await owner`CREATE TABLE m2_disposable_manifest(key text PRIMARY KEY,value text NOT NULL)`;await owner`INSERT INTO m2_disposable_manifest VALUES('identity-test',${database})`;await owner`CREATE TABLE unrelated_preservation(id integer PRIMARY KEY,value text NOT NULL)`;await owner`INSERT INTO unrelated_preservation VALUES(1,'synthetic-verification-preservation')`;
 });
@@ -45,7 +45,7 @@ test('combined actual Nest module starts with three least-privilege logins in on
  console.info('Setup: dedicated database logins connected');
  const settings=new PassengerSettings({NODE_ENV:'test'}),secrets=new PassengerSecrets('verify-mobile',...Array.from({length:5},()=>randomBytes(32))),pair=generateKeyPairSync('ed25519'),privateKey=pair.privateKey.export({type:'pkcs8',format:'pem'}),publicKey=pair.publicKey.export({type:'spki',format:'pem'});
  const passengerTokens=await PassengerTokens.create('http://127.0.0.1:4104/v1','verification-passenger','verify-mobile',privateKey,publicKey),driverTokens=await PassengerTokens.create('http://127.0.0.1:4104/v1','verification-driver','verify-mobile',privateKey,publicKey,600,'DRIVER');
- otp=new RedisOtpStore('redis://127.0.0.1:16380',`verification-${suffix}`);await otp.connect();assert.equal(await otp.client.ping(),'PONG');
+ otp=new RedisOtpStore(controlEnv.DEV_REDIS_URL,`verification-${suffix}`);await otp.connect();assert.equal(await otp.client.ping(),'PONG');
  mobile=new PassengerRuntime(mobileConnection,settings,secrets,otp,new MockSmsGateway('test',message=>messages.set(message.challengeId,message)),passengerTokens,driverTokens);
  const {AdminRuntime}=req('./dist/src/auth/admin/admin-runtime.js'),{AdminSettings}=req('./dist/src/auth/admin/admin-settings.js'),{KeycloakProvider}=req('./dist/src/auth/admin/keycloak-provider.js');
  console.info('Setup: real mobile OTP runtime ready');
@@ -91,7 +91,7 @@ async function loginStaff(staff){
   await page.goto(start.json().authorizationUrl);if(!report.screenshots.length){await mkdir(new URL('../evidence/m2/m2-6/',import.meta.url),{recursive:true});await page.screenshot({path:fileURLToPath(new URL('../evidence/m2/m2-6/reviewer-sign-in.png',import.meta.url)),fullPage:true});report.screenshots.push('reviewer-sign-in.png');}
   await page.locator('#username').fill(staff.username+'@example.invalid');await page.locator('#password').fill(staff.password);await page.locator('#kc-login').click();await page.locator('#otp').waitFor();stage='TOTP submission';
   if(report.screenshots.length===1){await page.screenshot({path:fileURLToPath(new URL('../evidence/m2/m2-6/reviewer-totp.png',import.meta.url)),fullPage:true,mask:[page.locator('input, #kc-username, #kc-attempted-username')]});report.screenshots.push('reviewer-totp.png');}
-  await page.route(url=>url.port==='18080'&&url.pathname.includes('/login-actions/authenticate'),async route=>{const response=await route.fetch({maxRedirects:0}),location=response.headers().location;if(location&&new URL(location,route.request().url()).origin===origin){callback=new URL(location,route.request().url());await route.fulfill({status:200,body:'Synthetic verification callback captured; no credentials logged'});}else await route.fulfill({response});});
+  await page.route(url=>url.port===new URL(keycloakEnv.KEYCLOAK_ISSUER).port&&url.pathname.includes('/login-actions/authenticate'),async route=>{const response=await route.fetch({maxRedirects:0}),location=response.headers().location;if(location&&new URL(location,route.request().url()).origin===origin){callback=new URL(location,route.request().url());await route.fulfill({status:200,body:'Synthetic verification callback captured; no credentials logged'});}else await route.fulfill({response});});
   const remaining=30000-Date.now()%30000;if(remaining<5000||staff.lastOtpStep===Math.floor(Date.now()/30000))await new Promise(resolve=>setTimeout(resolve,remaining+200));staff.lastOtpStep=Math.floor(Date.now()/30000);await page.locator('#otp').fill(staff.totp.generate());await page.locator('#kc-login').click();for(let i=0;i<100&&!callback;i++)await new Promise(resolve=>setTimeout(resolve,50));assert.ok(callback,'Real provider callback captured');
   stage='BFF callback';const accepted=await app.inject({method:'GET',url:callback.pathname+callback.search,headers:{cookie:flowCookie}});assert.equal(accepted.statusCode,303,'BFF callback accepted actual password/TOTP proof');const cookies=accepted.headers['set-cookie'];staff.cookie=(Array.isArray(cookies)?cookies:[cookies]).find(c=>String(c).startsWith(admin.settings.cookieName+'=')).split(';')[0];
   stage='application session';const session=await http('GET','/admin/auth/session',undefined,staff);staff.csrf=session.csrfToken;staff.sessionId=session.sessionId;staff.authenticatedAt=Date.now();

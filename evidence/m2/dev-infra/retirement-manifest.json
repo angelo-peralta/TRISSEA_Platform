@@ -1,0 +1,105 @@
+{
+  "recordedAt": "2026-11-09T08:59:42.977Z",
+  "sourceDatabaseFingerprintsStillMatch": 21,
+  "encryptedBackupsRoundtripReverified": 29,
+  "generatedCoreInitUnchanged": true,
+  "containers": [
+    {
+      "id": "fecdc94f8c65b9e3fff8217c1277035d66d73724192d88e3f386cbab62c57021",
+      "name": "trissea-m2-keycloak-keycloak-1",
+      "project": "trissea-m2-keycloak",
+      "service": "keycloak",
+      "ownershipVerified": true,
+      "dataPreserved": true,
+      "stagingAuthenticationSuitesPassed": true,
+      "activeApplicationConnections": 0,
+      "oldVolumesToRetain": [],
+      "status": "REMOVED_WITHOUT_VOLUME_DELETION",
+      "controlledStopAt": "2026-11-09T09:00:24.489Z",
+      "removedAt": "2026-11-09T09:13:51.731Z"
+    },
+    {
+      "id": "a2d2fcece85f657b536bcdf13ccc822ab7dd6ac7b36aa144eb023164bd018eae",
+      "name": "trissea-m2-keycloak-postgres-1",
+      "project": "trissea-m2-keycloak",
+      "service": "postgres",
+      "ownershipVerified": true,
+      "dataPreserved": true,
+      "stagingAuthenticationSuitesPassed": true,
+      "activeApplicationConnections": "only two verified quiesced Keycloak JDBC connections",
+      "oldVolumesToRetain": [],
+      "status": "REMOVED_WITHOUT_VOLUME_DELETION",
+      "controlledStopAt": "2026-11-09T09:00:25.147Z",
+      "removedAt": "2026-11-09T09:13:51.873Z"
+    },
+    {
+      "id": "a1ceb7f581e39bede263b82d35fa48df55b5947964807ea59038a0670e399579",
+      "name": "trissea-m2-identity-test-redis-1",
+      "project": "trissea-m2-identity-test",
+      "service": "redis",
+      "ownershipVerified": true,
+      "dataPreserved": true,
+      "stagingAuthenticationSuitesPassed": true,
+      "activeApplicationConnections": 0,
+      "oldVolumesToRetain": [
+        "07fdc703bd47b130367a310a3f1e76768f24c61862d531f4a42b513136e01342"
+      ],
+      "status": "REMOVED_WITHOUT_VOLUME_DELETION",
+      "controlledStopAt": "2026-11-09T09:00:25.786Z",
+      "removedAt": "2026-11-09T09:13:52.022Z"
+    },
+    {
+      "id": "c2b5dad126bae7ac2efc0585794d624e2e3c7d46800dd2bc960b9f9774aae1db",
+      "name": "trissea-m2-identity-test-postgres-1",
+      "project": "trissea-m2-identity-test",
+      "service": "postgres",
+      "ownershipVerified": true,
+      "dataPreserved": true,
+      "stagingAuthenticationSuitesPassed": true,
+      "activeApplicationConnections": 0,
+      "oldVolumesToRetain": [],
+      "status": "REMOVED_WITHOUT_VOLUME_DELETION",
+      "controlledStopAt": "2026-11-09T09:00:26.856Z",
+      "removedAt": "2026-11-09T09:13:52.176Z"
+    },
+    {
+      "id": "820b3dc1e844b40b30e0b1fa12309ca5830e9da51b35c85adae1241a47a3ca00",
+      "name": "trissea-m1-acceptance-redis-1",
+      "project": "trissea-m1-acceptance",
+      "service": "redis",
+      "ownershipVerified": true,
+      "dataPreserved": true,
+      "stagingAuthenticationSuitesPassed": true,
+      "activeApplicationConnections": 0,
+      "oldVolumesToRetain": [
+        "trissea-m1-acceptance_trissea_redis_data"
+      ],
+      "status": "REMOVED_WITHOUT_VOLUME_DELETION",
+      "controlledStopAt": "2026-11-09T09:00:27.557Z",
+      "removedAt": "2026-11-09T09:13:52.323Z"
+    },
+    {
+      "id": "1a2c8f30bb154c0ed6aa6b27323f371f6a74a99254df080393d0bd590dede449",
+      "name": "trissea-m1-acceptance-postgres-1",
+      "project": "trissea-m1-acceptance",
+      "service": "postgres",
+      "ownershipVerified": true,
+      "dataPreserved": true,
+      "stagingAuthenticationSuitesPassed": true,
+      "activeApplicationConnections": 0,
+      "oldVolumesToRetain": [
+        "trissea-m1-acceptance_trissea_pg_data"
+      ],
+      "status": "REMOVED_WITHOUT_VOLUME_DELETION",
+      "controlledStopAt": "2026-11-09T09:00:28.232Z",
+      "removedAt": "2026-11-09T09:13:52.468Z"
+    }
+  ],
+  "volumeDeletionAuthorized": false,
+  "siblingDeletionAuthorized": false,
+  "finalAcceptanceVerifiedAt": "2026-11-09T09:13:51.553Z",
+  "replacementHealthy": true,
+  "legacyDataVolumesPreserved": true,
+  "detachedSiblingWorktreeRetained": true,
+  "retirementComplete": true
+}

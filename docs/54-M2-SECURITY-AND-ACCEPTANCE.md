@@ -1,6 +1,6 @@
 # M2 security, testing and acceptance plan
 
-Status: **M2.0 architecture approved; M2.1–M2.4 local backend acceptance recorded. Native integration, production and external gates pending.**
+Status: **M2.0–M2.7 COMPLETE — LOCAL/SIMULATED ENGINEERING ACCEPTANCE. Owner review is pending; production/external gates remain closed. Physical-device, iOS and manual screen-reader acceptance remain unrun. Final evidence: [doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md).**
 Companions: [technical plan](52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md),
 [data/API design](53-M2-DATA-AND-API-DESIGN.md),
 [draft ADR](55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md).
@@ -222,3 +222,20 @@ the decision and driver facts. Evidence revision denies synthetic eligibility.
 Real-document checklist, reviewer ownership, storage/retention, legal basis, permit
 authority and privileged assignment remain unresolved. No M2 production-readiness
 claim; all external gates stay closed. Stop before M2.7 for owner review.
+
+M2.7 final update (2026-11-09): COMPLETE — LOCAL/SIMULATED ENGINEERING ACCEPTANCE.
+Actual combined HTTP/browser and full two-app native results, session controls,
+defects, corrected harness failures and environment limitations
+are recorded in [doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md). No new API or
+migration is introduced. The native adapters use SDK-matched SecureStore/Crypto,
+device-only keychain accessibility and Android backup exclusion. Both development
+clients passed actual emulator ciphertext, restore, revocation, expiry and pending
+offline logout checks; physical-device/iOS storage assurance remains unrun.
+App-local credentials
+are purpose/API bound; no phone/code/access token is persisted. A lost refresh
+outside the retry bound requires sign-in and does not prove remote revocation.
+Live SMS, real documents, operational authority, recovery and public release
+remain disabled. All mandatory local checks passed, including the final 138-test
+validation and dependency audit with no known vulnerabilities. This grants no
+production readiness or external policy approval. Stop for owner review; no M3
+implementation is authorized.

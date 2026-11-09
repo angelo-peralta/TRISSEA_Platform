@@ -1,5 +1,9 @@
 # M2.0 / M2.1 local identity foundation acceptance
 
+> Current local Docker workflow: [ADR 66](66-ADR-DEVELOPMENT-INFRASTRUCTURE.md), one persistent `trissea-dev` project. Earlier container/Compose commands below are historical execution evidence, not startup instructions.
+
+> Environment setup update (Task 5A): use [the canonical configuration guide](65-ENVIRONMENT-CONSOLIDATION.md). Legacy dotenv names/commands below are historical acceptance evidence, not current setup instructions. Existing files remain pending explicit cleanup approval.
+
 Date: 2026-11-05. **M2.0 COMPLETE; M2.1 COMPLETE - LOCAL/DISPOSABLE ENGINEERING ACCEPTANCE.**
 Full validation run: 12:38:52-12:40:56 UTC. A subsequent canonical-LF database
 recheck and matching executed/staged migration hashes are recorded in

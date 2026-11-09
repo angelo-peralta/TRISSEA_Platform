@@ -1,5 +1,5 @@
-import { AppScreen, InfoSection } from '@trissea/mobile-ui';
+import {MobileAuthScreen} from '@trissea/mobile-auth/screen';
 
 export default function ProfileScreen() {
-  return <AppScreen title="Profile"><InfoSection title="Not available in M1">Sign-in and account verification are not enabled in this development preview.</InfoSection></AppScreen>;
+  return <MobileAuthScreen purpose="DRIVER"/>;
 }

@@ -1,0 +1,14 @@
+{
+  "executedAt": "2026-11-08T05:46:20.617Z",
+  "serial": "emulator-5556",
+  "package": "ph.trissea.driver.dev",
+  "observed": true,
+  "scope": "Live diagnostic only; not a complete startup acceptance result",
+  "currentProcessCount": 1,
+  "appFatalMarkers": 0,
+  "jsExceptionMarkers": 0,
+  "rawJwtMarkers": 0,
+  "appCrashProcessEntries": 0,
+  "appAnrEvents": 0,
+  "systemUiAnrEvents": 1
+}

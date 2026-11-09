@@ -1,0 +1,10 @@
+{
+  "recordedAt": "2026-11-09T09:15:00.193Z",
+  "siblingDirtyFilesUnchanged": 97,
+  "excludedUserFilesUnchanged": 198,
+  "siblingDotenvFilesUnchanged": 6,
+  "worktreeDeleted": false,
+  "unrelatedUserChangesStaged": false,
+  "privateKeyAndProductionFilesByteUnchanged": 7,
+  "canonicalLocalChanges": "New distinct infrastructure-bootstrap credential plus approved Redis endpoint consolidation and removal of unused legacy project setting; prior private values preserved"
+}

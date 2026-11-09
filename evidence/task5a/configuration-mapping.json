@@ -1,0 +1,217 @@
+{
+  "valuesIncluded": false,
+  "mapping": [
+    {
+      "from": ".env",
+      "key": "POSTGRES_DB",
+      "replacement": ".env.local:M1_POSTGRES_DB",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "POSTGRES_USER",
+      "replacement": ".env.local:M1_POSTGRES_USER",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "POSTGRES_PASSWORD",
+      "replacement": ".env.local:M1_POSTGRES_PASSWORD",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "POSTGRES_PORT",
+      "replacement": ".env.local:M1_POSTGRES_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "REDIS_PORT",
+      "replacement": ".env.local:M1_REDIS_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "DATABASE_URL",
+      "replacement": ".env.local:M1_DATABASE_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "REDIS_URL",
+      "replacement": ".env.local:M1_REDIS_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "API_PORT",
+      "replacement": ".env.local:M1_API_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "PHILSMS_API_TOKEN",
+      "replacement": ".env.local:PHILSMS_API_TOKEN",
+      "preserved": true
+    },
+    {
+      "from": ".env",
+      "key": "PHILSMS_SENDER_ID",
+      "replacement": ".env.local:PHILSMS_SENDER_ID",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-test",
+      "key": "M2_TEST_CONTROL_URL",
+      "replacement": ".env.local:M2_TEST_CONTROL_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-test",
+      "key": "M2_TEST_POSTGRES_PASSWORD",
+      "replacement": ".env.local:M2_TEST_POSTGRES_PASSWORD",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-test",
+      "key": "M2_TEST_POSTGRES_PORT",
+      "replacement": ".env.local:M2_TEST_POSTGRES_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-test",
+      "key": "M2_DISPOSABLE_DATABASE",
+      "replacement": ".env.local:M2_TEST_DISPOSABLE_DATABASE",
+      "preserved": true
+    },
+    {
+      "from": ".env.local",
+      "key": "API_PORT",
+      "replacement": ".env.local:ADMIN_API_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env.local",
+      "key": "M2_ADMIN_AUTH_ENABLED",
+      "replacement": ".env.local:ADMIN_LOCAL_AUTH_ENABLED",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "API_PORT",
+      "replacement": ".env.local:PASSENGER_LOCAL_API_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "M2_PASSENGER_AUTH_ENABLED",
+      "replacement": ".env.local:PASSENGER_LOCAL_AUTH_ENABLED",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "M2_PASSENGER_DATABASE_URL",
+      "replacement": ".env.local:PASSENGER_LOCAL_DATABASE_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "M2_PASSENGER_KEYS_FILE",
+      "replacement": ".env.local:PASSENGER_LOCAL_KEYS_FILE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "M2_PASSENGER_REDIS_URL",
+      "replacement": ".env.local:PASSENGER_LOCAL_REDIS_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "M2_PASSENGER_REDIS_NAMESPACE",
+      "replacement": ".env.local:PASSENGER_LOCAL_REDIS_NAMESPACE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "PASSENGER_JWT_ISSUER",
+      "replacement": ".env.local:PASSENGER_LOCAL_JWT_ISSUER",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "PASSENGER_JWT_AUDIENCE",
+      "replacement": ".env.local:PASSENGER_LOCAL_JWT_AUDIENCE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-passenger",
+      "key": "DRIVER_JWT_AUDIENCE",
+      "replacement": ".env.local:PASSENGER_LOCAL_DRIVER_JWT_AUDIENCE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "API_PORT",
+      "replacement": ".env.local:DRIVER_LOCAL_API_PORT",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "M2_DRIVER_AUTH_ENABLED",
+      "replacement": ".env.local:DRIVER_LOCAL_AUTH_ENABLED",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "M2_PASSENGER_DATABASE_URL",
+      "replacement": ".env.local:DRIVER_LOCAL_DATABASE_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "M2_PASSENGER_KEYS_FILE",
+      "replacement": ".env.local:DRIVER_LOCAL_KEYS_FILE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "M2_PASSENGER_REDIS_URL",
+      "replacement": ".env.local:DRIVER_LOCAL_REDIS_URL",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "M2_PASSENGER_REDIS_NAMESPACE",
+      "replacement": ".env.local:DRIVER_LOCAL_REDIS_NAMESPACE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "PASSENGER_JWT_ISSUER",
+      "replacement": ".env.local:DRIVER_LOCAL_JWT_ISSUER",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "PASSENGER_JWT_AUDIENCE",
+      "replacement": ".env.local:DRIVER_LOCAL_JWT_AUDIENCE",
+      "preserved": true
+    },
+    {
+      "from": ".env.m2-driver",
+      "key": "DRIVER_JWT_AUDIENCE",
+      "replacement": ".env.local:DRIVER_LOCAL_DRIVER_JWT_AUDIENCE",
+      "preserved": true
+    }
+  ],
+  "existingCanonicalValuesPreserved": true,
+  "legacyFilesDeleted": true,
+  "approvedCleanup": {
+    "removedCount": 6,
+    "executedAt": "2026-11-09T06:57:11.043Z",
+    "evidence": "cleanup-execution.json",
+    "credentialMappingsVerifiedBeforeDeletion": 34
+  }
+}

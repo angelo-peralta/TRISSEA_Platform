@@ -1,3 +1,4 @@
+import {testDatabasePort} from '../../development-endpoints';
 import {Global,Module,type DynamicModule,type OnModuleDestroy} from '@nestjs/common';
 import postgres from 'postgres';
 import {sql} from 'drizzle-orm';
@@ -13,7 +14,7 @@ import {VerificationService} from './verification-service';
 export function verificationDatabaseUrl(env:Readonly<Record<string,string|undefined>>):URL{
  readIdentityPolicy(env);
  if(['M2_VERIFICATION_ENABLED','M2_PASSENGER_AUTH_ENABLED','M2_DRIVER_AUTH_ENABLED','M2_ADMIN_AUTH_ENABLED'].some(k=>env[k]!=='true'))throw new Error('Invalid verification activation');
- try{const url=new URL(env.M2_VERIFICATION_DATABASE_URL??'');if(!['postgres:','postgresql:'].includes(url.protocol)||url.hostname!=='127.0.0.1'||url.port!=='15433'||!/^\/trissea_m2_test_[a-f0-9]{12}$/.test(url.pathname)||url.search||url.hash)throw new Error();
+ try{const url=new URL(env.M2_VERIFICATION_DATABASE_URL??'');if(!['postgres:','postgresql:'].includes(url.protocol)||url.hostname!=='127.0.0.1'||url.port!==testDatabasePort(env)||!/^\/trissea_m2_test_[a-f0-9]{12}$/.test(url.pathname)||url.search||url.hash)throw new Error();
   for(const key of ['M2_PASSENGER_DATABASE_URL','ADMIN_DATABASE_URL']){const other=new URL(env[key]??'');if(other.hostname!==url.hostname||other.port!==url.port||other.pathname!==url.pathname)throw new Error();}return url;
  }catch{throw new Error('Invalid M2_VERIFICATION_DATABASE_URL: one disposable application database required');}
 }

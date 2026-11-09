@@ -1,5 +1,9 @@
 # M2.6 — Synthetic driver and vehicle verification
 
+> Current local Docker workflow: [ADR 66](66-ADR-DEVELOPMENT-INFRASTRUCTURE.md), one persistent `trissea-dev` project. Earlier container/Compose commands below are historical execution evidence, not startup instructions.
+
+> Environment setup update (Task 5A): use [the canonical configuration guide](65-ENVIRONMENT-CONSOLIDATION.md). Legacy dotenv names/commands below are historical acceptance evidence, not current setup instructions. Existing files remain pending explicit cleanup approval.
+
 Status: **COMPLETE — LOCAL/SYNTHETIC ENGINEERING ACCEPTANCE**, 2026-11-06.
 Owner approved continuation after M2.5 `d148bde`. Overall M2 remains IN PROGRESS;
 stop for owner review before M2.7. No production readiness or legal approval.

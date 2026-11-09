@@ -1,0 +1,101 @@
+name: trissea-dev
+services:
+  postgres:
+    image: postgis/postgis:17-3.5@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6
+    environment:
+      POSTGRES_USER: ${DEV_POSTGRES_ADMIN_USER:?Run dev:infra:prepare}
+      POSTGRES_PASSWORD_FILE: /run/secrets/core_admin_password
+      POSTGRES_DB: postgres
+      TRISSEA_RESTORE_MODE: ${DEV_RESTORE_MODE:-false}
+      TZ: UTC
+      PGTZ: UTC
+    command: ['postgres','-c','log_statement=none','-c','log_min_error_statement=panic','-c','log_parameter_max_length_on_error=0']
+    secrets: [core_admin_password]
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./dev-core-init.sh:/docker-entrypoint-initdb.d/20-trissea.sh:ro
+      - ../.cache/dev-infra/init/core.sql:/run/trissea/core.sql:ro
+    ports: ['127.0.0.1:${M1_POSTGRES_PORT:-15432}:5432']
+    networks: [core, core-access]
+    healthcheck:
+      test: ['CMD-SHELL','pg_isready -U "$$POSTGRES_USER" -d postgres']
+      interval: 2s
+      timeout: 3s
+      retries: 40
+  postgres-test:
+    image: postgis/postgis:17-3.5@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6
+    environment:
+      POSTGRES_USER: m2_test_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/test_owner_password
+      POSTGRES_DB: postgres
+      TRISSEA_RESTORE_MODE: ${DEV_RESTORE_MODE:-false}
+      TZ: UTC
+      PGTZ: UTC
+    command: ['postgres','-c','log_statement=none','-c','log_min_error_statement=panic','-c','log_parameter_max_length_on_error=0']
+    secrets: [test_owner_password]
+    volumes:
+      - pg_test_data:/var/lib/postgresql/data
+      - ./dev-test-init.sh:/docker-entrypoint-initdb.d/20-trissea.sh:ro
+    ports: ['127.0.0.1:${M2_TEST_POSTGRES_PORT:-15433}:5432']
+    networks: [test, test-access]
+    healthcheck:
+      test: ['CMD-SHELL','pg_isready -U m2_test_owner -d postgres']
+      interval: 2s
+      timeout: 3s
+      retries: 40
+  redis:
+    image: redis:7.4-alpine@sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f
+    user: redis
+    command: ['redis-server','--appendonly','yes','--appendfsync','everysec','--maxmemory-policy','noeviction']
+    volumes: [redis_data:/data]
+    ports: ['127.0.0.1:${DEV_REDIS_PORT:-16380}:6379']
+    networks: [core, test, test-access]
+    healthcheck:
+      test: ['CMD','redis-cli','ping']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:4340d05ee7d15be34293868d495ac772d61f1a4d0e43d53bae2e75e2f05de185
+    platform: linux/amd64
+    user: '1000:0'
+    command: ['start-dev','--import-realm']
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_identity
+      KC_DB_USERNAME: keycloak_runtime
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Run dev:infra:prepare}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_BOOTSTRAP_USER:?Run dev:infra:prepare}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_BOOTSTRAP_PASSWORD:?Run dev:infra:prepare}
+      KC_HOSTNAME: http://127.0.0.1:${DEV_KEYCLOAK_PORT:-18080}
+      KC_HOSTNAME_STRICT: 'true'
+      KC_HEALTH_ENABLED: 'true'
+      KC_HTTP_ACCESS_LOG_ENABLED: 'false'
+      KC_LOG_LEVEL: warn
+    volumes:
+      - ../.cache/dev-infra/realm-import:/opt/keycloak/data/import:ro
+    ports: ['127.0.0.1:${DEV_KEYCLOAK_PORT:-18080}:8080','127.0.0.1:${DEV_KEYCLOAK_HEALTH_PORT:-19000}:9000']
+    networks: [core, core-access]
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ['CMD-SHELL',"bash -ec 'exec 3<>/dev/tcp/localhost/9000; printf \"GET /health/ready HTTP/1.0\\r\\n\\r\\n\" >&3; cat <&3 | grep -q UP'"]
+      interval: 3s
+      timeout: 4s
+      retries: 50
+volumes:
+  pg_data:
+  pg_test_data:
+  redis_data:
+networks:
+  core: {internal: true}
+  test: {internal: true}
+  # Docker Desktop suppresses published ports on internal-only networks. These
+  # separate project bridges supply host ingress; every binding remains loopback.
+  core-access: {driver: bridge}
+  test-access: {driver: bridge}
+secrets:
+  core_admin_password:
+    file: ../.cache/dev-infra/secrets/core-admin-password
+  test_owner_password:
+    file: ../.cache/dev-infra/secrets/test-owner-password

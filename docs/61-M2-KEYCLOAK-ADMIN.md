@@ -1,5 +1,9 @@
 # M2.5 — Keycloak administrator authentication
 
+> Current local Docker workflow: [ADR 66](66-ADR-DEVELOPMENT-INFRASTRUCTURE.md), one persistent `trissea-dev` project. Earlier container/Compose commands below are historical execution evidence, not startup instructions.
+
+> Environment setup update (Task 5A): use [the canonical configuration guide](65-ENVIRONMENT-CONSOLIDATION.md). Legacy dotenv names/commands below are historical acceptance evidence, not current setup instructions. Existing files remain pending explicit cleanup approval.
+
 Date: 2026-11-06 PHT. Status: **COMPLETE — LOCAL/SYNTHETIC ENGINEERING ACCEPTANCE**.
 M2 as a whole remains IN PROGRESS; stop before M2.6 for owner review.
 Owner approved continuation after M2.4 `968e1d9`. Branch

@@ -25,6 +25,11 @@ section { padding: 24px; background: #fff; border: 1px solid #51606f; border-rad
 .admin-identity input { font: inherit; min-height: 48px; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #51606f; border-radius: 8px; }
 .admin-identity input:focus-visible { outline: 3px solid #102a43; outline-offset: 3px; }
 footer { margin-top: 32px; line-height: 1.8; }
+.verification-panel { margin-top: 24px; overflow-wrap: anywhere; }
+.verification-panel select { display: block; font: inherit; min-height: 48px; padding: 12px; max-width: 100%; margin: 8px 0 16px; color: inherit; background: #fff; border: 1px solid #51606f; border-radius: 8px; }
+.verification-panel select:focus-visible { outline: 3px solid #102a43; outline-offset: 3px; }
+.verification-panel li { margin-block: 12px; }
+.verification-panel li button { width: 100%; overflow-wrap: anywhere; }
 .skip { position: absolute; top: -100px; padding: 16px; background: white; }
 .skip:focus { top: 0; }
 @media (max-width: 760px) { .app { display: block; } aside { border-right: 0; border-bottom: 1px solid #51606f; padding: 24px; } nav { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin: 16px 0; } }

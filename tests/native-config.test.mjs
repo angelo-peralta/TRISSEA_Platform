@@ -11,11 +11,15 @@ test('native path callbacks precede eager root plugins and regeneration is idemp
   assert.ok(result.includes('// Existing customization'));
   assert.ok(result.includes('allprojects { repositories { google() } }'));
   assert.equal(updateGradle(result, 'p'), result);
+  assert.ok(result.includes("cmake.arguments '-DCMAKE_OBJECT_PATH_MAX=250'"));
+  assert.ok(result.includes("cmake.version = '3.31.6'"));
 });
 
 test('passenger and driver native outputs are separated; unknown staging context fails', () => {
-  assert.ok(updateGradle(original, 'p').includes('../../../.c/p/a'));
-  assert.ok(updateGradle(original, 'd').includes('../../../.c/d/a'));
+  assert.ok(updateGradle(original, 'p').includes('.trissea-native/${workspaceKey}/p'));
+  assert.ok(updateGradle(original, 'd').includes('.trissea-native/${workspaceKey}/d'));
+  assert.ok(updateGradle(original, 'p').includes('rootProject.projectDir.canonicalPath'));
+  assert.ok(updateGradle(original, 'p').includes("nativeProject.name == 'app' ? 'a' : nativeProject.name"));
   assert.throws(() => updateGradle(original, '../outside'));
   assert.throws(() => updateGradle('unknown project format', 'p'));
 });

@@ -123,7 +123,7 @@ test('real root Nest app accepts purpose-bound driver and passenger proofs using
  const password=randomBytes(32).toString('hex'),login=`m2_driver_${suffix}`;
  await control.unsafe(`CREATE ROLE "${login}" LOGIN PASSWORD '${password}' NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE IN ROLE trissea_m2_auth,trissea_m2_authorization`);
  const url=new URL(ownerUrl);url.username=login;url.password=password;connection=postgres(url.href,options);
- otp=new RedisOtpStore('redis://127.0.0.1:16380',`driver-test-${suffix}`);await otp.connect();assert.equal(await otp.client.ping(),'PONG');
+ otp=new RedisOtpStore(process.env.DEV_REDIS_URL,`driver-test-${suffix}`);await otp.connect();assert.equal(await otp.client.ping(),'PONG');
  const keys=generateKeyPairSync('ed25519'),privatePem=keys.privateKey.export({type:'pkcs8',format:'pem'}),publicPem=keys.publicKey.export({type:'spki',format:'pem'});
  const passenger=await PassengerTokens.create('http://127.0.0.1:4101/v1','trissea-passenger-local','driver-test',privatePem,publicPem),driver=await PassengerTokens.create('http://127.0.0.1:4101/v1','trissea-driver-local','driver-test',privatePem,publicPem,600,'DRIVER');
  runtime=new PassengerRuntime(connection,new PassengerSettings({NODE_ENV:'test'}),new PassengerSecrets('driver-test',...Array.from({length:5},()=>randomBytes(32))),otp,new MockSmsGateway('test',message=>messages.set(message.challengeId,message)),passenger,driver);

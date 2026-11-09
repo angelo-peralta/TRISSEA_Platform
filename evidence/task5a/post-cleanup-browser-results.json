@@ -1,0 +1,41 @@
+{
+  "executedAt": "2026-11-09T06:59:33.760Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "tests": [
+    {
+      "name": "real mobile driver to assigned browser reviewer, lost decision response and exact idempotent retry",
+      "result": "PASSED"
+    },
+    {
+      "name": "vehicle and membership reviews use separate current authorities; pending driver never gains operating capabilities",
+      "result": "PASSED"
+    },
+    {
+      "name": "assigned wrong-TODA and restricted-role access, CSRF, stale state and revoked grants deny without retained evidence",
+      "result": "PASSED"
+    },
+    {
+      "name": "browser credentials, keyboard, responsive layout and logs preserve privacy boundaries",
+      "result": "PASSED"
+    },
+    {
+      "name": "lost browser logout response hides review data immediately and retries only the pending sign-out",
+      "result": "PASSED"
+    }
+  ],
+  "screenshots": [
+    "assigned-driver-desktop.png",
+    "membership-mobile.png",
+    "restricted-role.png",
+    "revoked-access.png",
+    "verification-mobile-access-denied.png"
+  ],
+  "checks": [
+    "Real driver OTP/consent/case -> real password/TOTP -> assigned browser approval; dropped committed response retried with original key; one decision/audit/outbox",
+    "Officer driver/vehicle and manager membership approvals stay separate; no permit assertion or city membership manufactured; operation denied",
+    "Assigned wrong-TODA case and support role 403; invalid CSRF 403; mixed bearer/cookie 401; current grant removal empties evidence view",
+    "No provider/mobile tokens in localStorage/sessionStorage or JS cookies; actual HttpOnly Strict cookie, keyboard focus, 390px no overflow and zero page exceptions",
+    "Dropped committed logout response hides review immediately; pending sign-out retries with original key and cannot restore protected UI"
+  ],
+  "database": "trissea_m2_test_f9c1eda37955"
+}

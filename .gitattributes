@@ -12,3 +12,5 @@ database/migrations/0006_*.sql text eol=lf
 database/migrations/0007_*.sql text eol=lf
 packages/contracts/src/*-client.ts text eol=lf
 services/api/src/contracts/generated/*.ts text eol=lf
+# Linux container initialization must remain executable shell text on Windows.
+infra/*.sh text eol=lf

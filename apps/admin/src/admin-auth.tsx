@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Schemas } from '@trissea/contracts';
+import {AssignedVerificationPanel} from './verification';
 
 type Session = Schemas['AdminSession'];
 const endpoint = '/v1/admin/auth';
@@ -15,14 +16,19 @@ export function AdminAuthPanel() {
   const [status, setStatus] = useState('Checking administrator session…');
   const [busy, setBusy] = useState(true);
   const [todaId, setTodaId] = useState('');
+  const [logoutPending, setLogoutPending] = useState(false);
   const pending = useRef(false);
   const loginAttempt = useRef<{ key: string; proof: string } | null>(null);
+  const logoutAttempt = useRef<{ key: string; session: Session } | null>(null);
   async function checkSession(signal?: AbortSignal) {
+    if (logoutAttempt.current) { await signOut(); return; }
+    if (pending.current) return;
+    pending.current = true;
     try {
       const current = await fetchSession(signal ?? AbortSignal.timeout(10000));
       setSession(current); setStatus(current ? 'Administrator session active · TOTP verified' : 'Sign in with your approved administrator identity and TOTP.');
     } catch { if (!signal?.aborted) { setSession(null); setStatus('Identity service unavailable. Retry when the local services are running.'); } }
-    finally { if (!signal?.aborted) setBusy(false); }
+    finally { pending.current = false; if (!signal?.aborted) setBusy(false); }
   }
   useEffect(() => {
     const controller = new AbortController();
@@ -33,7 +39,7 @@ export function AdminAuthPanel() {
     return () => controller.abort();
   }, []);
   async function signIn() {
-    if (pending.current) return;
+    if (pending.current || logoutAttempt.current) return;
     pending.current = true; setBusy(true); setStatus('Opening secure administrator sign-in…');
     try {
       if (!loginAttempt.current) {
@@ -48,12 +54,20 @@ export function AdminAuthPanel() {
     finally { pending.current = false; }
   }
   async function signOut() {
-    if (!session || pending.current) return;
+    if (pending.current || (!session && !logoutAttempt.current)) return;
+    if (!logoutAttempt.current) logoutAttempt.current = { key: crypto.randomUUID(), session: session! };
+    const attempt = logoutAttempt.current;
+    // A lost response may already have revoked the cookie. Hide all review data
+    // immediately and keep retries bound to this sign-out, never session restore.
+    setSession(null);
+    setLogoutPending(true);
     pending.current = true; setBusy(true);
     try {
-      const response = await fetch(endpoint + '/logout', { method: 'POST', credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(10000), headers: { 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID(), 'X-CSRF-Token': session.csrfToken }, body: '{}' });
-      if (!response.ok) throw new Error();
-      setSession(null); setStatus('Signed out. Your application session has been revoked.');
+      const response = await fetch(endpoint + '/logout', { method: 'POST', credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(10000), headers: { 'Content-Type': 'application/json', 'Idempotency-Key': attempt.key, 'X-CSRF-Token': attempt.session.csrfToken }, body: '{}' });
+      if (!response.ok && response.status !== 401) throw new Error();
+      logoutAttempt.current = null;
+      setLogoutPending(false);
+      setStatus(response.ok ? 'Signed out. Your application session has been revoked.' : 'Session is not active. Sign in with TOTP.');
     } catch { setStatus('Sign-out was not confirmed. Check session or retry.'); }
     finally { pending.current = false; setBusy(false); }
   }
@@ -73,8 +87,8 @@ export function AdminAuthPanel() {
     <p role="status" aria-live="polite">{status}</p>
     <div className="actions">
       <button onClick={() => { setBusy(true); void checkSession(); }} disabled={busy}>Check session / Retry</button>
-      <button className="primary" onClick={() => void signIn()} disabled={busy}>{session ? 'Reauthenticate with TOTP' : 'Sign in with Keycloak'}</button>
-      {session ? <button onClick={() => void signOut()} disabled={busy}>Sign out</button> : null}
+      <button className="primary" onClick={() => void signIn()} disabled={busy || logoutPending}>{session ? 'Reauthenticate with TOTP' : 'Sign in with Keycloak'}</button>
+      {session || logoutPending ? <button onClick={() => void signOut()} disabled={busy}>{logoutPending ? 'Retry sign-out' : 'Sign out'}</button> : null}
     </div>
     {session ? <div>
       <p>Application session: <code>{session.sessionId}</code></p>
@@ -83,5 +97,6 @@ export function AdminAuthPanel() {
       <button onClick={() => void checkScope()} disabled={busy}>Check scoped access</button>
     </div> : null}
     <p className="subtle">No public registration, account recovery, role delegation or live operations.</p>
+    {session?<AssignedVerificationPanel key={session.sessionId} csrfToken={session.csrfToken}/>:null}
   </section>;
 }

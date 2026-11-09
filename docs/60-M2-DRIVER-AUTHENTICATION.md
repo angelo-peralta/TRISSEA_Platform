@@ -1,5 +1,9 @@
 # M2.4 — Driver authentication and pending identity intake
 
+> Current local Docker workflow: [ADR 66](66-ADR-DEVELOPMENT-INFRASTRUCTURE.md), one persistent `trissea-dev` project. Earlier container/Compose commands below are historical execution evidence, not startup instructions.
+
+> Environment setup update (Task 5A): use [the canonical configuration guide](65-ENVIRONMENT-CONSOLIDATION.md). Legacy dotenv names/commands below are historical acceptance evidence, not current setup instructions. Existing files remain pending explicit cleanup approval.
+
 Status: **COMPLETE — LOCAL/SIMULATED BACKEND ENGINEERING ACCEPTANCE**.
 Date: 2026-11-06 PHT. M2 as a whole remains IN PROGRESS.
 Owner approved continuing after M2.3 `044ce8e`. This slice uses

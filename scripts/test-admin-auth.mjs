@@ -1,8 +1,8 @@
+import configuration from './environment.cjs';
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { parseEnv } from 'node:util';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { before, after, test as nodeTest } from 'node:test';
@@ -17,8 +17,8 @@ import { bootstrapClient } from './provision-keycloak-local.mjs';
 // Never print provider codes, callback URLs, passwords, TOTP seeds or credentials.
 const req = createRequire(new URL('../services/api/package.json', import.meta.url));
 req('reflect-metadata');
-const env = parseEnv(await readFile(new URL('../.env.local', import.meta.url), 'utf8'));
-const controlEnv = parseEnv(await readFile(new URL('../.env.m2-test', import.meta.url), 'utf8'));
+const env = configuration.loadLocal();
+const controlEnv = configuration.environmentFor('test');
 const suffix = randomBytes(6).toString('hex'), database = `trissea_m2_test_${suffix}`;
 const settings = { max: 5, onnotice: () => {}, connect_timeout: 5, connection: { timezone: 'UTC', statement_timeout: 15000, lock_timeout: 5000 } };
 const report = { executedAt: new Date().toISOString(), database, syntheticOnly: true, keycloak: '26.8.2', tests: [], checks: [], screenshots: [] };
@@ -81,7 +81,7 @@ test('non-owner admin runtime and real Keycloak discovery start with no public s
   await assert.rejects(runtimeConnection`UPDATE identity.administrative_identity_mappings SET state='APPROVED'`, e => e.code === '42501');
   await assert.rejects(runtimeConnection`UPDATE identity.scoped_role_assignments SET role_code='PLATFORM_ADMIN'`, e => e.code === '42501');
   await assert.rejects(runtimeConnection`SET ROLE trissea_m2_policy_lock`, e => e.code === '42501');
-  Object.assign(process.env, env, { ADMIN_DATABASE_URL: url.href, M2_PASSENGER_AUTH_ENABLED: 'false', M2_DRIVER_AUTH_ENABLED: 'false' });
+  Object.assign(process.env, env, { ADMIN_DATABASE_URL: url.href, M2_ADMIN_AUTH_ENABLED: 'true', M2_PASSENGER_AUTH_ENABLED: 'false', M2_DRIVER_AUTH_ENABLED: 'false' });
   const { createApp } = req('./dist/src/bootstrap.js');
   app = await createApp(); await app.listen(4102, '127.0.0.1');
   const { AdminRuntime } = req('./dist/src/auth/admin/admin-runtime.js'); runtime = app.get(AdminRuntime);
@@ -175,11 +175,11 @@ test('replayed and expired TOTP deny; fresh password/TOTP reauthentication rotat
   const first=await login(person),initial=await (await own(first.context)).json();
   const oldCookie=(await first.context.cookies()).find(c=>c.name==='trissea_admin_local');
   const second=await login(person,{context:first.context,codeOverride:first.submittedCode});
-  assert.equal(new URL(second.page.url()).origin,'http://127.0.0.1:18080');
+  assert.equal(new URL(second.page.url()).origin,new URL(env.KEYCLOAK_ISSUER).origin);
   assert.equal((await owner`SELECT count(*)::int AS n FROM identity.app_sessions WHERE user_id=${person.userId}`)[0].n,1);
   await new Promise(resolve=>setTimeout(resolve,30200-Date.now()%30000));
   await second.page.locator('#otp').fill(person.totp.generate({timestamp:Date.now()-60000}));await second.page.locator('#kc-login').click();
-  assert.equal(new URL(second.page.url()).origin,'http://127.0.0.1:18080');
+  assert.equal(new URL(second.page.url()).origin,new URL(env.KEYCLOAK_ISSUER).origin);
   await second.page.locator('#otp').fill(person.totp.generate());await second.page.locator('#kc-login').click();
   try{await second.page.waitForURL(url=>url.origin===origin,{timeout:20000});}catch{throw new Error('Fresh TOTP reauthentication callback missing (URL redacted)');}
   const rotated=await (await own(first.context)).json();assert.notEqual(rotated.sessionId,initial.sessionId);
@@ -204,7 +204,7 @@ test('read-only provider identity service cannot mutate users, delete factors or
   assert.equal(await page.locator('a[href*="reset-credentials"], a[href*="registration"]').count(),0);
   for(const path of ['/login-actions/reset-credentials?client_id=trissea-admin-bff','/login-actions/registration?client_id=trissea-admin-bff','/login-actions/action-token?key=synthetic-invalid-action-token','/account/']){
     const denied=await context.request.get(env.KEYCLOAK_ISSUER+path,{maxRedirects:5});
-    if(path.startsWith('/login-actions/registration')&&denied.status()===200){const html=await denied.text();assert.equal(new URL(denied.url()).origin,'http://127.0.0.1:18080');assert.ok(html.includes('id="kc-form-login"'),'Disabled registration may restart normal sign-in');assert.equal(html.includes('id="kc-register-form"'),false);}
+    if(path.startsWith('/login-actions/registration')&&denied.status()===200){const html=await denied.text();assert.equal(new URL(denied.url()).origin,new URL(env.KEYCLOAK_ISSUER).origin);assert.ok(html.includes('id="kc-form-login"'),'Disabled registration may restart normal sign-in');assert.equal(html.includes('id="kc-register-form"'),false);}
     else assert.ok(denied.status()>=400&&denied.status()<500,'Direct '+path.split('?')[0]+' denied after bounded redirects; status '+denied.status());
   }
   const recovery=new URL(await start(context));recovery.searchParams.set('kc_action','CONFIGURE_RECOVERY_AUTHN_CODES');await page.goto(recovery.href);
@@ -236,7 +236,7 @@ test('incorrect password, incorrect TOTP, missing enrollment, unmapped and unver
     if(failure==='enrollment'||failure==='email'){
       const context=await browser.newContext(),page=await context.newPage();await page.goto(await start(context));
       await page.locator('#username').fill(person.name);await page.locator('#password').fill(person.password);await page.locator('#kc-login').click();
-      assert.equal(new URL(page.url()).origin,'http://127.0.0.1:18080');assert.equal((await context.cookies()).some(c=>c.name==='trissea_admin_local'),false);await own(context,401);await context.close();
+      assert.equal(new URL(page.url()).origin,new URL(env.KEYCLOAK_ISSUER).origin);assert.equal((await context.cookies()).some(c=>c.name==='trissea_admin_local'),false);await own(context,401);await context.close();
     }else{
       const {context}=await login(person,{wrongPassword:failure==='password',wrongOtp:failure==='otp'});
       assert.equal((await context.cookies()).some(c=>c.name==='trissea_admin_local'),false);await own(context,401);await context.close();
@@ -263,7 +263,7 @@ test('state/browser binding, nonce, PKCE and consumed callback prevent protocol 
     await page.goto(authorization.href);await page.locator('#username').fill(person.name);await page.locator('#password').fill(person.password);await page.locator('#kc-login').click();
     // Playwright routes the initial request of a redirect chain. Hold the
     // provider's OTP response before it redirects to the real BFF callback.
-    await page.route(url=>url.port==='18080'&&url.pathname.includes('/login-actions/authenticate'),async route=>{const response=await route.fetch({maxRedirects:0}),location=response.headers().location;
+    await page.route(url=>url.port===new URL(env.KEYCLOAK_ISSUER).port&&url.pathname.includes('/login-actions/authenticate'),async route=>{const response=await route.fetch({maxRedirects:0}),location=response.headers().location;
       if(location&&new URL(location,route.request().url()).origin===origin){callbackUrl=new URL(location,route.request().url()).href;await route.fulfill({status:200,contentType:'text/plain',body:'Synthetic callback held for protocol acceptance test'});}else await route.fulfill({response});});
     await page.locator('#otp').fill(await currentOtp(person.totp));await page.locator('#kc-login').click();
     for(let i=0;i<100&&!callbackUrl;i++)await new Promise(resolve=>setTimeout(resolve,50));
@@ -322,7 +322,7 @@ test('absolute expiry and policy-clock idle/step-up expiry deny without extendin
 test('provider/DB failures and revocation during provider I/O fail closed; rate exhaustion denies new flows',async()=>{
   const person=await synthetic(),{context}=await login(person),cookie=(await context.cookies()).filter(c=>c.name==='trissea_admin_local').map(c=>c.name+'='+c.value).join(';');await own(context);
   const original=runtime.provider.assurance.bind(runtime.provider);
-  const docker=promisify(execFile),compose=['compose','--env-file','.env.local','-f','infra/compose.m2-keycloak.yml'];
+  const docker=promisify(execFile),compose=['compose','--env-file','.env.local','-f','infra/compose.dev.yml'];
   try{await docker('docker',[...compose,'pause','keycloak'],{windowsHide:true,timeout:15000});await own(context,401);}finally{await docker('docker',[...compose,'unpause','keycloak'],{windowsHide:true,timeout:15000});}
   await own(context);
   runtime.provider.assurance=async()=>{throw new Error('synthetic provider outage; must never escape');};await own(context,401);runtime.provider.assurance=original;await own(context);

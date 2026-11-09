@@ -9,12 +9,23 @@ function updateGradle(contents, appKey) {
   const block = `${start}
 // Keep native object paths out of pnpm's long dependency directories on Windows.
 if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+  // Long checkout names plus generated target names can exceed MAX_PATH even
+  // after object hashing. Isolate staging by canonical checkout path and app.
+  def workspaceKey = java.security.MessageDigest.getInstance('SHA-256')
+    .digest(rootProject.projectDir.canonicalPath.getBytes('UTF-8')).encodeHex().toString().substring(0, 12)
+  def nativeRoot = new File(System.getProperty('user.home'), ".trissea-native/\${workspaceKey}/${appKey}")
   subprojects { nativeProject ->
     ['com.android.application', 'com.android.library'].each { androidPlugin ->
       nativeProject.pluginManager.withPlugin(androidPlugin) {
-        def staging = nativeProject.name == 'app' ? "../../../.c/${appKey}/a" : ".cxx/\${nativeProject.name}"
+        def staging = new File(nativeRoot, nativeProject.name == 'app' ? 'a' : nativeProject.name)
         nativeProject.extensions.getByName('android').externalNativeBuild.cmake.buildStagingDirectory =
-          new File(rootProject.projectDir, staging)
+          staging
+        // SDK CMake 3.31.6 bundles Ninja 1.12.1, which handles Windows input
+        // paths above 260 characters. Object hashing alone cannot fix inputs.
+        nativeProject.extensions.getByName('android').externalNativeBuild.cmake.version = '3.31.6'
+        // Force deterministic object-name hashing before Ninja's Windows limit.
+        // The default limit missed long pnpm/gesture-handler shadow-node paths.
+        nativeProject.extensions.getByName('android').defaultConfig.externalNativeBuild.cmake.arguments '-DCMAKE_OBJECT_PATH_MAX=250'
       }
     }
   }

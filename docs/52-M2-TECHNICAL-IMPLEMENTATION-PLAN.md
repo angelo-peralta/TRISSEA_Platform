@@ -1,6 +1,6 @@
 # M2 technical implementation plan
 
-Date: 2026-11-05; updated 2026-11-06. Status: **M2.0–M2.6 local engineering acceptance recorded. Overall M2 IN PROGRESS. Stop before M2.7. Native integration and production gates remain pending.**
+Date: 2026-11-05; updated 2026-11-09. Status: **M2.0–M2.7 COMPLETE — LOCAL/SIMULATED ENGINEERING ACCEPTANCE. M2.7 owner review is pending; production and external approval gates remain closed. Stop before any subsequent milestone.**
 
 ## Prerequisite and scope
 
@@ -313,4 +313,31 @@ transactional projection, audit/outbox and constrained runtime roles passed loca
 acceptance: 115 repository and 80 integration tests. See
 [implementation and actual results](62-M2-SYNTHETIC-VERIFICATION.md).
 No real documents, new permit rules, assignment delegation or operating authority.
-Current review stop is before M2.7; earlier stop statements remain historical.
+The M2.6 handoff stopped before M2.7; continuation was subsequently approved
+as recorded below. Earlier stop statements remain historical.
+
+M2.7 update: owner approved continuation after M2.6. Shared native session and
+synthetic phone/code/consent/profile controls, secure storage integration, minimal
+assigned-case admin review and combined acceptance harnesses are implemented.
+Final observed results are in
+[doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md). Mandatory local engineering
+checks passed: 138 validation tests, 80 database/authentication cases, eight combined
+HTTP cases, five browser cases and 30 native checkpoints. Two recovered guest OS
+warnings and physical/iOS/manual accessibility limits remain documented. External
+Gates A–E remain closed; stop for owner review before operational milestone work.
+
+## Pre-PR Task 5A - Environment consolidation
+
+The owner-approved four-file convention and implementation/reference migration are recorded in [the Task 5A review](65-ENVIRONMENT-CONSOLIDATION.md). The owner approved the six explicitly listed primary-root legacy dotenv retirements, and cleanup is complete with exactly four root files remaining. Final Git acceptance remains pending: the new development template and old template deletion are unstaged for separately authorized review. Include the reviewed configuration boundary, canonical templates, scripts, CI parity, tests and evidence in the proposed M2 submission scope after completion. This grants no staging, commit, push, PR, merge, production activation or M3 authorization.
+
+
+## Final local infrastructure and authorized submission
+
+[ADR 66](66-ADR-DEVELOPMENT-INFRASTRUCTURE.md) supersedes the old per-milestone
+Docker topology. One persistent `trissea-dev` project retains core application/
+IdP separation and a separate fixture cluster, with all existing credentials,
+volumes and worktrees preserved. Full final-port authentication regressions,
+156 validation tests, HTTP/browser checks, four API startups, Metro and cold
+restart acceptance passed. The owner separately authorized scoped commit/push
+and a draft PR; earlier no-publication statements record historical slice gates.
+No merge, deployment, M3 or production capability approval is implied.

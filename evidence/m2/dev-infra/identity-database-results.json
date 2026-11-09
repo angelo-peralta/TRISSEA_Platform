@@ -1,0 +1,26 @@
+{
+  "database": "trissea_m2_test_d24cfffcff60",
+  "executedAt": "2026-11-09T09:07:27.514Z",
+  "syntheticOnly": true,
+  "checkpoints": [
+    "Applied 0001_foundation",
+    "Applied 0002_identity_foundation",
+    "Fresh + no-op migration; M1 ledger retained; zero seeded accounts/grants/permission edges",
+    "Drizzle/PostgreSQL consistency: 19 tables, columns/defaults/nullability and all declared constraints/indexes",
+    "Composite city/TODA and identity/session integrity, lifecycle and self-assignment denials passed",
+    "Non-owner LOGIN role RLS; positive own scope, cross-city denial, 12 pooled alternating contexts and least-privilege denials",
+    "Concurrent restriction CAS: one winner; session/refresh revoked; audit/outbox atomic; immutable history",
+    "Owned session revocation audited atomically; wrong owner/stale version/reactivation/refresh reset/recovery shortcuts denied",
+    "Two independent DB connections: one identity/user and one accepted redemption; losing transactions fully rolled back",
+    "Parent row lock serializes in-flight session creation with account restriction",
+    "Consent append-only; password-only/unmapped admin and self-approval denied (no OIDC flow claimed)",
+    "Rolled back 0002_identity_foundation",
+    "Applied 0002_identity_foundation",
+    "Rollback/reapply + failed rollback atomicity; M1 ledger/metadata and unrelated sentinel preserved; UTC/PostGIS passed"
+  ],
+  "versions": {
+    "postgres": "17.5 (Debian 17.5-1.pgdg110+1)",
+    "postgis": "3.5.2"
+  },
+  "completed": true
+}

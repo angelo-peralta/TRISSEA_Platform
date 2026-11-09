@@ -1,0 +1,38 @@
+## test/m2-security-acceptance
+ M .env.example
+ M .env.production.example
+ M .github/workflows/m2-identity.yml
+ M apps/admin/src/admin-auth.tsx
+ M apps/admin/src/style.css
+ M apps/admin/vite.config.ts
+ M apps/driver/app.json
+ M apps/driver/app/(tabs)/profile.tsx
+ M apps/driver/package.json
+ M apps/passenger/app.json
+ M apps/passenger/app/(tabs)/account.tsx
+ M apps/passenger/package.json
+ M docs/43-DECISION-REGISTER.md
+ M docs/52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md
+ M docs/53-M2-DATA-AND-API-DESIGN.md
+ M docs/54-M2-SECURITY-AND-ACCEPTANCE.md
+ M package.json
+ M packages/contracts/src/index.ts
+ M packages/mobile-ui/src/index.tsx
+ M plugins/with-android-short-paths.cjs
+ M pnpm-lock.yaml
+ M tests/dependency-compatibility.test.mjs
+ M tests/native-config.test.mjs
+?? apps/admin/src/verification.tsx
+?? docs/50-TRISSEA_GIT_AGENT_RULES.md
+?? docs/63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md
+?? evidence/m2/m2-7/
+?? packages/mobile-auth/
+?? scripts/android-evidence-privacy.mjs
+?? scripts/m2-acceptance-client.mjs
+?? scripts/m2-acceptance-server.mjs
+?? scripts/start-mobile-identity.mjs
+?? scripts/test-m2-android.mjs
+?? scripts/test-m2-browser.mjs
+?? scripts/test-m2-integration.mjs
+?? tests/android-evidence-privacy.test.mjs
+?? tests/mobile-identity-config.test.mjs

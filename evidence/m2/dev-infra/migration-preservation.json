@@ -1,0 +1,176 @@
+{
+  "recordedAt": "2026-11-09T08:45:26.278Z",
+  "databasesRestored": 21,
+  "allTableContentsVerifiedBeforeIdentityStartup": true,
+  "databases": [
+    {
+      "database": "trissea_m1_acceptance",
+      "target": "postgres",
+      "tables": 40,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "m2_control",
+      "target": "postgres-test",
+      "tables": 37,
+      "migrationLedgerIncluded": false,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_0da9003bd198",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_1879ce0fa01b",
+      "target": "postgres-test",
+      "tables": 34,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_29b2491cbaeb",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_513070e58c42",
+      "target": "postgres-test",
+      "tables": 37,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_5589bab05160",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_850999e5f989",
+      "target": "postgres-test",
+      "tables": 36,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_884a5481026b",
+      "target": "postgres-test",
+      "tables": 26,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_92d855c93830",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_9a4c01ab9e72",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_9deec5476818",
+      "target": "postgres-test",
+      "tables": 24,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_9f86ae409800",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_b8150213905f",
+      "target": "postgres-test",
+      "tables": 24,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_ba3e88b79fda",
+      "target": "postgres-test",
+      "tables": 35,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_cd453d9c3741",
+      "target": "postgres-test",
+      "tables": 27,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_cf26e957db9e",
+      "target": "postgres-test",
+      "tables": 28,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_d0cda8500fed",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_f9c1eda37955",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "trissea_m2_test_fbc8ddf8030a",
+      "target": "postgres-test",
+      "tables": 44,
+      "migrationLedgerIncluded": true,
+      "verified": true
+    },
+    {
+      "database": "keycloak_identity",
+      "target": "postgres",
+      "tables": 138,
+      "migrationLedgerIncluded": false,
+      "verified": true
+    }
+  ],
+  "passwordVerifiersUnchanged": 50,
+  "rawVerifiersIncluded": false,
+  "keycloakRetainedAtRestore": {
+    "users": 38,
+    "totpCredentials": 34,
+    "realms": 2,
+    "allOriginalTableContentsVerified": true
+  },
+  "redis": {
+    "imported": 203,
+    "expiredDuringTransfer": 0,
+    "absoluteExpiryPreserved": true
+  },
+  "backups": {
+    "protection": "Windows DPAPI CurrentUser outside repository",
+    "allAcceptedSnapshotsRoundtripVerified": true,
+    "deleted": false
+  },
+  "corePrivilegeChanges": "Application/IdP owner and runtime roles are NOSUPERUSER NOBYPASSRLS NOREPLICATION NOCREATEDB NOCREATEROLE; separate DB ACLs; passwords unchanged",
+  "testAuthorityIsolatedInSeparateCluster": true,
+  "sourceContainersNotRemoved": true,
+  "legacyVolumesNotDeleted": true
+}

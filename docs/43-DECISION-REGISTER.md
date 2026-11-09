@@ -99,7 +99,7 @@ phone replacement or recovery route exists.
 | ID | Review detail | Status | Until approved |
 | --- | --- | --- | --- |
 | M2-P05 | Local 24h absolute session, 15s retry, 20 IP/hour, 10 device/hour + 20/day, 100 total/day and 30 verification/status/refresh IP/minute; signing/key custody and retention | DEVELOPMENT ONLY / REQUIRES_SECURITY for production | Runtime restricted to disposable synthetic mode; no hot digest/key rotation; review measured deployment capacity and interruption policy |
-| M2-P06 | Synthetic notice/terms versions and native secure storage/login integration | LOCAL TEST FIXTURES / PENDING M2.7 | No real legal consent claim or mobile authentication acceptance |
+| M2-P06 | Synthetic notice/terms versions and native secure storage/login integration | LOCAL ENGINEERING PASSED / LEGAL POLICY PENDING | Mock OTP, per-app secure storage and session lifecycle passed on emulators; no legal notice, production key custody, physical-device or iOS approval |
 
 Gates A–E and M2-P02 recovery/delegation remain unresolved. Backend local tests do
 not approve live SMS, phone recycling ownership, legal notices, real documents,
@@ -158,4 +158,44 @@ Existing `driver.verify` and `toda.members.manage` permissions are reused with
 assigned-case and exact-scope checks. Case approval grants neither staff access nor
 city membership/permit authority. All operational capabilities remain denied.
 See [doc 62](62-M2-SYNTHETIC-VERIFICATION.md) for actual acceptance status.
-Current stop is before M2.7. No push, PR, merge or deployment is authorized.
+The M2.6 handoff stopped before M2.7; continuation was subsequently approved
+below. No M2 push, PR, merge or deployment is authorized.
+
+## M2.7 integration review scope — 2026-11-06
+
+Owner approved continuation after M2.6 for local/synthetic integration and native
+acceptance. Expo SecureStore/Crypto match the installed SDK 57 module manifest;
+no production key custody, backup policy, physical-device or iOS approval follows.
+Final November 8 evidence is in
+[doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md). M2.7 is COMPLETE —
+LOCAL/SIMULATED ENGINEERING ACCEPTANCE, recorded November 9 for owner review.
+The 30 native checkpoints passed with two recovered guest System UI warnings;
+physical-device, iOS and manual screen-reader acceptance remain unrun.
+Existing Gates A–E, production policy review and legal/operational decisions stay
+closed. No new roles, permit rules, identity-link/recovery shortcuts, upload or
+privileged assignment interface was introduced. Stop for owner review before
+the next milestone; GitHub publication/merge/deployment remain unauthorized.
+
+## Task 5A - Owner-approved environment convention (2026-11-09)
+
+The owner approved exactly four root files: ignored `.env.local`, tracked `.env.local.example`, ignored/unprovisioned `.env.production`, and tracked `.env.production.example`. This supersedes the old `.env.example` and permanent `.env.m2-*` convention without erasing earlier acceptance records. Existing credentials and isolated databases must be preserved. Implementation/reference migration is authorized; deletion of any obsolete dotenv file requires separate approval of the exact [cleanup manifest](65-ENVIRONMENT-CONSOLIDATION.md). No staging, commit, publication or production activation is authorized by Task 5A.
+
+Task 5A cleanup approval: the owner explicitly approved the six primary-root paths in manifest revision 1. All six were removed individually after hash, canonical replacement and DPAPI restoration checks. Exactly four approved root files remain. Sibling/archive files and infrastructure were preserved. Git template tracking/staging remains pending; this approval did not authorize commit, push, PR, merge or production activation.
+
+
+## Final M2 infrastructure and publication authorization ? 2026-11-09
+
+The owner approved one canonical `trissea-dev` project and verified legacy
+container retirement after preservation and replacement acceptance. ADR 66 uses
+the expressly permitted two-PostgreSQL fallback: test-owner authority stays in a
+separate cluster inside the same project, away from core application/IdP data.
+All volumes, encrypted backups, credentials and the sibling worktree are retained.
+Permanent per-milestone dotenv/Compose workflows are retired. No schema history,
+identity, legal requirement or approval Gate A?E is changed.
+
+After critical checks pass, the owner explicitly authorizes scoped M2.7/environment/
+infrastructure staging, conventional commit, normal feature-branch push and a
+**draft** PR to `main`, plus observed CI checks and narrowly scoped fixes. Earlier
+no-publication statements record their original slice approval scope and are
+superseded for this submission only. Merge, deployment, volume/worktree deletion,
+production activation and M3 remain unauthorized.

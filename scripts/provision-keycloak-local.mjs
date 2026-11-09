@@ -1,6 +1,8 @@
 import {localRealm,browserFlow} from '../infra/keycloak/realm-policy.mjs';
-const base='http://127.0.0.1:18080',realm='trissea-local';
+const realm='trissea-local';
+function providerBase(env){const issuer=new URL(env.KEYCLOAK_ISSUER);if(env.NODE_ENV==='production'||issuer.protocol!=='http:'||issuer.hostname!=='127.0.0.1'||issuer.pathname!=='/realms/'+realm||issuer.port!==(env.DEV_KEYCLOAK_PORT??'18080')||!['18080','18081'].includes(issuer.port)||issuer.username||issuer.password||issuer.search||issuer.hash)throw new Error('Invalid local provider endpoint');return issuer.origin;}
 export async function bootstrapClient(env){
+ const base=providerBase(env);
  let credential;
  async function authorize(){
  if(credential&&credential.expiresAt>Date.now()+5000)return credential.token;

@@ -1,0 +1,70 @@
+{
+  "recordedAt": "2026-11-09T06:35:05.009Z",
+  "checks": [
+    {
+      "file": ".env.local",
+      "ignored": true
+    },
+    {
+      "file": ".env.production",
+      "ignored": true
+    },
+    {
+      "file": ".env",
+      "ignored": true
+    },
+    {
+      "file": ".env.example",
+      "ignored": true
+    },
+    {
+      "file": ".env.m1.local",
+      "ignored": true
+    },
+    {
+      "file": ".env.m2-test",
+      "ignored": true
+    },
+    {
+      "file": ".env.m2-passenger",
+      "ignored": true
+    },
+    {
+      "file": ".env.m2-driver",
+      "ignored": true
+    },
+    {
+      "file": ".env.local.example",
+      "ignored": false
+    },
+    {
+      "file": ".env.production.example",
+      "ignored": false
+    }
+  ],
+  "currentTrackedDotenv": [
+    ".env.example",
+    ".env.production.example"
+  ],
+  "newDevelopmentExampleTracked": false,
+  "newDevelopmentExampleDisposition": "Prepared, unignored and unstaged; staging prohibited during this review",
+  "legacyTemplateDisposition": "Still tracked until separately approved deletion",
+  "legacyAndSiblingFilesByteVerified": 20,
+  "containersPreserved": 6,
+  "mountsUnchanged": true,
+  "existingBindFilesUnchanged": true,
+  "currentRootDotenv": [
+    ".env",
+    ".env.example",
+    ".env.local",
+    ".env.local.example",
+    ".env.m1.local",
+    ".env.m2-driver",
+    ".env.m2-passenger",
+    ".env.m2-test",
+    ".env.production",
+    ".env.production.example"
+  ],
+  "cleanupComplete": false,
+  "filesDeleted": 0
+}

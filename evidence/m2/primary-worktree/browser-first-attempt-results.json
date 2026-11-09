@@ -1,0 +1,34 @@
+{
+  "executedAt": "2026-11-09T03:51:55.125Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "tests": [
+    {
+      "name": "real mobile driver to assigned browser reviewer, lost decision response and exact idempotent retry",
+      "result": "FAILED",
+      "stage": "real Keycloak password and TOTP"
+    },
+    {
+      "name": "vehicle and membership reviews use separate current authorities; pending driver never gains operating capabilities",
+      "result": "FAILED",
+      "stage": "vehicle review"
+    },
+    {
+      "name": "assigned wrong-TODA and restricted-role access, CSRF, stale state and revoked grants deny without retained evidence",
+      "result": "FAILED",
+      "stage": "vehicle review"
+    },
+    {
+      "name": "browser credentials, keyboard, responsive layout and logs preserve privacy boundaries",
+      "result": "FAILED",
+      "stage": "browser storage and keyboard"
+    },
+    {
+      "name": "lost browser logout response hides review data immediately and retries only the pending sign-out",
+      "result": "FAILED",
+      "stage": "browser lost logout response"
+    }
+  ],
+  "screenshots": [],
+  "checks": [],
+  "database": "trissea_m2_test_0da9003bd198"
+}

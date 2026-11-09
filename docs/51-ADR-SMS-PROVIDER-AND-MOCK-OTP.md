@@ -17,7 +17,7 @@ Date: 2026-11-05
 4. No OTP in HTTP responses, logs, crash reports, analytics or mobile persistent storage. Allow test harness to inspect OTP only via isolated non-public mechanisms. Never expose mock retrieval on public ports.
 5. Never treat provider HTTP acceptance as handset delivery. Avoid automatic immediate retry after ambiguous network timeout to prevent duplicate charge or code confusion.
 6. Phone numbers normalize to E.164 `+639xxxxxxxxx` internally. Provider gets `639xxxxxxxxx` per currently documented API.
-7. No secrets in `.env.example`, Git, frontend bundles or API responses; production sender ID must be registered and approved.
+7. No secrets in `.env.local.example`, Git, frontend bundles or API responses; production sender ID must be registered and approved.
 8. Test OTP delivery on Globe, Smart, DITO and relevant mobile-number-portability cases before switching from mock.
 9. Production fail closed if SMS provider is unset, unreachable, unapproved or out of budget; do not bypass OTP verification.
 

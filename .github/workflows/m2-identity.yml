@@ -12,18 +12,27 @@ jobs:
           node-version: 22.17.0
       - run: npm install --global pnpm@11.20.0
       - run: pnpm install --frozen-lockfile
-      - run: node scripts/prepare-identity-test.mjs
-      - run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml up -d --wait
+      - run: pnpm dev:infra:prepare
+      - run: pnpm dev:infra:up
       - run: pnpm test:identity:db
       - run: pnpm test:authorization:db
       - run: pnpm test:passenger:auth
       - run: pnpm test:driver:auth
-      - run: pnpm keycloak:prepare
-      - run: pnpm keycloak:up
       - run: pnpm keycloak:provision
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:admin:auth
       - run: pnpm test:verification
+      - run: pnpm test:m2:integration
+      - run: pnpm test:m2:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-combined-acceptance-results
+          path: |
+            .cache/m2-acceptance/integration-results.json
+            .cache/m2-acceptance/browser/results.json
+            .cache/m2-acceptance/browser/*.png
+          include-hidden-files: true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -63,6 +72,4 @@ jobs:
             .cache/m2-admin/screenshots/*.png
           include-hidden-files: true
       - if: always()
-        run: if [ -f .env.local ]; then docker compose --env-file .env.local -f infra/compose.m2-keycloak.yml stop; fi
-      - if: always()
-        run: docker compose --env-file .env.m2-test -f infra/compose.m2-test.yml stop
+        run: pnpm dev:infra:down

@@ -1,0 +1,10 @@
+import {fork} from 'node:child_process';
+import {randomUUID} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+export async function acceptanceServer(){
+ const child=fork(fileURLToPath(new URL('./m2-acceptance-server.mjs',import.meta.url)),[],{env:{...process.env,NODE_ENV:'test'},stdio:['ignore','pipe','pipe','ipc'],windowsHide:true}),messages=new Map(),pending=new Map();let output='';
+ child.stdout.on('data',b=>{output+=b.toString();});child.stderr.on('data',b=>{output+=b.toString();});
+ const ready=await new Promise((resolve,reject)=>{const deadline=setTimeout(()=>reject(new Error('Acceptance server setup deadline reached')),180000);child.on('message',m=>{if(m.type==='mockSms'){messages.set(m.message.challengeId,m.message);return;}if(m.type==='rpc'){const p=pending.get(m.id);if(p){clearTimeout(p.deadline);pending.delete(m.id);if(m.error)p.reject(new Error('Synthetic fixture operation denied'));else p.resolve(m.value);}return;}if(m.type==='ready'){clearTimeout(deadline);resolve(m);}if(m.type==='failed'){clearTimeout(deadline);reject(new Error('Acceptance server startup failed at '+m.stage+' ('+m.code+'); credentials redacted'));}});child.once('exit',()=>{clearTimeout(deadline);reject(new Error('Acceptance server exited before readiness'));});});
+ const rpc=(action,input={})=>new Promise((resolve,reject)=>{const id=randomUUID(),deadline=setTimeout(()=>{pending.delete(id);reject(new Error('Synthetic fixture deadline reached'));},45000);pending.set(id,{resolve,reject,deadline});child.send({id,action,input});});
+ return {child,ready,rpc,messages,output:()=>output,async code(challengeId){for(let i=0;i<100;i++){const m=messages.get(challengeId);if(m)return m.code;await new Promise(r=>setTimeout(r,25));}throw new Error('No isolated mock message captured');},async close(){if(!child.connected)return;await rpc('shutdown').catch(()=>{});await new Promise(resolve=>{const timer=setTimeout(()=>{child.kill();resolve();},10000);child.once('exit',()=>{clearTimeout(timer);resolve();});});}};
+}

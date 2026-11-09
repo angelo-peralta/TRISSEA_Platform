@@ -1,0 +1,54 @@
+{
+  "executedAt": "2026-11-09T03:58:37.943Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "applications": [
+    {
+      "app": "passenger",
+      "command": "node --env-file=.env.m2-passenger services/api/dist/main.js",
+      "database": {
+        "connected": true,
+        "nonOwner": true,
+        "bypassRls": false,
+        "disposableManifestVerified": true
+      },
+      "health": {
+        "status": 200,
+        "bookingsEnabled": false
+      },
+      "unauthenticatedStatus": 401,
+      "result": "PASSED"
+    },
+    {
+      "app": "driver",
+      "command": "node --env-file=.env.m2-driver services/api/dist/main.js",
+      "database": {
+        "connected": true,
+        "nonOwner": true,
+        "bypassRls": false,
+        "disposableManifestVerified": true
+      },
+      "health": {
+        "status": 200,
+        "bookingsEnabled": false
+      },
+      "unauthenticatedStatus": 401,
+      "result": "PASSED"
+    },
+    {
+      "app": "admin",
+      "command": "node --env-file=.env.local services/api/dist/main.js",
+      "database": {
+        "connected": true,
+        "nonOwner": true,
+        "bypassRls": false,
+        "disposableManifestVerified": true
+      },
+      "health": {
+        "status": 200,
+        "bookingsEnabled": false
+      },
+      "unauthenticatedStatus": 401,
+      "result": "PASSED"
+    }
+  ]
+}

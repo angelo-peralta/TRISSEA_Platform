@@ -1,0 +1,23 @@
+{
+  "executedAt": "2026-11-09T06:25:23.262Z",
+  "checks": [
+    {
+      "app": "passenger",
+      "command": "node scripts/start-mobile-identity.mjs passenger",
+      "port": "8081",
+      "result": "PASSED",
+      "httpStatus": 200,
+      "packagerStatus": "running",
+      "knownSecretLeak": false
+    },
+    {
+      "app": "driver",
+      "command": "node scripts/start-mobile-identity.mjs driver",
+      "port": "8082",
+      "result": "PASSED",
+      "httpStatus": 200,
+      "packagerStatus": "running",
+      "knownSecretLeak": false
+    }
+  ]
+}

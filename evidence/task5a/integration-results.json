@@ -1,0 +1,53 @@
+{
+  "executedAt": "2026-11-09T06:27:32.418Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "tests": [
+    {
+      "name": "real passenger and driver controllers authenticate via isolated mock SMS, consent and current PostgreSQL profiles",
+      "result": "PASSED"
+    },
+    {
+      "name": "real refresh response-loss recovery crosses a process-controller restart without creating a second generation",
+      "result": "PASSED"
+    },
+    {
+      "name": "concurrent restore is single-flight and actual session revocation denies the next foreground check",
+      "result": "PASSED"
+    },
+    {
+      "name": "offline sign-out resumes before protected navigation after storage restart and revokes real server authority",
+      "result": "PASSED"
+    },
+    {
+      "name": "account restriction during a live mobile session removes identity after reconnect and driver operations stay denied",
+      "result": "PASSED"
+    },
+    {
+      "name": "measured concurrent OTP requests and duplicate verification preserve one authoritative completion",
+      "result": "PASSED"
+    },
+    {
+      "name": "Redis transport loss is fail-closed and recovery restores no consumed proof or stale authorization",
+      "result": "PASSED"
+    },
+    {
+      "name": "preservation, secret-redaction and purpose-isolation evidence remain valid after combined requests",
+      "result": "PASSED"
+    }
+  ],
+  "measurements": [
+    {
+      "scenario": "six concurrent unique synthetic OTP requests",
+      "requests": 6,
+      "totalMs": 135
+    },
+    {
+      "scenario": "four same-request concurrent OTP verifications",
+      "requests": 4,
+      "totalMs": 114,
+      "authoritativeSessions": 1
+    }
+  ],
+  "externalGates": "CLOSED",
+  "database": "trissea_m2_test_fbc8ddf8030a"
+}

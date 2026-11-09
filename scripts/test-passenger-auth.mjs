@@ -123,7 +123,7 @@ test('actual Nest/Fastify application uses non-owner auth role, Ed25519 and isol
  await control.unsafe(`CREATE ROLE "${login}" LOGIN PASSWORD '${password}' NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE IN ROLE trissea_m2_auth,trissea_m2_authorization`);
  await owner.unsafe(`GRANT SELECT ON m2_disposable_manifest TO "${login}"`);
  const url=new URL(ownerUrl);url.username=login;url.password=password;connection=postgres(url.href,options);
- otp=new RedisOtpStore('redis://127.0.0.1:16380',`passenger-test-${suffix}`);await otp.connect();assert.equal(await otp.client.ping(),'PONG');
+ otp=new RedisOtpStore(process.env.DEV_REDIS_URL,`passenger-test-${suffix}`);await otp.connect();assert.equal(await otp.client.ping(),'PONG');
  const keys=generateKeyPairSync('ed25519'),settings=new PassengerSettings({NODE_ENV:'test',SMS_PROVIDER:'mock',SMS_LIVE_ENABLED:'false'});
  const tokens=await PassengerTokens.create('http://127.0.0.1:4100/v1','trissea-passenger-local','synthetic-test',keys.privateKey.export({type:'pkcs8',format:'pem'}),keys.publicKey.export({type:'spki',format:'pem'}));
  runtime=new PassengerRuntime(connection,settings,new PassengerSecrets('synthetic-test',...Array.from({length:5},()=>randomBytes(32))),otp,new MockSmsGateway('test',message=>messages.set(message.challengeId,message)),tokens);

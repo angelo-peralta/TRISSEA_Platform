@@ -1,0 +1,8 @@
+{
+  "executedAt": "2026-11-09T03:20:09.617Z",
+  "scope": "Final M2.7 candidate files only; nothing staged; known preexisting policy file excluded",
+  "reviewedFiles": 96,
+  "unexpectedEnvFiles": [],
+  "generatedBinaries": [],
+  "potentialSecretFiles": []
+}

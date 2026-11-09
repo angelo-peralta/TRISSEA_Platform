@@ -1,6 +1,6 @@
 # M2 proposed data, transactions and API contracts
 
-Status: **M2.0 reconciled; M2.1–M2.4 local backend implemented. M1 health, ten passenger/shared identity operations and eleven additional driver operations are implemented; operational APIs remain disabled/future design.**
+Status: **M2.0–M2.7 local/simulated engineering acceptance recorded. Identity/passenger/driver, Keycloak administrator and synthetic verification contracts are implemented; operational APIs remain disabled/future design. Final evidence and limits: [doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md).**
 Read [accepted SMS planning ADR](51-ADR-SMS-PROVIDER-AND-MOCK-OTP.md),
 [plan](52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md),
 [draft ADR](55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md) and
@@ -355,3 +355,27 @@ Cursor lists and bounded recent history prevent unbounded reads. No upload,
 assignment/delegation, personal-document or operating-permit endpoint exists.
 See [doc 62](62-M2-SYNTHETIC-VERIFICATION.md) for the state machine, evidence
 invalidation, isolated reproduction and actual acceptance status.
+
+## M2.7 client integration
+
+Local/simulated engineering acceptance is complete; actual native, HTTP, browser,
+preservation and security results are recorded in [doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md).
+No M2.7 endpoint, schema or operational migration was introduced. External policy
+and production gates remain closed.
+
+No schema, migration or public endpoint was added. Both native applications use
+the generated purpose-bound SDK over the implemented contracts above. A shared
+controller keeps access JWT/profile data in memory and only device/proof/rotating
+refresh metadata in native secure storage, with separate package/keychain scopes.
+Cold restore requires current server validation; background state hides identity;
+logout intent survives process death. Unknown refresh outcomes can be retried
+only with the persisted original key inside the existing server retry window;
+older ambiguous outcomes clear local credentials and require sign-in. Clearing
+an uncertain local credential is not a claim that its remote session was revoked.
+
+The React/Vite review panel uses existing assigned-case endpoints, current cookie
+session, Origin/CSRF and case/evidence versions. Unknown decision responses retain
+the exact original key/body for bounded server idempotency; changed versions
+require inspection again. No client can provision a reviewer, evidence, grant or
+permit. Test fixtures and mock-message capture use private parent/child IPC only,
+never an API endpoint. See [doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md).

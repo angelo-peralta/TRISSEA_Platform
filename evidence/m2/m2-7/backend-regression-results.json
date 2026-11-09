@@ -1,0 +1,56 @@
+[
+  {
+    "command": "pnpm.cmd test:identity:db",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:24:08.431Z",
+    "tests": 11,
+    "pass": 11,
+    "fail": 0,
+    "skipped": 0
+  },
+  {
+    "command": "pnpm.cmd test:authorization:db",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:24:33.370Z",
+    "tests": 12,
+    "pass": 12,
+    "fail": 0,
+    "skipped": 0
+  },
+  {
+    "command": "pnpm.cmd test:passenger:auth",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:25:01.598Z",
+    "tests": 15,
+    "pass": 15,
+    "fail": 0,
+    "skipped": 0
+  },
+  {
+    "command": "pnpm.cmd test:driver:auth",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:25:33.366Z",
+    "tests": 15,
+    "pass": 15,
+    "fail": 0,
+    "skipped": 0
+  },
+  {
+    "command": "pnpm.cmd test:admin:auth",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:27:43.821Z",
+    "tests": 15,
+    "pass": 15,
+    "fail": 0,
+    "skipped": 0
+  },
+  {
+    "command": "pnpm.cmd test:verification",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:28:53.537Z",
+    "tests": 12,
+    "pass": 12,
+    "fail": 0,
+    "skipped": 0
+  }
+]
