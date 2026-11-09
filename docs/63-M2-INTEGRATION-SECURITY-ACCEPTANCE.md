@@ -343,6 +343,9 @@ final-page inspection **and approval**, terminal button removal, reload, a
 simulated HTTP 503 page failure/retry, simulated HTTP 403 cleanup and queue/TODA/
 visibility resets. Existing real Keycloak password/TOTP, current-grant revocation,
 CSRF, lost-response retry and browser-storage privacy checks pass in the same run.
+The grant-revocation check reuses an explicitly displayed driver case instead of
+searching just the first page of mixed case history; all six tests passed again
+after this fixture follow-up.
 HTTP failure injection tests the UI; it does not claim an actual provider outage.
 
 [Execution evidence](../evidence/m2/verification-pagination/validation.json),
