@@ -49,6 +49,7 @@ and `.env.production.example`. Never copy over an existing private configuration
 pnpm.cmd install --frozen-lockfile
 pnpm.cmd dev:infra:prepare
 pnpm.cmd dev:infra:up
+pnpm.cmd test:infra:bootstrap
 pnpm.cmd keycloak:provision
 pnpm.cmd dev:infra:check
 ```

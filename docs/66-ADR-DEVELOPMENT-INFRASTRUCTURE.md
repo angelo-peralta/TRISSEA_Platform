@@ -38,7 +38,10 @@ introduced by this infrastructure task. PostgreSQL drops to its image's postgres
 runtime; Redis and Keycloak explicitly use their supported non-root users.
 
 Persistent volumes are `trissea-dev_pg_data`, `trissea-dev_pg_test_data` and
-`trissea-dev_redis_data`. Redis uses AOF/everysec/noeviction. Controlled stop/start
+`trissea-dev_redis_data`. A fourth private configuration volume,
+`trissea-dev_keycloak_import`, carries the immutable realm-import copy with
+Keycloak-owned 0600 files; it is preserved like the data volumes. Redis uses
+AOF/everysec/noeviction. Controlled stop/start
 persistence was tested; power-loss durability and a Docker Desktop VM restart
 were not tested. Redis everysec permits its documented crash-loss window.
 Internal `core` and `test` networks remain separate. Separate project bridge
@@ -60,6 +63,7 @@ Use Windows PowerShell `pnpm.cmd`; Linux/CI uses `pnpm`.
 pnpm.cmd install --frozen-lockfile
 pnpm.cmd dev:infra:prepare
 pnpm.cmd dev:infra:up
+pnpm.cmd test:infra:bootstrap
 pnpm.cmd keycloak:provision
 pnpm.cmd dev:infra:status
 pnpm.cmd dev:infra:check
@@ -257,3 +261,43 @@ found no candidates; this is not a comprehensive security certification.
 Owner authorizes normal feature-branch commit/push and one **draft** PR to `main`.
 Record the actual commit, PR and remote CI statuses in the delivery report; local
 tests do not establish remote CI success. Do not merge, deploy or begin M3.
+
+
+## Fresh Linux CI bootstrap follow-up
+
+The initial draft PR runs passed both Linux/Windows static/application jobs but
+failed both fresh infrastructure jobs at startup. The CLI suppressed private
+Docker details as designed. Source review and an actual Linux UID reproduction
+identified a bootstrap permission mismatch: 0600 host-runner-owned files cannot
+be read by PostgreSQL/Keycloak runtime UIDs. Windows bind semantics had hidden it.
+
+`start-core-postgres.sh` now performs only private file staging as the official
+image's initial root user, then execs its unchanged entrypoint, which drops to
+postgres. The SQL copy is postgres-owned/0600 in a private container directory.
+The source realm remains host-private; its immutable copy is UID 1000-owned/0600
+in the dedicated config volume, mounted read-only by non-root Keycloak. Existing
+copies must match before reuse; a different source fails closed. No host chmod,
+credential rotation, DB initialization or runtime privilege widening occurs.
+
+`pnpm.cmd test:infra:bootstrap` executes the actual staging function against
+synthetic files with Linux ownership: runtime access succeeds, host sources stay
+0600/UID 1001, unrelated access is denied, repeat staging is idempotent, and
+changed-source replacement is rejected. It also verifies live private SQL and
+Keycloak import readability. Both CI infrastructure jobs run this regression.
+Failed CI jobs now emit only safe status/lifecycle diagnostics; permission errors
+are classified without printing filenames, SQL or authentication payloads.
+
+The follow-up commit and observed CI results are recorded in the delivery report.
+The original cold-restart report remains an honest record of the three data
+volumes; the added private config-volume restart is recorded separately.
+
+
+The [local follow-up record](../evidence/m2/dev-infra/posix-bootstrap-results.json)
+confirms 156 validation tests, eight HTTP tests, five real Keycloak browser tests
+and the new private-bootstrap regression passed. A second complete
+[stop/start comparison](../evidence/m2/dev-infra/cold-restart-posix.json) passed
+753 table/role comparisons across all 21 retained databases, unchanged private
+realm-import contents, all **four** volume identities and 535 unexpired Redis
+values/absolute expiries. The root bootstrap still hands PostgreSQL to UID 999;
+Keycloak remains UID 1000. No credential, retained database, original volume,
+backup, sibling file or unrelated primary change was replaced.

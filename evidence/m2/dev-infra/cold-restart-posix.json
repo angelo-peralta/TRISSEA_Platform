@@ -1,0 +1,27 @@
+{
+  "startedAt": "2026-11-09T09:52:26.768Z",
+  "finishedAt": "2026-11-09T09:53:12.319Z",
+  "commands": [
+    "node scripts/dev-infra.mjs down",
+    "node scripts/dev-infra.mjs up"
+  ],
+  "exitCodes": [
+    0,
+    0
+  ],
+  "retainedDatabases": 21,
+  "tableAndRoleComparisons": 753,
+  "privateImportContentsUnchanged": true,
+  "allComparedContentsAndRoleCredentialsUnchanged": true,
+  "volumesUnchanged": [
+    "trissea-dev_keycloak_import",
+    "trissea-dev_pg_data",
+    "trissea-dev_pg_test_data",
+    "trissea-dev_redis_data"
+  ],
+  "redisUnexpiredKeysVerified": 535,
+  "redisNaturallyExpiredKeys": 0,
+  "redisAbsoluteExpiryUnchanged": true,
+  "legacyRetiredWithoutVolumeDeletion": true,
+  "result": "PASSED"
+}

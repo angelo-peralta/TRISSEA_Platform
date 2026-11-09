@@ -92,7 +92,7 @@ export function sanitizeLogs(raw) {
   const events = [], counters = { omitted: 0 };
   for (const line of raw.split(/\r?\n/).filter(Boolean)) {
     const service = [...services].sort((a, b) => b.length - a.length).find(s => line.startsWith(s + '-')) ?? 'service';
-    const event = /ready to accept connections/i.test(line) ? (service === 'redis' ? 'redis_ready' : 'database_ready') : /database system is shut down/i.test(line) ? 'database_stopped' : /Keycloak .* started/i.test(line) ? 'identity_started' : null;
+    const event = /permission denied/i.test(line) ? 'private_artifact_permission_denied' : /ready to accept connections/i.test(line) ? (service === 'redis' ? 'redis_ready' : 'database_ready') : /database system is shut down/i.test(line) ? 'database_stopped' : /Keycloak .* started/i.test(line) ? 'identity_started' : null;
     if (event) events.push({ service, event }); else counters.omitted++;
   }
   return { events, suppressedUnrecognizedLines: counters.omitted, rawAuthenticationOrSqlLogsExposed: false };

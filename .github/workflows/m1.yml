@@ -39,6 +39,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm dev:infra:prepare
       - run: pnpm infra:up
+      - run: pnpm test:infra:bootstrap
       - run: pnpm db:up
       - name: Reapply is a no-op
         run: pnpm db:up
@@ -47,5 +48,7 @@ jobs:
       - run: pnpm db:verify:rollback
       - run: pnpm db:up
       - run: pnpm db:verify
+      - if: failure()
+        run: pnpm dev:infra:status && pnpm dev:infra:logs
       - if: always()
         run: pnpm dev:infra:down

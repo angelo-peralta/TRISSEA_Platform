@@ -1,5 +1,6 @@
 {
-  "recordedAt": "2026-11-09T09:13:53.170Z",
+  "recordedAt": "2026-11-09T09:53:57.178Z",
+  "phase": "POSIX_PRIVATE_BOOTSTRAP_FOLLOWUP",
   "project": "trissea-dev",
   "services": 4,
   "healthy": true,
@@ -13,7 +14,7 @@
   "legacyRetirementPending": false,
   "containers": [
     {
-      "id": "64c4fffe2516f827c1b234f517c8773e556fa523351bb5598c636f6c1c78041f",
+      "id": "fc5d43b405b92db05246d3ab2a86b7f05bc8ff47d600e79276bc2b777e6701a9",
       "service": "keycloak",
       "name": "trissea-dev-keycloak-1",
       "state": "running",
@@ -34,14 +35,15 @@
       },
       "mounts": [
         {
-          "type": "bind",
-          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\dev-infra\\realm-import",
+          "type": "volume",
+          "volume": "trissea-dev_keycloak_import",
+          "source": "/var/lib/docker/volumes/trissea-dev_keycloak_import/_data",
           "destination": "/opt/keycloak/data/import"
         }
       ]
     },
     {
-      "id": "c483f4b062b77a77e8147f0c00595c446ea17aafa1a9ca3558b7baf42367ec7a",
+      "id": "1f205db6bc08e7ad1948a33e9800571b43d9200128c5d6f4fd4bbb9b9a896ec4",
       "service": "postgres",
       "name": "trissea-dev-postgres-1",
       "state": "running",
@@ -61,6 +63,17 @@
           "destination": "/docker-entrypoint-initdb.d/20-trissea.sh"
         },
         {
+          "type": "volume",
+          "volume": "trissea-dev_keycloak_import",
+          "source": "/var/lib/docker/volumes/trissea-dev_keycloak_import/_data",
+          "destination": "/run/trissea-realm-import"
+        },
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\dev-infra\\realm-import",
+          "destination": "/run/trissea-realm-source"
+        },
+        {
           "type": "bind",
           "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\dev-infra\\secrets\\core-admin-password",
           "destination": "/run/secrets/core_admin_password"
@@ -69,6 +82,11 @@
           "type": "bind",
           "source": "/run/desktop/mnt/host/c/Users/apera/Projects/TRISSEA_Platform/.cache/dev-infra/init/core.sql",
           "destination": "/run/trissea/core.sql"
+        },
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\infra\\start-core-postgres.sh",
+          "destination": "/run/trissea/start-core-postgres.sh"
         },
         {
           "type": "volume",

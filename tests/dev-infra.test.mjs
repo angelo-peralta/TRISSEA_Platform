@@ -34,9 +34,9 @@ test('database bootstrap credentials are separate secrets and Keycloak uses only
   assert.deepEqual(compose.services.keycloak.command, ['start-dev', '--import-realm']);
 });
 test('log projection emits lifecycle metadata while excluding SQL, authentication material and appended secrets', () => {
-  const raw = 'postgres-test-1 | database system is ready to accept connections private_marker\nredis-1 | Ready to accept connections tcp private_marker\nkeycloak-1 | authentication private_marker\npostgres-1 | SQL private_marker';
+  const raw = 'postgres-test-1 | database system is ready to accept connections private_marker\nredis-1 | Ready to accept connections tcp private_marker\nkeycloak-1 | authentication private_marker\npostgres-1 | SQL private_marker\npostgres-1 | Permission denied private_marker';
   const result = sanitizeLogs(raw);
-  assert.deepEqual(result.events, [{ service: 'postgres-test', event: 'database_ready' }, { service: 'redis', event: 'redis_ready' }]);
+  assert.deepEqual(result.events, [{ service: 'postgres-test', event: 'database_ready' }, { service: 'redis', event: 'redis_ready' }, {service: 'postgres', event: 'private_artifact_permission_denied'}]);
   assert.equal(result.suppressedUnrecognizedLines, 2);
   assert.equal(JSON.stringify(result).includes('private_marker'), false);
 });

@@ -61,7 +61,8 @@
     "dev:infra:status": "node scripts/dev-infra.mjs status",
     "dev:infra:logs": "node scripts/dev-infra.mjs logs",
     "dev:infra:check": "node scripts/dev-infra.mjs check",
-    "dev:infra:prepare": "node scripts/prepare-dev-infra.mjs"
+    "dev:infra:prepare": "node scripts/prepare-dev-infra.mjs",
+    "test:infra:bootstrap": "node --test scripts/test-infra-private-bootstrap.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

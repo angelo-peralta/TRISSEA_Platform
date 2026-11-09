@@ -14,6 +14,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm dev:infra:prepare
       - run: pnpm dev:infra:up
+      - run: pnpm test:infra:bootstrap
       - run: pnpm test:identity:db
       - run: pnpm test:authorization:db
       - run: pnpm test:passenger:auth
@@ -71,5 +72,7 @@ jobs:
             .cache/m2-admin/results.json
             .cache/m2-admin/screenshots/*.png
           include-hidden-files: true
+      - if: failure()
+        run: pnpm dev:infra:status && pnpm dev:infra:logs
       - if: always()
         run: pnpm dev:infra:down

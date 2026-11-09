@@ -27,6 +27,7 @@ description: Implement or review TRISSEA configuration across .env.local, .env.p
 - Exactly four approved root dotenv files are the target. Do not claim consolidation complete while obsolete files remain. Document deterministic precedence: trusted process injection outranks the selected profile's canonical settings; local commands load only `.env.local`; production never reads local files or silently enables mocks. Use `.env.production` only explicitly; prefer approved secret injection.
 - `docker compose --env-file` supplies interpolation, not necessarily service-process environment. Map variables explicitly. Validate the *effective structure*, never print real secrets.
 - Check whether Expo/Vite read root env files; use documented package loading without exposing backend secrets through `VITE_*` or `EXPO_PUBLIC_*`.
+- Keep generated host artifacts private. Linux runtime UID differences require container-owned private staging, not world-readable credentials. Preserve the immutable Keycloak import volume and the official PostgreSQL entrypoint's privilege drop; run `test:infra:bootstrap` after fresh startup.
 - Distinguish service URLs visible to Android emulators/phones, host machine and Docker containers; localhost does not refer to the same host everywhere.
 
 ## Implement
