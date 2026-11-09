@@ -1,0 +1,47 @@
+[
+  {
+    "command": "pnpm.cmd validate",
+    "execution": "Installed pnpm CLI invoked through Node without another shell",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T11:43:41.211Z",
+    "passedTests": 138,
+    "testGroups": [
+      9,
+      15,
+      92,
+      22
+    ]
+  },
+  {
+    "command": "pnpm.cmd mobile:check",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:20:34.683Z"
+  },
+  {
+    "command": "pnpm.cmd mobile:doctor",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:21:18.576Z"
+  },
+  {
+    "command": "pnpm.cmd mobile:export",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:22:14.983Z"
+  },
+  {
+    "command": "pnpm.cmd audit:dependencies",
+    "execution": "Installed pnpm CLI invoked through Node without another shell",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T11:43:44.035Z",
+    "noKnownVulnerabilities": true
+  },
+  {
+    "command": "pnpm.cmd test:m2:integration",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:22:51.351Z"
+  },
+  {
+    "command": "pnpm.cmd test:m2:browser",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T05:23:46.047Z"
+  }
+]

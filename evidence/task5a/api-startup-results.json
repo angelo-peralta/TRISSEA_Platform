@@ -1,0 +1,93 @@
+{
+  "executedAt": "2026-11-09T06:32:44.975Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "applications": [
+    {
+      "profile": "foundation",
+      "command": "node services/api/dist/main.js",
+      "injectedProfile": "foundation",
+      "database": {
+        "connected": true,
+        "superuser": true,
+        "bypassRls": true
+      },
+      "healthStatus": 200,
+      "bookingsEnabled": false,
+      "unauthenticatedStatus": 404,
+      "expectedUnauthenticatedStatus": 404,
+      "knownSecretLeak": false,
+      "result": "PASSED"
+    },
+    {
+      "profile": "passenger",
+      "command": "node services/api/dist/main.js",
+      "injectedProfile": "passenger",
+      "database": {
+        "connected": true,
+        "superuser": false,
+        "bypassRls": false,
+        "disposableManifestVerified": true
+      },
+      "healthStatus": 200,
+      "bookingsEnabled": false,
+      "unauthenticatedStatus": 401,
+      "expectedUnauthenticatedStatus": 401,
+      "knownSecretLeak": false,
+      "result": "PASSED"
+    },
+    {
+      "profile": "driver",
+      "command": "node services/api/dist/main.js",
+      "injectedProfile": "driver",
+      "database": {
+        "connected": true,
+        "superuser": false,
+        "bypassRls": false,
+        "disposableManifestVerified": true
+      },
+      "healthStatus": 200,
+      "bookingsEnabled": false,
+      "unauthenticatedStatus": 401,
+      "expectedUnauthenticatedStatus": 401,
+      "knownSecretLeak": false,
+      "result": "PASSED"
+    },
+    {
+      "profile": "admin",
+      "command": "node services/api/dist/main.js",
+      "injectedProfile": "admin",
+      "database": {
+        "connected": true,
+        "superuser": false,
+        "bypassRls": false,
+        "disposableManifestVerified": true
+      },
+      "healthStatus": 200,
+      "bookingsEnabled": false,
+      "unauthenticatedStatus": 401,
+      "expectedUnauthenticatedStatus": 401,
+      "knownSecretLeak": false,
+      "result": "PASSED"
+    }
+  ],
+  "productionChecks": [
+    {
+      "mode": "injected-production",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "result": "PASSED"
+    },
+    {
+      "mode": "explicit-production-file",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "result": "PASSED"
+    },
+    {
+      "mode": "production-file-without-production-mode",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "result": "PASSED"
+    }
+  ]
+}

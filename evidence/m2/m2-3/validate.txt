@@ -1,0 +1,444 @@
+Generated MVP types and health client match the contract.
+Scope: 7 of 8 workspace projects
+packages/contracts typecheck$ tsc --noEmit
+packages/design-tokens typecheck$ tsc --noEmit
+services/api typecheck$ tsc --noEmit
+packages/design-tokens typecheck: Done
+packages/contracts typecheck: Done
+services/api typecheck: Done
+packages/mobile-ui typecheck$ tsc --noEmit
+apps/admin typecheck$ tsc --noEmit
+packages/mobile-ui typecheck: Done
+apps/admin typecheck: Done
+apps/driver typecheck$ tsc --noEmit
+apps/passenger typecheck$ tsc --noEmit
+apps/driver typecheck: Done
+apps/passenger typecheck: Done
+TAP version 13
+# Subtest: typed health client uses the versioned URL and caller cancellation signal
+ok 1 - typed health client uses the versioned URL and caller cancellation signal
+  ---
+  duration_ms: 69.3804
+  type: 'test'
+  ...
+# Subtest: client rejects HTTP failure, malformed health and a false booking-availability claim
+ok 2 - client rejects HTTP failure, malformed health and a false booking-availability claim
+  ---
+  duration_ms: 4.805
+  type: 'test'
+  ...
+# Subtest: stateless passenger transport validates contracts, forwards cancellation, omits cookies and never retries
+ok 3 - stateless passenger transport validates contracts, forwards cancellation, omits cookies and never retries
+  ---
+  duration_ms: 63.481
+  type: 'test'
+  ...
+# Subtest: response contract rejects secret-bearing/false-success bodies; errors contain only safe status
+ok 4 - response contract rejects secret-bearing/false-success bodies; errors contain only safe status
+  ---
+  duration_ms: 4.3268
+  type: 'test'
+  ...
+# Subtest: logout handles a genuine empty 204; path identifiers must be UUIDs
+ok 5 - logout handles a genuine empty 204; path identifiers must be UUIDs
+  ---
+  duration_ms: 0.9934
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 276.4277
+TAP version 13
+# Subtest: positive same-grant scope and independently authenticated own-account access
+ok 1 - positive same-grant scope and independently authenticated own-account access
+  ---
+  duration_ms: 8.4654
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: restricted
+ok 2 - current DB subject denial: restricted
+  ---
+  duration_ms: 0.4617
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: closed
+ok 3 - current DB subject denial: closed
+  ---
+  duration_ms: 0.3177
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: preauth
+ok 4 - current DB subject denial: preauth
+  ---
+  duration_ms: 0.2892
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: revoked
+ok 5 - current DB subject denial: revoked
+  ---
+  duration_ms: 0.8494
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: expired
+ok 6 - current DB subject denial: expired
+  ---
+  duration_ms: 0.7986
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: disabledIdentity
+ok 7 - current DB subject denial: disabledIdentity
+  ---
+  duration_ms: 0.7555
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: staleVersion
+ok 8 - current DB subject denial: staleVersion
+  ---
+  duration_ms: 0.284
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: wrongUser
+ok 9 - current DB subject denial: wrongUser
+  ---
+  duration_ms: 1.0991
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: wrongIdentity
+ok 10 - current DB subject denial: wrongIdentity
+  ---
+  duration_ms: 2.0169
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: wrongSession
+ok 11 - current DB subject denial: wrongSession
+  ---
+  duration_ms: 0.448
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: wrongPurpose
+ok 12 - current DB subject denial: wrongPurpose
+  ---
+  duration_ms: 0.2141
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: missingMfa
+ok 13 - current DB subject denial: missingMfa
+  ---
+  duration_ms: 0.3671
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: futureMfa
+ok 14 - current DB subject denial: futureMfa
+  ---
+  duration_ms: 0.3204
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: idle
+ok 15 - current DB subject denial: idle
+  ---
+  duration_ms: 0.1592
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: mappingRemoved
+ok 16 - current DB subject denial: mappingRemoved
+  ---
+  duration_ms: 0.135
+  type: 'test'
+  ...
+# Subtest: current DB subject denial: consent
+ok 17 - current DB subject denial: consent
+  ---
+  duration_ms: 0.1424
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: wrongCity
+ok 18 - same-row grant denial: wrongCity
+  ---
+  duration_ms: 0.2523
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: wrongToda
+ok 19 - same-row grant denial: wrongToda
+  ---
+  duration_ms: 0.3032
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: wrongUser
+ok 20 - same-row grant denial: wrongUser
+  ---
+  duration_ms: 0.1636
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: wrongPermission
+ok 21 - same-row grant denial: wrongPermission
+  ---
+  duration_ms: 0.1282
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: wrongRole
+ok 22 - same-row grant denial: wrongRole
+  ---
+  duration_ms: 0.14
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: startsLater
+ok 23 - same-row grant denial: startsLater
+  ---
+  duration_ms: 0.1385
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: expired
+ok 24 - same-row grant denial: expired
+  ---
+  duration_ms: 0.1347
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: revoked
+ok 25 - same-row grant denial: revoked
+  ---
+  duration_ms: 0.1901
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: suspendedMembership
+ok 26 - same-row grant denial: suspendedMembership
+  ---
+  duration_ms: 0.1735
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: inactiveCity
+ok 27 - same-row grant denial: inactiveCity
+  ---
+  duration_ms: 0.1354
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: unverifiedToda
+ok 28 - same-row grant denial: unverifiedToda
+  ---
+  duration_ms: 0.1394
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: cityEscalation
+ok 29 - same-row grant denial: cityEscalation
+  ---
+  duration_ms: 0.2448
+  type: 'test'
+  ...
+# Subtest: same-row grant denial: selfScope
+ok 30 - same-row grant denial: selfScope
+  ---
+  duration_ms: 0.2789
+  type: 'test'
+  ...
+# Subtest: scope and permission cannot be assembled from different grants; no platform PII bypass
+ok 31 - scope and permission cannot be assembled from different grants; no platform PII bypass
+  ---
+  duration_ms: 0.2909
+  type: 'test'
+  ...
+# Subtest: admin proof freshness, exact session binding and current-factor assurance are mandatory
+ok 32 - admin proof freshness, exact session binding and current-factor assurance are mandatory
+  ---
+  duration_ms: 0.4398
+  type: 'test'
+  ...
+# Subtest: assigned verification and maker-checker policies have positive and self-approval cases
+ok 33 - assigned verification and maker-checker policies have positive and self-approval cases
+  ---
+  duration_ms: 0.4507
+  type: 'test'
+  ...
+# Subtest: canonical fare-editor, city/platform configuration, privacy and support policies allow only their scoped roles
+ok 34 - canonical fare-editor, city/platform configuration, privacy and support policies allow only their scoped roles
+  ---
+  duration_ms: 0.4825
+  type: 'test'
+  ...
+# Subtest: unsupported/invalid resource metadata and altered assurance times fail closed
+ok 35 - unsupported/invalid resource metadata and altered assurance times fail closed
+  ---
+  duration_ms: 0.3367
+  type: 'test'
+  ...
+# Subtest: configured stricter time limits take effect and unsafe/production activation is rejected
+ok 36 - configured stricter time limits take effect and unsafe/production activation is rejected
+  ---
+  duration_ms: 1.7294
+  type: 'test'
+  ...
+# Subtest: identity encryption is randomized, purpose-bound, authenticated and uses separate lookup keys
+ok 37 - identity encryption is randomized, purpose-bound, authenticated and uses separate lookup keys
+  ---
+  duration_ms: 10.3493
+  type: 'test'
+  ...
+# Subtest: development policy has bounded owner-approved initial settings; capability gates fail closed
+ok 38 - development policy has bounded owner-approved initial settings; capability gates fail closed
+  ---
+  duration_ms: 4.4019
+  type: 'test'
+  ...
+# Subtest: OTP simulator requires NODE_ENV=development and consumes each challenge once
+ok 39 - OTP simulator requires NODE_ENV=development and consumes each challenge once
+  ---
+  duration_ms: 10.9395
+  type: 'test'
+  ...
+# Subtest: PH E.164 normalization, leading-zero CSPRNG OTP, allowlists and keyed purpose separation
+ok 40 - PH E.164 normalization, leading-zero CSPRNG OTP, allowlists and keyed purpose separation
+  ---
+  duration_ms: 13.2408
+  type: 'test'
+  ...
+# Subtest: configuration cannot weaken owner settings or enable live/recovery/production capabilities
+ok 41 - configuration cannot weaken owner settings or enable live/recovery/production capabilities
+  ---
+  duration_ms: 2.2506
+  type: 'test'
+  ...
+# Subtest: Ed25519 JWT validates signature, exact claims/header, lifetime, issuer and audience
+ok 42 - Ed25519 JWT validates signature, exact claims/header, lifetime, issuer and audience
+  ---
+  duration_ms: 64.0196
+  type: 'test'
+  ...
+# Subtest: mock never uses network; PhilSMS adapter fails closed, reports uncertainty and never retries/falls back
+ok 43 - mock never uses network; PhilSMS adapter fails closed, reports uncertainty and never retries/falls back
+  ---
+  duration_ms: 2.5844
+  type: 'test'
+  ...
+# Subtest: TODA access matches city, organization and permission together
+ok 44 - TODA access matches city, organization and permission together
+  ---
+  duration_ms: 4.9724
+  type: 'test'
+  ...
+# Subtest: scope and permissions cannot be combined from different grants
+ok 45 - scope and permissions cannot be combined from different grants
+  ---
+  duration_ms: 1.6594
+  type: 'test'
+  ...
+# Subtest: admin MFA and explicit grants are mandatory, including for city scope
+ok 46 - admin MFA and explicit grants are mandatory, including for city scope
+  ---
+  duration_ms: 0.5848
+  type: 'test'
+  ...
+# Subtest: Fastify: health is public; new routes deny absent, malformed, invalid and failed-provider tokens
+ok 47 - Fastify: health is public; new routes deny absent, malformed, invalid and failed-provider tokens
+  ---
+  duration_ms: 536.6143
+  type: 'test'
+  ...
+# Subtest: guard accepts only provider-verified identity; provider failure is a generic 401
+ok 48 - guard accepts only provider-verified identity; provider failure is a generic 401
+  ---
+  duration_ms: 49.8989
+  type: 'test'
+  ...
+# Subtest: authorization prevents wrong-city, cross-TODA, city-wide escalation, missing MFA and missing permission
+ok 49 - authorization prevents wrong-city, cross-TODA, city-wide escalation, missing MFA and missing permission
+  ---
+  duration_ms: 3.7503
+  type: 'test'
+  ...
+1..49
+# tests 49
+# suites 0
+# pass 49
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6348.3967
+TAP version 13
+# Subtest: Router query parsing and serialization work with the patched ESM decoder
+ok 1 - Router query parsing and serialization work with the patched ESM decoder
+  ---
+  duration_ms: 38.1037
+  type: 'test'
+  ...
+# Subtest: Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod
+ok 2 - Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod
+  ---
+  duration_ms: 388.9482
+  type: 'test'
+  ...
+# Subtest: Expo glob consumers retain the filesystem matching API after security upgrades
+ok 3 - Expo glob consumers retain the filesystem matching API after security upgrades
+  ---
+  duration_ms: 99.302
+  type: 'test'
+  ...
+# Subtest: migration tools refuse remote/production databases
+ok 4 - migration tools refuse remote/production databases
+  ---
+  duration_ms: 5.091
+  type: 'test'
+  ...
+# Subtest: generated MVP contract remains reproducible; public health never enables bookings
+ok 5 - generated MVP contract remains reproducible; public health never enables bookings
+  ---
+  duration_ms: 231.2231
+  type: 'test'
+  ...
+# Subtest: actual light and dark text/action/notice color pairs meet WCAG AA
+ok 6 - actual light and dark text/action/notice color pairs meet WCAG AA
+  ---
+  duration_ms: 3.3496
+  type: 'test'
+  ...
+# Subtest: native path callbacks precede eager root plugins and regeneration is idempotent
+ok 7 - native path callbacks precede eager root plugins and regeneration is idempotent
+  ---
+  duration_ms: 4.3475
+  type: 'test'
+  ...
+# Subtest: passenger and driver native outputs are separated; unknown staging context fails
+ok 8 - passenger and driver native outputs are separated; unknown staging context fails
+  ---
+  duration_ms: 0.9395
+  type: 'test'
+  ...
+# Subtest: Windows native codegen paths fit the Ninja filename limit
+ok 9 - Windows native codegen paths fit the Ninja filename limit
+  ---
+  duration_ms: 21.1359
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 755.2031
+vite v8.2.4 building client environment for production...
+transforming...
+✓ 22 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.43 kB │ gzip:  0.31 kB
+dist/assets/index-D320pAyF.css    1.54 kB │ gzip:  0.71 kB
+dist/assets/index-ZAS10LjW.js   194.57 kB │ gzip: 61.64 kB
+
+✓ built in 349ms
+$ pnpm contracts:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
+$ node scripts/generate-contracts.mjs --check
+$ eslint .
+$ pnpm -r typecheck
+$ pnpm test:client && pnpm --filter @trissea/api test && node --test tests/*.test.mjs
+$ tsc -p packages/contracts/tsconfig.test.json && node --test .cache/contract-tests/test/*.test.js
+$ tsc && node --test dist/test/*.test.js
+$ pnpm --filter @trissea/api build && pnpm --filter @trissea/admin build
+$ tsc -p tsconfig.build.json
+$ tsc --noEmit && vite build

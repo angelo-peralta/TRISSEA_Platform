@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import {randomBytes,randomUUID} from 'node:crypto';
+import {createRequire} from 'node:module';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {before,after,test as nodeTest} from 'node:test';
+import {performance} from 'node:perf_hooks';
+import {acceptanceServer} from './m2-acceptance-client.mjs';
+const req=createRequire(new URL('../package.json',import.meta.url)),{MobileSession}=req('./.cache/mobile-auth/mobile-auth/src/controller.js'),{mobileTransport}=req('./.cache/mobile-auth/mobile-auth/src/transport.js'),{createDriverClient}=req('./.cache/contract-tests/src/driver-client.js');
+const report={executedAt:new Date().toISOString(),environment:'LOCAL_SYNTHETIC',tests:[],measurements:[],externalGates:'CLOSED'};let host,phoneCounter=101;
+const base='http://127.0.0.1:4104/v1',privateValues=[];
+const test=(name,work)=>nodeTest(name,{timeout:90000},async()=>{try{await work();report.tests.push({name,result:'PASSED'});}catch(e){report.tests.push({name,result:'FAILED'});throw e;}});
+before(async()=>{host=await acceptanceServer();report.database=host.ready.database;assert.equal(host.ready.redis,'PONG');});
+after(async()=>{await host?.close();await mkdir(new URL('../.cache/m2-acceptance/',import.meta.url),{recursive:true});await writeFile(new URL('../.cache/m2-acceptance/integration-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');});
+function client(purpose='PASSENGER',fetcher=fetch){
+ let stored=null,challenge,accessToken;const phone='+63998000'+String(phoneCounter++).padStart(4,'0'),transport=mobileTransport(purpose,base,fetcher),request=transport.request,verify=transport.verify,refresh=transport.refresh;
+ transport.request=async(...args)=>{challenge=await request(...args);return challenge;};transport.verify=async(...args)=>{const r=await verify(...args);accessToken=r.accessToken;privateValues.push(r.accessToken,r.refreshToken);return r;};transport.refresh=async(...args)=>{const r=await refresh(...args);accessToken=r.accessToken;privateValues.push(r.accessToken,r.refreshToken);return r;};
+ const store={read:async()=>stored,write:async value=>{stored=value;},clear:async()=>{stored=null;}},create=()=>new MobileSession({purpose,apiUrl:base,store,transport,uuid:randomUUID,proof:async()=>randomBytes(32).toString('base64url')});
+ return {phone,transport,store,create,challenge:()=>challenge,token:()=>accessToken,stored:()=>stored,async login(s=create()){await s.requestCode(phone);assert.equal(s.getSnapshot().phase,'CODE_REQUIRED');const code=await host.code(challenge.challengeId);privateValues.push(code);await s.verifyCode(code);assert.equal(s.getSnapshot().phase,'CONSENT_REQUIRED');await s.consent(true,true);assert.equal(s.getSnapshot().phase,'AUTHENTICATED');await host.rpc('registerFixtureUser',{userId:s.getSnapshot().profile.userId});return s;}};
+}
+test('real passenger and driver controllers authenticate via isolated mock SMS, consent and current PostgreSQL profiles',async()=>{
+ for(const purpose of ['PASSENGER','DRIVER']){const c=client(purpose),s=await c.login();assert.equal(s.getSnapshot().profile.clientPurpose,purpose);assert.equal(c.stored().includes(c.phone),false);assert.equal(c.stored().includes(c.token()),false);await s.logout();assert.equal(s.getSnapshot().phase,'SIGNED_OUT');assert.equal(c.stored(),null);}
+});
+test('real refresh response-loss recovery crosses a process-controller restart without creating a second generation',async()=>{
+ let lose=false,refreshCalls=0;const fetcher=async(url,init)=>{const r=await fetch(url,init);if(String(url).endsWith('/auth/mobile/refresh')){refreshCalls++;if(lose){lose=false;await r.text();throw new Error('Synthetic lost response after server commit');}}return r;},c=client('PASSENGER',fetcher);await c.login();lose=true;const first=c.create();await first.restore();assert.equal(first.getSnapshot().phase,'OFFLINE');const key=JSON.parse(c.stored()).pendingRefresh.key,next=c.create();await next.restore();assert.equal(next.getSnapshot().phase,'AUTHENTICATED');assert.equal(refreshCalls,2);assert.equal(JSON.parse(c.stored()).pendingRefresh,null);assert.equal(typeof key,'string');await next.logout();
+});
+test('concurrent restore is single-flight and actual session revocation denies the next foreground check',async()=>{
+ let rotations=0;const c=client('DRIVER',async(url,init)=>{if(String(url).endsWith('/auth/mobile/refresh'))rotations++;return fetch(url,init);}),s=await c.login(),restart=c.create();await Promise.all(Array.from({length:12},()=>restart.restore()));assert.equal(rotations,1);const p=restart.getSnapshot().profile;await host.rpc('revokeSession',{userId:p.userId,sessionId:p.sessionId});await restart.setActive(false);await restart.setActive(true);assert.equal(restart.getSnapshot().phase,'EXPIRED');assert.equal(restart.getSnapshot().profile,null);assert.equal(c.stored(),null);assert.equal(s.getSnapshot().profile.clientPurpose,'DRIVER');
+});
+test('offline sign-out resumes before protected navigation after storage restart and revokes real server authority',async()=>{
+ let offline=false;const c=client('PASSENGER',async(url,init)=>{if(offline)throw new Error('Synthetic offline');return fetch(url,init);}),s=await c.login(),token=c.token();offline=true;await s.logout();assert.equal(s.getSnapshot().phase,'SIGNOUT_PENDING');assert.ok(JSON.parse(c.stored()).logoutKey);offline=false;const restart=c.create();await restart.restore();assert.equal(restart.getSnapshot().phase,'SIGNED_OUT');assert.equal((await fetch(base+'/me',{headers:{authorization:'Bearer '+token}})).status,401);
+});
+test('account restriction during a live mobile session removes identity after reconnect and driver operations stay denied',async()=>{
+ const c=client('DRIVER'),s=await c.login(),profile=s.getSnapshot().profile;assert.equal(profile.driverStatus,'PENDING');for(const path of ['/driver/shifts','/driver/locations','/driver/offers']){const r=await fetch(base+path,{method:path.endsWith('offers')?'GET':'POST',headers:{authorization:'Bearer '+c.token()}});assert.equal(r.status,403);}await host.rpc('restrict',{userId:profile.userId});await s.restore();assert.equal(s.getSnapshot().phase,'EXPIRED');assert.equal(s.getSnapshot().profile,null);
+});
+test('measured concurrent OTP requests and duplicate verification preserve one authoritative completion',async()=>{
+ const binding=()=>({clientPurpose:'PASSENGER',deviceId:randomUUID(),clientProof:randomBytes(32).toString('base64url')}),inputs=Array.from({length:6},()=>({phone:'+63998000'+String(phoneCounter++).padStart(4,'0'),...binding()})),start=performance.now(),responses=await Promise.all(inputs.map(body=>fetch(base+'/auth/phone/challenges',{method:'POST',headers:{'content-type':'application/json','idempotency-key':randomUUID()},body:JSON.stringify(body)})));assert.ok(responses.every(r=>r.status===202));const challenge=await responses[0].json(),code=await host.code(challenge.challengeId),key=randomUUID(),body={...inputs[0],code};privateValues.push(code);const t=performance.now(),verified=await Promise.all(Array.from({length:4},()=>fetch(base+'/auth/phone/challenges/'+challenge.challengeId+'/verify',{method:'POST',headers:{'content-type':'application/json','idempotency-key':key},body:JSON.stringify(body)})));assert.ok(verified.every(r=>r.status===200));const payloads=await Promise.all(verified.map(r=>r.json()));assert.equal(new Set(payloads.map(p=>p.sessionId)).size,1);report.measurements.push({scenario:'six concurrent unique synthetic OTP requests',requests:6,totalMs:Math.round(t-start)},{scenario:'four same-request concurrent OTP verifications',requests:4,totalMs:Math.round(performance.now()-t),authoritativeSessions:1});
+});
+test('Redis transport loss is fail-closed and recovery restores no consumed proof or stale authorization',async()=>{
+ await host.rpc('redisDown');const c=client(),s=c.create();await s.requestCode(c.phone);assert.equal(s.getSnapshot().phase,'SIGNED_OUT');assert.equal(s.getSnapshot().profile,null);await host.rpc('redisUp');const next=client();await next.login();
+});
+test('preservation, secret-redaction and purpose-isolation evidence remain valid after combined requests',async()=>{
+ const preserved=await host.rpc('preservation');assert.equal(preserved.sentinel,'synthetic-m2-7-preservation');assert.equal(preserved.migrations.length,8);for(const value of privateValues)assert.equal(host.output().includes(value),false,'No private authentication material in child stdout/stderr');const sdk=createDriverClient(base),unauth=await fetch(base+'/driver/me/verification/cases');assert.equal(unauth.status,401);await assert.rejects(sdk.request('getDriverMe',{accessToken:'synthetic-invalid-token'}),e=>e.status===401);
+});

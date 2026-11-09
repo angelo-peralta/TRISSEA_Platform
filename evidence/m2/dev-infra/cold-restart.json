@@ -1,0 +1,29 @@
+{
+  "startedAt": "2026-11-09T09:02:16.660Z",
+  "finishedAt": "2026-11-09T09:06:40.995Z",
+  "commands": [
+    "node scripts/dev-infra.mjs down",
+    "node scripts/dev-infra.mjs up"
+  ],
+  "exitCodes": [
+    0,
+    0
+  ],
+  "retainedDatabases": 21,
+  "tableAndRoleComparisons": 753,
+  "allComparedContentsAndRoleCredentialsUnchanged": true,
+  "volumesUnchanged": [
+    "trissea-dev_pg_data",
+    "trissea-dev_pg_test_data",
+    "trissea-dev_redis_data"
+  ],
+  "redisUnexpiredKeysVerified": 340,
+  "redisNaturallyExpiredKeys": 0,
+  "redisAbsoluteExpiryUnchanged": true,
+  "legacyContainersStillStoppedNotRemoved": true,
+  "result": "PASSED",
+  "packageAliases": [
+    "pnpm.cmd dev:infra:down",
+    "pnpm.cmd dev:infra:up"
+  ]
+}

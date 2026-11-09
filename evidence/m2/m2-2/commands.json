@@ -1,0 +1,55 @@
+{
+  "startedAt": "2026-11-05T14:12:37.954959+00:00",
+  "baseCommit": "e83c3353038504d6445ff4ac5735d8916d1b5af7",
+  "commands": [
+    {
+      "command": "pnpm.cmd validate",
+      "startedAt": "2026-11-05T14:12:37.956390+00:00",
+      "exitCode": 0,
+      "log": "validation.txt"
+    },
+    {
+      "command": "pnpm.cmd test:authorization:db",
+      "startedAt": "2026-11-05T14:14:07.939069+00:00",
+      "exitCode": 0,
+      "log": "authorization-database-tests.txt"
+    },
+    {
+      "command": "pnpm.cmd test:identity:db",
+      "startedAt": "2026-11-05T14:14:37.729473+00:00",
+      "exitCode": 0,
+      "log": "identity-regression-tests.txt"
+    },
+    {
+      "command": "pnpm.cmd audit:dependencies",
+      "startedAt": "2026-11-05T14:14:57.571660+00:00",
+      "exitCode": 0,
+      "log": "dependency-audit.txt"
+    },
+    {
+      "command": "python scripts/validate_blueprint.py",
+      "startedAt": "2026-11-05T14:15:02.065788+00:00",
+      "exitCode": 0,
+      "log": "blueprint.txt"
+    },
+    {
+      "command": "git diff --check",
+      "startedAt": "2026-11-05T14:15:02.678013+00:00",
+      "exitCode": 0,
+      "log": "diff-check.txt"
+    }
+  ],
+  "sha256": {
+    "services/api/src/auth/policy/authorization-database.ts": "578d068d9ba7feb69b94a3b4d5ad5ee173accfb0be5f8aef526d2788b9ba0be8",
+    "services/api/src/auth/policy/authorization-model.ts": "0f844b7e6e6137e677f053688419d435d35ebafec89636baf2f34ea22ee5e1ff",
+    "services/api/src/auth/policy/authorization-settings.ts": "b6ca2640a1a06e017d1c44622c737385a664c7068f27efb53277cddf0b643403",
+    "services/api/src/auth/policy/authorization.interceptor.ts": "0c28c58cab6c456fbb5de3d144aada97ea56bff83d48c62d4582bf2ea0cc5eed",
+    "services/api/src/auth/policy/authorization.module.ts": "db2b37e75f55c5477a724bc80e28a672178e661c5d7122679b6c871229e26e06",
+    "services/api/src/auth/policy/authorization.service.ts": "ba3a0815b67cb4a058d3ffae72a22623667db9fbe7a4d885c413de2e591d3470",
+    "services/api/test/authorization-engine.test.ts": "f12f4d53d780b410cf1d0ef4861c66a62e6a66af7acde6143e5aca44443a4c15",
+    "scripts/test-authorization-database.mjs": "fe17a333f2378137c23e3169465abfb9f4c6c241e05ab94b9e8684f42d56ca8f",
+    "database/migrations/0003_authorization.down.sql": "07607f810cd50f5c0d2202e75f36b1080e29b50f3d0cb4800ef8bd89d2b4de68",
+    "database/migrations/0003_authorization.up.sql": "32e931f805f0f754a4ee7e58e706631e15de968c570fdac9e942669f9ae25e01"
+  },
+  "completedAt": "2026-11-05T14:15:03.077782+00:00"
+}

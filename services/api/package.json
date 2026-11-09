@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "pnpm build && node --env-file=../../.env --watch dist/main.js",
+    "dev": "pnpm build && node ../../scripts/run-local.mjs foundation --watch dist/main.js",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
     "test": "tsc && node --test dist/test/*.test.js"
@@ -13,7 +13,12 @@
     "@nestjs/common": "11.2.8",
     "@nestjs/core": "11.2.8",
     "@nestjs/platform-fastify": "11.2.8",
+    "@redis/client": "6.3.1",
+    "cookie": "1.1.1",
     "drizzle-orm": "0.45.2",
+    "jose": "6.2.15",
+    "openid-client": "6.8.9",
+    "postgres": "3.4.9",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
   },

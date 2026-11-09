@@ -1,0 +1,103 @@
+{
+  "recordedAt": "2026-11-06T02:18:07.881Z",
+  "environment": "Windows local synthetic; no production, physical-device or live-SMS claims",
+  "commands": [
+    {
+      "command": "node -v",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "22.17.0"
+    },
+    {
+      "command": "pnpm.cmd -v",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "11.20.0"
+    },
+    {
+      "command": "pnpm.cmd install --frozen-lockfile",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "Reviewed reproducible dependency installation"
+    },
+    {
+      "command": "docker compose --env-file .env.local -f infra/compose.m2-keycloak.yml up -d --wait",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "Separate Keycloak/PostgreSQL healthy; no M1 mutation"
+    },
+    {
+      "command": "node --env-file=.env.local scripts/provision-keycloak-local.mjs",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "Required password/TOTP flow, claim scopes and read-only service account configured"
+    },
+    {
+      "command": "node --env-file=.env.local scripts/prepare-admin-database.mjs --new-disposable",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "New empty manifest-checked DB through 0006; previous empty prototype/config retained"
+    },
+    {
+      "command": "pnpm.cmd validate",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "110 tests: 89 API + 8 client + 13 repository; lint/typecheck/contracts and API/admin builds passed"
+    },
+    {
+      "command": "pnpm.cmd test:identity:db",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "11 tests passed"
+    },
+    {
+      "command": "pnpm.cmd test:authorization:db",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "12 tests passed"
+    },
+    {
+      "command": "pnpm.cmd test:passenger:auth",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "15 tests passed"
+    },
+    {
+      "command": "pnpm.cmd test:driver:auth",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "15 tests passed"
+    },
+    {
+      "command": "pnpm.cmd test:admin:auth",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "15 real Keycloak/PostgreSQL/Playwright integration tests passed"
+    },
+    {
+      "command": "pnpm.cmd audit --audit-level=moderate",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "No moderate/high/critical; existing one low Expo deepmerge advisory retained"
+    },
+    {
+      "command": "pnpm.cmd dev:admin:identity",
+      "exitCode": null,
+      "status": "RUNNING / STARTUP VERIFIED",
+      "result": "Vite loopback 5174 started; ongoing local process"
+    },
+    {
+      "command": "pnpm.cmd dev:admin:api",
+      "exitCode": null,
+      "status": "RUNNING / STARTUP VERIFIED",
+      "result": "API loopback 4102 started; ongoing local process"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "PASSED",
+      "result": "Passed"
+    }
+  ],
+  "githubCI": "NOT RUN — no publication authorized"
+}

@@ -9,7 +9,7 @@ required = [
     'README.md', 'AGENTS.md', 'docs/03-DISPATCH-RULES.md',
     'docs/04-RIDE-STATE-MACHINE.md', 'docs/11-SECURITY-PRIVACY-PH.md',
     'design/DESIGN-BIBLE.md', 'contracts/openapi.yaml', 'database/001_core.sql',
-    'infra/compose.yml',
+    'infra/compose.dev.yml',
 ]
 errors = []
 for f in required:
@@ -32,7 +32,7 @@ for p in (p for p in files if p.suffix == '.json'):
         json.loads(p.read_text(encoding='utf-8'))
     except Exception as exc:
         errors.append(f'Invalid JSON {p.relative_to(root)}: {exc}')
-for p in [root / 'contracts/openapi.yaml', root / 'infra/compose.yml']:
+for p in [root / 'contracts/openapi.yaml', root / 'infra/compose.dev.yml']:
     if not p.exists():
         continue
     try:

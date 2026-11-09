@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {"module": "CommonJS", "moduleResolution": "Node", "rootDir": "..", "outDir": "../../.cache/mobile-auth", "types": ["node"], "paths":{"@trissea/contracts":["../contracts/src/index.ts"]}},
+  "include": ["src/controller.ts", "src/transport.ts", "src/configuration.ts", "test/*.ts"]
+}

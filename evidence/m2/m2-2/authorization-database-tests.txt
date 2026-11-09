@@ -1,0 +1,100 @@
+$ pnpm --filter @trissea/api exec tsc && node --env-file-if-exists=.env.m2-test --test scripts/test-authorization-database.mjs
+TAP version 13
+# Applied 0001_foundation
+# Applied 0002_identity_foundation
+# Applied 0003_authorization
+# M2.2 apply/no-op/failed-commit rollback; M1/M2.1 ledger retained; catalog edges only, no accounts or grants
+# Subtest: authorization migration is incremental, transactional, repeatable and seeds no users/grants
+ok 1 - authorization migration is incremental, transactional, repeatable and seeds no users/grants
+  ---
+  duration_ms: 2812.0642
+  type: 'test'
+  ...
+# Real non-owner LOGIN; encrypted PII/refresh/role mutation/lock-owner impersonation denied; hardened non-superuser function
+# Subtest: dedicated non-owner resolver has metadata-only permissions and hardened lock-function ownership
+ok 2 - dedicated non-owner resolver has metadata-only permissions and hardened lock-function ownership
+  ---
+  duration_ms: 116.9469
+  type: 'test'
+  ...
+# Default module denies real test credentials; isolated Fastify DI proves positive passenger/consent-stage driver/TODA policy responses
+# Subtest: Nest default verifier denies; isolated fixture module proves actual positive own-account and scoped HTTP cases
+ok 3 - Nest default verifier denies; isolated fixture module proves actual positive own-account and scoped HTTP cases
+  ---
+  duration_ms: 1307.1275
+  type: 'test'
+  ...
+# Cross-account, cross-city/TODA, missing metadata, forged admin/roles/scope and unverified credential denials
+# Subtest: HTTP caller flags, roles, scope headers and another account cannot manufacture authority
+ok 4 - HTTP caller flags, roles, scope headers and another account cannot manufacture authority
+  ---
+  duration_ms: 339.3998
+  type: 'test'
+  ...
+# Real DB mixed-grant denial, positive independent dispatcher grant, current catalog removal and expired/not-yet-effective role denials
+# Subtest: permissions and scope stay on one current grant; catalog deletion/revocation immediately changes next decision
+ok 5 - permissions and scope stay on one current grant; catalog deletion/revocation immediately changes next decision
+  ---
+  duration_ms: 603.731
+  type: 'test'
+  ...
+# Stored revocations, suspended membership/org, missing/removed/stale MFA, preauth, idle and session expiry denied
+# Subtest: current account/identity/session/mapping/membership/org and MFA state override previously valid proof
+ok 6 - current account/identity/session/mapping/membership/org and MFA state override previously valid proof
+  ---
+  duration_ms: 1284.2783
+  type: 'test'
+  ...
+# Synthetic DB case assignment/self-review, dual-role maker-checker, case-bound support and explicit platform infrastructure-only authorization
+# Subtest: assigned-case, self-review, maker-checker and platform boundaries have real DB positive/negative cases
+ok 7 - assigned-case, self-review, maker-checker and platform boundaries have real DB positive/negative cases
+  ---
+  duration_ms: 960.2591
+  type: 'test'
+  ...
+# Audit-required before handler; transaction rollback with actor/session/scope audit; raw failure redacted; default proof adapter denies
+# Subtest: audit failure prevents protected work; handler failures roll back DB effects and redact raw errors
+ok 8 - audit failure prevents protected work; handler failures roll back DB effects and redact raw errors
+  ---
+  duration_ms: 295.1298
+  type: 'test'
+  ...
+# Two connections: observed PostgreSQL lock wait for grant revocation; in-flight work commits before revocation; following request denied
+# Subtest: grant revocation is serialized against in-flight work; next request is denied
+ok 9 - grant revocation is serialized against in-flight work; next request is denied
+  ---
+  duration_ms: 240.5802
+  type: 'test'
+  ...
+# Two connections: observed PostgreSQL lock wait for session revocation; in-flight work commits before revocation; following request denied
+# Subtest: session revocation is serialized against in-flight work; next request is denied
+ok 10 - session revocation is serialized against in-flight work; next request is denied
+  ---
+  duration_ms: 275.3321
+  type: 'test'
+  ...
+# Expired proof before commit rolls back effect and ALLOWED audit; 12 pooled subject contexts and rollback cleanup passed
+# Subtest: proof expiry during work rolls back effects; successful/error pooled contexts do not leak
+ok 11 - proof expiry during work rolls back effects; successful/error pooled contexts do not leak
+  ---
+  duration_ms: 3382.1495
+  type: 'test'
+  ...
+# Rolled back 0003_authorization
+# Applied 0003_authorization
+# M2.2 rollback/reapply preserves M1/M2.1 ledger, users/grants/audit and unrelated sentinel; column privileges revoked; UTC/PostGIS verified
+# Subtest: M2.2 rollback/reapply retains M1/M2.1 metadata, users, grants, audit and unrelated data
+ok 12 - M2.2 rollback/reapply retains M1/M2.1 metadata, users, grants, audit and unrelated data
+  ---
+  duration_ms: 102.4927
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16052.3714

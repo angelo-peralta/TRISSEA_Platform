@@ -1,0 +1,71 @@
+{
+  "executedAt": "2026-11-08T05:39:19.095Z",
+  "environment": "ANDROID_EMULATORS_LOCAL_SYNTHETIC",
+  "coverage": "FOCUSED_DRIVER_ONLY",
+  "deviceExecution": "SEQUENTIAL_ON_16GB_HOST",
+  "renderer": "Owned processes: software with Vulkan disabled; reused devices retain their existing renderer",
+  "initialViewport": "360x640dp; original settings restored after each app",
+  "checks": [
+    {
+      "name": "driver designated AVD boot completed",
+      "result": "PASSED",
+      "serial": "emulator-5556",
+      "api": "37",
+      "abi": "x86_64"
+    },
+    {
+      "name": "driver emulator UI responsive at baseline viewport",
+      "result": "PASSED"
+    },
+    {
+      "name": "driver Metro ready and actual Android bundle compiled",
+      "result": "PASSED",
+      "startupMs": 137722
+    },
+    {
+      "name": "driver rebuilt APK installed and connected to Metro",
+      "result": "PASSED",
+      "serial": "emulator-5556",
+      "package": "ph.trissea.driver.dev",
+      "metroPort": 8082,
+      "apkSha256": "ab93c0c9f6040f1a611f1f3b5d2bd503ab463317a35f610d041188a307ace8c4"
+    },
+    {
+      "name": "driver invalid/correct OTP and explicit synthetic consent",
+      "result": "PASSED"
+    },
+    {
+      "name": "driver background and cold restore use current server session and native encrypted refresh storage",
+      "result": "PASSED"
+    },
+    {
+      "name": "driver network failure hides profile and retry restores server-checked state",
+      "result": "PASSED"
+    }
+  ],
+  "warnings": [
+    {
+      "serial": "emulator-5556",
+      "condition": "Android System UI ANR on resource-constrained API 37 software renderer",
+      "action": "Wait once; repeated OS ANR or any TRISSEA error remains a failure"
+    }
+  ],
+  "screenshots": [
+    "driver-system-ui-anr.png",
+    "driver-invalid-code.png",
+    "driver-connected-light.png",
+    "driver-offline.png",
+    "driver-dark-large-font-top.png",
+    "driver-dark-large-font-scroll.png"
+  ],
+  "externalGates": "CLOSED",
+  "database": "trissea_m2_test_4b24859c18f9",
+  "redis": "PONG",
+  "status": "FAILED",
+  "failure": {
+    "stage": "driver dark large text",
+    "type": "Error",
+    "reason": "Expected UI control unavailable"
+  },
+  "finishedAt": "2026-11-08T05:49:49.531Z"
+}

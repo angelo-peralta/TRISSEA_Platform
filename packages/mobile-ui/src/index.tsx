@@ -34,7 +34,7 @@ export function usePreviewTabOptions() {
 export function AppScreen({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
   return <SafeAreaView edges={['top', 'left', 'right']} style={[styles.fill, { backgroundColor: theme.surface }]}>
-    <ScrollView contentContainerStyle={styles.screen}>
+    <ScrollView contentContainerStyle={styles.screen} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
       <Text style={[styles.eyebrow, { color: theme.textSecondary }]}>TRISSEA · TUGUEGARAO</Text>
       <Text accessibilityRole="header" style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
       <View style={[styles.notice, { backgroundColor: theme.warningSurface }]}>
@@ -54,11 +54,11 @@ export function InfoSection({ title, children }: { title: string; children: stri
 }
 
 /** One clearly labeled action; pending/disabled state is exposed to screen readers. */
-export function AppButton({ label, onPress, disabled = false, busy = false }: { label: string; onPress?: () => void; disabled?: boolean; busy?: boolean }) {
+export function AppButton({ label, onPress, disabled = false, busy = false, variant='primary' }: { label: string; onPress?: () => void; disabled?: boolean; busy?: boolean; variant?:'primary'|'secondary' }) {
   const theme = useTheme();
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }} disabled={disabled || busy} onPress={onPress}
-    style={({ pressed }) => [styles.button, { backgroundColor: disabled || busy ? theme.surfaceRaised : theme.primaryAction, borderColor: theme.border, borderWidth: pressed ? 2 : 1, minHeight: Platform.OS === 'ios' ? touchTarget.ios : touchTarget.android }]}>
-    <Text style={[styles.buttonLabel, { color: disabled || busy ? theme.textSecondary : theme.onPrimary }]}>{label}</Text>
+    style={({ pressed }) => [styles.button, { backgroundColor: disabled || busy || variant==='secondary' ? theme.surfaceRaised : theme.primaryAction, borderColor: theme.border, borderWidth: pressed ? 2 : 1, minHeight: Platform.OS === 'ios' ? touchTarget.ios : touchTarget.android }]}>
+    <Text style={[styles.buttonLabel, { color: disabled || busy ? theme.textSecondary : variant==='secondary'?theme.textPrimary:theme.onPrimary }]}>{label}</Text>
   </Pressable>;
 }
 

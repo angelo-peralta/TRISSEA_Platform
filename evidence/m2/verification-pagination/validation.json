@@ -1,0 +1,81 @@
+{
+  "executedAt": "2026-11-09T13:48:58.316Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "scope": "Assigned administrator verification queue cursor regression",
+  "commands": [
+    {
+      "command": "pnpm.cmd test:m2:browser",
+      "phase": "before UI fix",
+      "exitCode": 1,
+      "passed": 5,
+      "failed": 1,
+      "reason": "First 20 cases loaded; Load more assigned cases action absent"
+    },
+    {
+      "command": "pnpm.cmd test:m2:browser",
+      "phase": "final regression",
+      "exitCode": 0,
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "command": "pnpm.cmd validate",
+      "exitCode": 0,
+      "passed": 156,
+      "failed": 0,
+      "coverage": [
+        "contracts",
+        "lint",
+        "strict TypeScript",
+        "unit/contract tests",
+        "API build",
+        "admin build"
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:m2:integration",
+      "exitCode": 0,
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "command": "pnpm.cmd lint",
+      "phase": "final harness",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm.cmd dev:infra:check",
+      "exitCode": 0,
+      "healthy": true,
+      "services": 4,
+      "postgis": true,
+      "redis": "PONG",
+      "testClusterSeparated": true,
+      "siblingBindDependencies": false
+    }
+  ],
+  "pagination": {
+    "driverVehicleCases": 44,
+    "membershipCases": 43,
+    "pagesPerQueue": 3,
+    "completedCasesIncluded": true,
+    "cursorForwarding": true,
+    "noDuplicateRows": true,
+    "finalPageApproval": true,
+    "transient503Retry": true,
+    "denied403ClearsQueue": true,
+    "scopeAndVisibilityReset": true
+  },
+  "retainedScreenshots": [
+    "driver-queue-first-page.png",
+    "driver-queue-paginated.png",
+    "membership-queue-paginated.png"
+  ],
+  "notes": [
+    "Other browser captures listed in browser-results.json remain in the ignored test cache; the three new pagination captures are retained here.",
+    "Inputs are masked and all records are synthetic. HTTP 503/403 are browser request injections, not actual service outages.",
+    "No backend contract, schema, dependency, environment or retained operational database changed.",
+    "Android/physical-device/manual screen-reader checks and the unchanged full database/auth suites were not rerun for this UI-only fix.",
+    "Live SMS, real documents, recovery, operational driver services, deployment and M3 remain disabled."
+  ]
+}

@@ -3,7 +3,8 @@
 .c/
 *.tsbuildinfo
 .env.*
-!.env.example
+!.env.local.example
+!.env.production.example
 node_modules/
 .pnpm-store/
 .expo/

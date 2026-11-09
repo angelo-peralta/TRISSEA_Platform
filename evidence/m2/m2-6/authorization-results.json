@@ -1,0 +1,34 @@
+{
+  "database": "trissea_m2_test_de944a510062",
+  "executedAt": "2026-11-06T07:54:24.399Z",
+  "syntheticOnly": true,
+  "checkpoints": [
+    "Applied 0001_foundation",
+    "Applied 0002_identity_foundation",
+    "Applied 0003_authorization",
+    "M2.2 apply/no-op/failed-commit rollback; M1/M2.1 ledger retained; catalog edges only, no accounts or grants",
+    "Real non-owner LOGIN; encrypted PII/refresh/role mutation/lock-owner impersonation denied; hardened non-superuser function",
+    "Default module denies real test credentials; isolated Fastify DI proves positive passenger/consent-stage driver/TODA policy responses",
+    "Cross-account, cross-city/TODA, missing metadata, forged admin/roles/scope and unverified credential denials",
+    "Real DB mixed-grant denial, positive independent dispatcher grant, current catalog removal and expired/not-yet-effective role denials",
+    "Current session revocation denied old credential",
+    "Current identity revocation denied old credential",
+    "Current account revocation denied old credential",
+    "Current mapping revocation denied old credential",
+    "Stored revocations, suspended membership/org, missing/removed/stale MFA, preauth, idle and session expiry denied",
+    "Synthetic DB case assignment/self-review, dual-role maker-checker, case-bound support and explicit platform infrastructure-only authorization",
+    "Audit-required before handler; transaction rollback with actor/session/scope audit; raw failure redacted; default proof adapter denies",
+    "Two connections: observed PostgreSQL lock wait for grant revocation; in-flight work commits before revocation; following request denied",
+    "Two connections: observed PostgreSQL lock wait for session revocation; in-flight work commits before revocation; following request denied",
+    "Expired proof before commit rolls back effect and ALLOWED audit; 12 pooled subject contexts and rollback cleanup passed",
+    "Rolled back 0003_authorization",
+    "Applied 0003_authorization",
+    "M2.2 rollback/reapply preserves M1/M2.1 ledger, users/grants/audit and unrelated sentinel; column privileges revoked; UTC/PostGIS verified"
+  ],
+  "versions": {
+    "postgres": "17.5 (Debian 17.5-1.pgdg110+1)",
+    "postgis": "3.5.2",
+    "timezone": "UTC"
+  },
+  "rollbackReapplyCompleted": true
+}

@@ -1,0 +1,2 @@
+$ pnpm audit --audit-level=moderate
+No known vulnerabilities found

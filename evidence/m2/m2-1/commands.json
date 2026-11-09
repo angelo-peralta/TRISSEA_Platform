@@ -1,0 +1,55 @@
+{
+  "startedAt": "2026-11-05T12:38:52.120997+00:00",
+  "commands": [
+    {
+      "command": "pnpm.cmd validate",
+      "exitCode": 0,
+      "log": "validation.txt"
+    },
+    {
+      "command": "pnpm.cmd test:identity:db",
+      "exitCode": 0,
+      "log": "database-tests.txt"
+    },
+    {
+      "command": "pnpm.cmd audit:dependencies",
+      "exitCode": 0,
+      "log": "dependency-audit.txt"
+    },
+    {
+      "command": "python scripts/validate_blueprint.py",
+      "exitCode": 0,
+      "log": "blueprint.txt"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "log": "diff-check.txt"
+    }
+  ],
+  "sha256": {
+    "database/migrations/0001_foundation.up.sql": "d8e35eb926dd052614c23b33116f493548766dd2814fd7482268f739ba91855d",
+    "database/migrations/0001_foundation.down.sql": "3793414e1521fb3370ef3e09fd15a8e43c71864d2867b168be9acc0617c4fb63",
+    "database/migrations/0002_identity_foundation.up.sql": "aa5b5a82f01b4b47ae103a63095b1b6c0b11f57013f36453943b8a31cb473f5d",
+    "database/migrations/0002_identity_foundation.down.sql": "136660e73edeb105cf0682bc5a3c23e82506ec3748d61d8e0aa712b9806a5ea7",
+    "services/api/src/database/identity-schema.ts": "06df1739632356c0dc113fddfe783e4434029516712d4bb5f244cfad2fcd2720",
+    "services/api/src/database/identity-store.ts": "92c87ae29ddf326abdc6aeddebc936f9b538813a4d09281e47708c767e84fae9",
+    "pnpm-lock.yaml": "b5f14bcf9581ebc41a56c1d74910e67bc9081bdc64747bf9e6ea59a796d50030"
+  },
+  "completedAt": "2026-11-05T12:40:56.416411+00:00",
+  "canonicalMigrationRecheck": {
+    "command": "pnpm.cmd test:identity:db",
+    "exitCode": 0,
+    "completedAt": "2026-11-05T12:45:25.980309+00:00"
+  },
+  "gitBlobSha256": {
+    "database/migrations/0001_foundation.up.sql": "9de8a98fd77a64cbf2b287e244e47e46f42a9c4c7ad0c68c326ca6b4c34876ff",
+    "database/migrations/0001_foundation.down.sql": "6b99a625278c506743ff0627d3acffc5960df9cf1313311ed326104c2b763c85",
+    "database/migrations/0002_identity_foundation.up.sql": "aa5b5a82f01b4b47ae103a63095b1b6c0b11f57013f36453943b8a31cb473f5d",
+    "database/migrations/0002_identity_foundation.down.sql": "136660e73edeb105cf0682bc5a3c23e82506ec3748d61d8e0aa712b9806a5ea7",
+    "services/api/src/database/identity-schema.ts": "06df1739632356c0dc113fddfe783e4434029516712d4bb5f244cfad2fcd2720",
+    "services/api/src/database/identity-store.ts": "92c87ae29ddf326abdc6aeddebc936f9b538813a4d09281e47708c767e84fae9",
+    "pnpm-lock.yaml": "b5f14bcf9581ebc41a56c1d74910e67bc9081bdc64747bf9e6ea59a796d50030"
+  },
+  "hashNote": "sha256 records executed working-tree bytes; gitBlobSha256 records staged repository bytes. Legacy M1 migrations retain historical checkout line endings; new M2 migrations are LF in both."
+}

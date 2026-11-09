@@ -1,37 +1,28 @@
 ---
 name: trissea-mobile-design
-description: Design, implement, audit or refactor TRISSEA passenger and driver React Native + Expo screens with a consistent transport-focused mobile UI, accessible native interactions, trustworthy booking status, and TODA reservation rules. Use for mobile UI, navigation, component, token, map or mobile usability work.
+description: Design, implement, debug or review TRISSEA passenger and driver React Native/Expo screens, navigation, accessibility, design tokens, map panels, offline/error states and native UI behavior. Use for mobile-facing work; not for unrelated database or backend-only changes.
 ---
 
-# TRISSEA Mobile Design — Project-Local Agent Skill
+# Mobile implementation — functional, accessible and trustworthy
 
-This skill is included in the blueprint and needs no third-party installer. It is an **original TRISSEA rule entry point**. It does not override `AGENTS.md`, an approved ADR, any safety invariant or the backend API contract.
+Follow `AGENTS.md`, approved feature contracts and `design/DESIGN-BIBLE.md`. Keep frontend polishing secondary to functioning backend flows during M2.
 
-## Before starting
+## Inspect
 
-1. Read `AGENTS.md`, `design/DESIGN-BIBLE.md`, `design/tokens.json` and `design/MOBILE-DESIGN-RULES.md`.
-2. Read `design/MOBILE-COMPONENT-CONTRACTS.md`, `design/MOBILE-SCREEN-ACCEPTANCE.md` and the relevant feature flow (`docs/05-PASSENGER-FLOWS.md`, `docs/06-DRIVER-FLOWS.md`, `docs/28-TODA-RESERVATIONS.md` as applicable).
-3. Inspect the existing app routes, shared components, Expo SDK and styling stack. Preserve existing architectural choices. Do not invent a new component library without approval.
-4. If installed, consult official `expo-design-system`, `expo-native-ui` and `expo-router` guidance, then third-party community skills. Prefer live Expo docs on version-specific behavior.
+1. Read `design/tokens.json`, `design/MOBILE-DESIGN-RULES.md`, component contracts, relevant flow (`docs/05-PASSENGER-FLOWS.md`, `docs/06-DRIVER-FLOWS.md`, `docs/28-TODA-RESERVATIONS.md`) and nearby tests/screens.
+2. Confirm Expo SDK, Router conventions, native modules, build type, current API client types and actual permission behavior. Reuse shared components and design tokens rather than introducing a new UI kit.
+3. Define user, purpose, primary action, server authorization and what happens when data is missing/stale. Avoid map-first decoration for authentication, consent or error screens where a map adds no value.
 
-## Design workflow
+## Build and test
 
-1. Write the screen's purpose, target user, primary action and what must be true on the server.
-2. Define the view's information hierarchy and proposed component layout (map context vs actionable panel).
-3. Specify normal, pending, loading, empty, expired, error, offline, permission-denied and stale states as relevant.
-4. Use shared theme tokens, readable type scale, native touch targets and safe-area/keyboard rules.
-5. Describe a real-device and accessibility QA plan before calling the screen complete.
-6. Implement with typed React Native components, Expo Router and validated backend data.
-7. Review against `design/MOBILE-REVIEW-CHECKLIST.md` and report actual tests performed.
+- Specify the applicable states: idle, loading, pending, empty, invalid, offline, expired, permission-denied, retrying and success. Prevent repeated actions and misleading optimistic confirmations.
+- Native accessible labels, large-text resilience, adequate contrast, safe areas, keyboard handling, consistent hit targets, reduced motion and screen-reader focus matter more than visual effects.
+- Present server-confirmed prices, queue position, driver identity, availability, reservations and ride status only. Cached values require clear stale indication and refresh/reconciliation.
+- Respect PHT, PHP, landmarks, low-connectivity conditions and different Android sizes. Prevent OTP/secret/phone information from leaking to URL navigation, analytics, screenshots or logs.
+- `RESERVATION` is passenger-owned TODA terminal pickup window, **not** guaranteed ride or driver queue rank. Shared/Special/Reservation services remain gated where backend or permissions are incomplete.
+- Driver GPS/native permissions require custom development clients and `docs/23-EXPO-GPS-ACCEPTANCE.md`; Expo Go cannot prove production behavior.
+- Run typecheck, mobile checks, applicable tests and manual ADB/emulator checks; real-device, iOS and native background-GPS acceptance require actual respective tests.
 
-## Non-negotiable boundaries
+## Handoff
 
-- Four services: **Regular, Shared, Special, Reservation**. Reservation is passenger-owned TODA pickup **window**, not driver queue rank or guaranteed ride. No driver future reservation UI.
-- Queue position, fare, availability, driver identity, timing and ride state come from the server. No fabricated UI data represented as factual.
-- Driver GPS and native location permissions follow `docs/23-EXPO-GPS-ACCEPTANCE.md`; Expo Go is not adequate for production GPS or native MapLibre validation.
-- Designs must work in low-signal conditions in the Philippines, and support PHT, PHP, landmarks and assisted terminal check-in.
-- Never copy Grab's imagery, layout, brand colors, logos or proprietary assets.
-
-## Deliverable format
-
-State: screen goal; hierarchy and component decisions; states and recovery paths; token/a11y notes; backend authority/consent checks; files changed; tests run (or not run); remaining constraints. Use `design/MOBILE-REVIEW-CHECKLIST.md` for handoff.
+Report implemented screens and states, server assumptions, accessibility decisions, file changes, executed checks with results, visual/native test limits and remaining backend or approval gates. No speculative acceptance or copying proprietary ride-hailing designs/assets.

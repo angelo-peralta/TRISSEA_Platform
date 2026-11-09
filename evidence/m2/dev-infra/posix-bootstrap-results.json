@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-11-09T09:53:57.552Z",
+  "initialPullRequest": 2,
+  "initialCommit": "eb147cb40f4eb11ff9a0c4a8c081431166c7c9ad",
+  "initialCi": {
+    "m1Run": 42595084177,
+    "m2Run": 42595084462,
+    "linuxStatic": "PASSED",
+    "windowsStatic": "PASSED",
+    "freshInfrastructure": "FAILED_AT_STARTUP"
+  },
+  "linuxPermissionReproduction": "0600 UID 1001 source denied to UID 999/1000",
+  "fix": "Host sources unchanged; container-owned immutable private copies; official PostgreSQL privilege drop retained; non-root Keycloak; config volume preserved",
+  "privateBootstrapRegression": {
+    "command": "pnpm.cmd test:infra:bootstrap",
+    "tests": 1,
+    "exitCode": 0
+  },
+  "followupChecks": [
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd validate",
+      "finishedAt": "2026-11-09T09:49:15.0319172Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd test:m2:integration",
+      "finishedAt": "2026-11-09T09:49:47.3308920Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd test:m2:browser",
+      "finishedAt": "2026-11-09T09:50:39.6940897Z"
+    }
+  ],
+  "coldRestart": "cold-restart-posix.json",
+  "remoteFixValidation": "PENDING_NEW_PUSH"
+}

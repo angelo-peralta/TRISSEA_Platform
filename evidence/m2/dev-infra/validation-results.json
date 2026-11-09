@@ -1,0 +1,208 @@
+{
+  "recordedAt": "2026-11-09T09:21:53.051Z",
+  "environment": "LOCAL_SYNTHETIC_CANONICAL_TRISSEA_DEV",
+  "stagingBackend": [
+    {
+      "command": "pnpm.cmd test:identity:db",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:49:25.4169412Z",
+      "finishedAt": "2026-11-09T08:49:35.2265557Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:authorization:db",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:49:35.3143648Z",
+      "finishedAt": "2026-11-09T08:49:50.1112954Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:passenger:auth",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:49:50.1255120Z",
+      "finishedAt": "2026-11-09T08:50:06.4280130Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:driver:auth",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:50:06.4322295Z",
+      "finishedAt": "2026-11-09T08:50:24.2797771Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:admin:auth",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:50:24.2839042Z",
+      "finishedAt": "2026-11-09T08:52:10.4248651Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:verification",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:52:10.4283519Z",
+      "finishedAt": "2026-11-09T08:52:51.9838042Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:m2:integration",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:52:51.9868272Z",
+      "finishedAt": "2026-11-09T08:53:11.7570528Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    },
+    {
+      "command": "pnpm.cmd test:m2:browser",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T08:53:11.7610701Z",
+      "finishedAt": "2026-11-09T08:53:38.7469305Z",
+      "phase": "NEW_CANONICAL_STACK_STAGING_PORTS"
+    }
+  ],
+  "finalBackend": [
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd keycloak:provision",
+      "finishedAt": "2026-11-09T09:07:18.5904022Z",
+      "startedAt": "2026-11-09T09:07:15.8450241Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd keycloak:provision",
+      "finishedAt": "2026-11-09T09:07:19.9272419Z",
+      "startedAt": "2026-11-09T09:07:18.6700415Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:identity:db",
+      "finishedAt": "2026-11-09T09:07:29.6572241Z",
+      "startedAt": "2026-11-09T09:07:19.9414809Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:authorization:db",
+      "finishedAt": "2026-11-09T09:07:44.6530437Z",
+      "startedAt": "2026-11-09T09:07:29.6676974Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:passenger:auth",
+      "finishedAt": "2026-11-09T09:08:00.6544240Z",
+      "startedAt": "2026-11-09T09:07:44.6594284Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:driver:auth",
+      "finishedAt": "2026-11-09T09:08:18.2363779Z",
+      "startedAt": "2026-11-09T09:08:00.6590567Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:admin:auth",
+      "finishedAt": "2026-11-09T09:10:10.4585031Z",
+      "startedAt": "2026-11-09T09:08:18.2496619Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:verification",
+      "finishedAt": "2026-11-09T09:10:57.2886231Z",
+      "startedAt": "2026-11-09T09:10:10.4637272Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:m2:integration",
+      "finishedAt": "2026-11-09T09:11:15.9662603Z",
+      "startedAt": "2026-11-09T09:10:57.2949831Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd test:m2:browser",
+      "finishedAt": "2026-11-09T09:11:43.5051939Z",
+      "startedAt": "2026-11-09T09:11:15.9721564Z"
+    },
+    {
+      "phase": "FINAL_PORTS_AFTER_COLD_RESTART",
+      "exitCode": 0,
+      "command": "pnpm.cmd db:verify",
+      "finishedAt": "2026-11-09T09:11:44.3919536Z",
+      "startedAt": "2026-11-09T09:11:43.5137312Z"
+    }
+  ],
+  "staticChecks": [
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd validate",
+      "finishedAt": "2026-11-09T09:00:35.2427800Z",
+      "startedAt": "2026-11-09T08:59:45.9729781Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd mobile:check",
+      "finishedAt": "2026-11-09T09:00:39.8569214Z",
+      "startedAt": "2026-11-09T09:00:35.4151273Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd mobile:doctor",
+      "finishedAt": "2026-11-09T09:01:06.5202831Z",
+      "startedAt": "2026-11-09T09:00:39.8606903Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd mobile:export",
+      "finishedAt": "2026-11-09T09:01:48.1582162Z",
+      "startedAt": "2026-11-09T09:01:06.5247967Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd audit:dependencies",
+      "finishedAt": "2026-11-09T09:01:50.3709838Z",
+      "startedAt": "2026-11-09T09:01:48.1614337Z"
+    },
+    {
+      "exitCode": 0,
+      "command": "pnpm.cmd environment:check",
+      "finishedAt": "2026-11-09T09:01:51.0934350Z",
+      "startedAt": "2026-11-09T09:01:50.3741350Z"
+    }
+  ],
+  "latestFullValidation": {
+    "phase": "PUBLICATION_SOURCE",
+    "exitCode": 0,
+    "command": "pnpm.cmd validate",
+    "finishedAt": "2026-11-09T09:18:23.4849818Z"
+  },
+  "validationTestGroups": [],
+  "validationTestCount": 0,
+  "isolatedIntegrationCounts": {
+    "migrations": 11,
+    "authorization": 12,
+    "passenger": 15,
+    "driver": 15,
+    "admin": 15,
+    "verification": 12,
+    "http": 8,
+    "browser": 5
+  },
+  "installFrozenLockfileExitCode": 0,
+  "postHelperHardeningDpapiRoundtripAndOverwriteDenial": "PASSED",
+  "finalConfigurationUnitTests": {
+    "count": 15,
+    "exitCode": 0
+  },
+  "finalOrdinaryInfraStartupAndIsolationCheckExitCode": 0,
+  "androidRerun": false,
+  "androidEvidenceReference": "../m2-7/android-results.json",
+  "physicalDeviceIosManualScreenReader": "NOT_RUN",
+  "productionActivation": "DENIED_IN_ALL_THREE_STARTUP_MODES"
+}

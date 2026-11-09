@@ -14,9 +14,9 @@ Use `ACCEPTED`, `PROVISIONAL`, `REQUIRES_LGU`, `REQUIRES_TODA`, `REQUIRES_SECURI
 | D08 | Shared per-seat corridors and boarding rules | REQUIRES_LGU+TODA | approved routes and seat docs | Disabled |
 | D09 | Special stops/roundtrip charges | REQUIRES_LGU | tariff and waiting policy | Direct booking only in dev |
 | D10 | Road restrictions including highway exceptions | REQUIRES_LGU | current road code + city GIS | Route gate blocks unsafe zones |
-| D11 | Single city tenant / TODAs as organizations | PROVISIONAL | platform owner review | Build scoped model, ADR before migration |
+| D11 | Global user + city tenant / TODAs as organizations | ACCEPTED | Owner M2 directive 2026-11-05; ADR-011 | Local development approved; no city/TODA operating authority inferred |
 | D12 | Phone SMS OTP + driver vetting, admin MFA | ACCEPTED | security owner | Mock local, configure production provider |
-| D13 | Supabase Auth as provider | PROVISIONAL | vendor SMS coverage/cost test | Adapter-based implementation |
+| D13 | Keycloak admin OIDC/password/TOTP; TRISSEA OTP + mock/PhilSMS transport | ACCEPTED | Owner M2 directive 2026-11-05 | Supabase rejected; live SMS and public deployment gated |
 | D14 | Cash payments initially | ACCEPTED | city/TODA collections policy | Reconcile mock receipts |
 | D15 | Commission/platform fees, fiscal receipt obligations | REQUIRES_LGU | legal/accounting | No fee enabled |
 | D16 | Driver document verification + insurance/permit checks | REQUIRES_LGU | TRU/authorized operators | No unverified driver online |
@@ -27,3 +27,175 @@ Use `ACCEPTED`, `PROVISIONAL`, `REQUIRES_LGU`, `REQUIRES_TODA`, `REQUIRES_SECURI
 
 ## Completion procedure
 Decision owner attaches signed source/document and date; engineer opens ADR, changes policy config in controlled PR, updates tests and release checklist; city approval is not represented by developer ticking a checkbox.
+
+## M2 planning proposals - 2026-11-05 (not approved)
+
+Added only after M1 was pushed and draft PR #1 existed. These questions supplement
+D11/D13/D16/D17; they do not amend accepted product requirements or authorize code,
+provider activation, migrations, credential provisioning or real-data collection.
+See [the M2 draft](52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md) and
+[approval matrix](54-M2-SECURITY-AND-ACCEPTANCE.md).
+
+| ID | Decision needed | Status | Proposed owner/evidence | Until decided |
+| --- | --- | --- | --- | --- |
+| M2-P01 | OTP/rate/budget, password/session/reauth/retry policy and out-of-band revocation bounds | REQUIRES_SECURITY | Security owner + provider trial; candidate values in doc 54 | No real auth enabled with guessed/default-unlimited policy |
+| M2-P02 | First-admin bootstrap, grant delegation, MFA/contact recovery and emergency access | REQUIRES_SECURITY | Project/security owners approve auditable authority and recovery procedure | No default admin, self-promotion or MFA bypass |
+| M2-P03 | Phone recycling/linking, passenger/driver personas, session limits and future active-work handover | PROVISIONAL | Product/security owners + account takeover/recovery tests | No automatic identity merge or unsafe session replacement |
+| M2-P04 | App JWT signer/refresh protocol and browser-cookie vault design, storage/key management and narrow new permissions | REQUIRES_SECURITY | Review draft ADR-011, processor/privacy evidence and threat tests | No unreviewed secrets/storage activation or sensitive-data endpoint |
+
+The [additional accepted SMS planning ADR](51-ADR-SMS-PROVIDER-AND-MOCK-OTP.md)
+selects PhilSMS as the initial transport candidate, TRISSEA-owned OTP/session
+authority and mock transport locally/CI. It does not authorize real sending.
+Account endpoint/sender/route pricing, carrier/portability, privacy and live
+activation remain gated; Supabase is not assumed to own mobile OTP under this ADR.
+
+## M2.0 owner architecture decision - 2026-11-05
+
+The explicit M2 implementation directive supersedes the provisional D13 Supabase
+proposal (preserved above in doc 41 history). D11/global verified identity + separate
+personas and city/TODA scope is accepted; Keycloak is the only admin provider.
+ADR-011 records accepted high-level interfaces and disposable migration strategy.
+
+M2-P01: owner values are accepted **development defaults only**; production review
+is still required. M2-P02 recovery/delegation remains REQUIRES_SECURITY (Gate D).
+M2-P03 separate personas/no unverified-contact merge is ACCEPTED; recycling/linking
+remains disabled. M2-P04 app sessions, asymmetric mobile JWT and BFF boundary are
+accepted architecture; signer/library/key rotation, MFA assurance and retry behavior
+require slice tests and production review. No legal/privacy status changed.
+
+Unresolved: Gate A endpoint/sender/pricing/tax/carriers/spend/privacy/credentials;
+Gate B notice/legal basis/storage/retention/incident/access; Gate C authorized
+permit/vehicle/TODA/capacity/jurisdiction policy; Gate D bootstrap ownership, all
+recovery and privileged delegation; Gate E deployment. No real driver documents,
+real operator approval, recovery endpoint, implicit superuser or live SMS.
+
+## M2.2 authorization review scope - 2026-11-05
+
+Owner approved continuing after M2.1 local evidence. Work stays on a separate
+stacked feature branch, with another review stop before M2.3. Current DB grants
+and exact city/TODA/resource/assurance checks are authoritative; no caller role,
+scope header, provider metadata or implicit platform PII bypass is accepted.
+Conservative existing-vocabulary catalog edges are listed in doc 37 / doc 58.
+
+| ID | Unresolved detail | Status | Until decided |
+| --- | --- | --- | --- |
+| M2-A01 | Narrow metadata-only permission for SECURITY_AUDITOR; future fare activation and GPS permission assignments | REQUIRES_SECURITY | No new audit-read permission or public endpoint; fare.activate/gps.read.live remain unassigned; no operational handler |
+| M2-A02 | Current Keycloak factor assurance method and out-of-band revocation bounds | LOCAL METHOD IMPLEMENTED / PRODUCTION REQUIRES_SECURITY | M2.5 uses pinned required pwd+otp executions, signed AMR and current-factor/session/config reads; bounded in-flight proof is not a production distributed revocation guarantee; see doc 61 |
+
+M2.2 does not approve Gate D role delegation/bootstrap/recovery, or any Gate A/B/C/E
+activation. Synthetic assigned-case/fare resources test policy only; they are not
+verification/fare features or legal approval.
+
+## M2.3 passenger backend review scope — 2026-11-06
+
+Owner approved continuation after M2.2. Development-only implementation selects
+Ed25519/JOSE, opaque rotating refresh and 15-second encrypted original-request
+retry; five distinct keys separate encryption, lookup, OTP, proof and refresh.
+PostgreSQL retains authoritative budgets/redemptions/revocation; Redis proof loss
+never rehydrates trust. Exact configurable bounds and actual local evidence are
+in [doc 59](59-M2-PASSENGER-AUTHENTICATION.md). No contact/account linking,
+phone replacement or recovery route exists.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P05 | Local 24h absolute session, 15s retry, 20 IP/hour, 10 device/hour + 20/day, 100 total/day and 30 verification/status/refresh IP/minute; signing/key custody and retention | DEVELOPMENT ONLY / REQUIRES_SECURITY for production | Runtime restricted to disposable synthetic mode; no hot digest/key rotation; review measured deployment capacity and interruption policy |
+| M2-P06 | Synthetic notice/terms versions and native secure storage/login integration | LOCAL ENGINEERING PASSED / LEGAL POLICY PENDING | Mock OTP, per-app secure storage and session lifecycle passed on emulators; no legal notice, production key custody, physical-device or iOS approval |
+
+Gates A–E and M2-P02 recovery/delegation remain unresolved. Backend local tests do
+not approve live SMS, phone recycling ownership, legal notices, real documents,
+driver operation, privileged provisioning or public deployment. Stop for review
+before M2.4. No business requirement or legal/city/TODA decision was changed.
+
+## M2.4 driver backend review scope — 2026-11-06
+
+Owner approved continuation after M2.3. Driver login reuses the reviewed OTP and
+rotating-session implementation with separate immutable purpose/audience and
+consent. Pending intake requires an explicitly opened synthetic city/TODA scope;
+it grants no membership, staff role or operating authority. The role vocabulary
+and legal/verification requirements remain unchanged.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P07 | Synthetic pending driver/profile/vehicle records and version-bound eligibility assertions | LOCAL ENGINEERING ONLY | Only isolated owner fixtures may configure/approve assertions; M2.6 must implement reviewed case/evidence/decision workflows before real processing |
+
+The positive synthetic eligibility test never approves a real driver: all results
+keep `canGoOnline`, `operationalServicesEnabled` and `realDriverApproved` false.
+Shift/location/offer endpoints deny server-side. Gates A–E remain closed;
+production security values, key handling, retention and native secure storage
+acceptance remain unresolved. See [doc 60](60-M2-DRIVER-AUTHENTICATION.md).
+Stop before M2.5; no publication, deployment, recovery or privileged delegation.
+
+## M2.5 administrator integration review scope — 2026-11-06
+
+Owner approved continuation after M2.4. The selected local realm and BFF use real
+Keycloak 26.8.2 password/TOTP, confidential Authorization Code + S256 PKCE,
+required signed pwd+otp AMR, current identity/factor/session/configuration checks
+and explicit internal mapping. Roles and scope remain PostgreSQL authority.
+Cookie rotation, CSRF/Origin, local revocation/audit/outbox and bounded anonymous
+flow budgets are implemented. No business, legal or driver-authority policy changed.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P08 | Local IdP read-service privileges, 1h absolute app session, 15m idle, 5m sensitive freshness, <=5s in-flight proof, 20/IP/min + 100/hour flow budgets | DEVELOPMENT ONLY / PRODUCTION REQUIRES_SECURITY | Reassess measured failure/revocation bounds, abuse limits, secret custody, provider hardening and retention before activation |
+| M2-P09 | Real administrator invitation/bootstrap ownership, factor replacement and recovery | GATE D CLOSED | Only explicitly authorized isolated synthetic fixtures; no public registration, operational role delegation, recovery codes or reset shortcuts |
+
+[Doc 61](61-M2-KEYCLOAK-ADMIN.md) records current test results and outstanding
+checks. The implementation does not grant Gate A live sending, B real personal
+data, C driver operation, D recovery/delegation or E public deployment. Current
+stop is before M2.6; no GitHub publication was authorized for this slice.
+
+## M2.6 synthetic verification review scope — 2026-11-06
+
+Owner approved continuation after M2.5. Synthetic metadata, case decisions and
+version-bound driver facts are within local engineering scope. Architecture
+approval does not approve real documents, reviewer duties or legal operating rules.
+
+| ID | Review detail | Status | Until approved |
+| --- | --- | --- | --- |
+| M2-P10 | Reviewer assignment and evidence provisioning authority; required documents, validity/capacity/permit sources and retention | GATES B/C/D CLOSED | Explicit owner-controlled synthetic fixtures only; no public upload, assignment, permit creation or delegation API |
+
+Existing `driver.verify` and `toda.members.manage` permissions are reused with
+assigned-case and exact-scope checks. Case approval grants neither staff access nor
+city membership/permit authority. All operational capabilities remain denied.
+See [doc 62](62-M2-SYNTHETIC-VERIFICATION.md) for actual acceptance status.
+The M2.6 handoff stopped before M2.7; continuation was subsequently approved
+below. No M2 push, PR, merge or deployment is authorized.
+
+## M2.7 integration review scope — 2026-11-06
+
+Owner approved continuation after M2.6 for local/synthetic integration and native
+acceptance. Expo SecureStore/Crypto match the installed SDK 57 module manifest;
+no production key custody, backup policy, physical-device or iOS approval follows.
+Final November 8 evidence is in
+[doc 63](63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md). M2.7 is COMPLETE —
+LOCAL/SIMULATED ENGINEERING ACCEPTANCE, recorded November 9 for owner review.
+The 30 native checkpoints passed with two recovered guest System UI warnings;
+physical-device, iOS and manual screen-reader acceptance remain unrun.
+Existing Gates A–E, production policy review and legal/operational decisions stay
+closed. No new roles, permit rules, identity-link/recovery shortcuts, upload or
+privileged assignment interface was introduced. Stop for owner review before
+the next milestone; GitHub publication/merge/deployment remain unauthorized.
+
+## Task 5A - Owner-approved environment convention (2026-11-09)
+
+The owner approved exactly four root files: ignored `.env.local`, tracked `.env.local.example`, ignored/unprovisioned `.env.production`, and tracked `.env.production.example`. This supersedes the old `.env.example` and permanent `.env.m2-*` convention without erasing earlier acceptance records. Existing credentials and isolated databases must be preserved. Implementation/reference migration is authorized; deletion of any obsolete dotenv file requires separate approval of the exact [cleanup manifest](65-ENVIRONMENT-CONSOLIDATION.md). No staging, commit, publication or production activation is authorized by Task 5A.
+
+Task 5A cleanup approval: the owner explicitly approved the six primary-root paths in manifest revision 1. All six were removed individually after hash, canonical replacement and DPAPI restoration checks. Exactly four approved root files remain. Sibling/archive files and infrastructure were preserved. Git template tracking/staging remains pending; this approval did not authorize commit, push, PR, merge or production activation.
+
+
+## Final M2 infrastructure and publication authorization ? 2026-11-09
+
+The owner approved one canonical `trissea-dev` project and verified legacy
+container retirement after preservation and replacement acceptance. ADR 66 uses
+the expressly permitted two-PostgreSQL fallback: test-owner authority stays in a
+separate cluster inside the same project, away from core application/IdP data.
+All volumes, encrypted backups, credentials and the sibling worktree are retained.
+Permanent per-milestone dotenv/Compose workflows are retired. No schema history,
+identity, legal requirement or approval Gate A?E is changed.
+
+After critical checks pass, the owner explicitly authorizes scoped M2.7/environment/
+infrastructure staging, conventional commit, normal feature-branch push and a
+**draft** PR to `main`, plus observed CI checks and narrowly scoped fixes. Earlier
+no-publication statements record their original slice approval scope and are
+superseded for this submission only. Merge, deployment, volume/worktree deletion,
+production activation and M3 remain unauthorized.

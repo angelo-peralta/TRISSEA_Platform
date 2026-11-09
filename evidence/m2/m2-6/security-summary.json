@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-11-06T08:05:36.394Z",
+  "command": "pnpm.cmd audit --audit-level=low --json",
+  "exitCode": 1,
+  "mandatoryCommand": "pnpm.cmd audit:dependencies (moderate threshold)",
+  "mandatoryExitCode": 0,
+  "vulnerabilities": {
+    "info": 0,
+    "low": 1,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0
+  },
+  "remaining": [
+    {
+      "id": 1243505,
+      "module": "deepmerge",
+      "severity": "low",
+      "title": "deepmerge mergeObject() allows prototype poisoning of returned objects",
+      "url": "https://github.com/advisories/GHSA-gcqx-w48m-w2h4"
+    }
+  ],
+  "containerScan": "NOT RUN",
+  "productionApproval": false
+}

@@ -1,0 +1,34 @@
+{
+  "executedAt": "2026-11-08T05:14:52.380Z",
+  "environment": "ANDROID_EMULATORS_LOCAL_SYNTHETIC",
+  "deviceExecution": "SEQUENTIAL_ON_16GB_HOST",
+  "initialViewport": "360x640dp; original settings restored after each app",
+  "checks": [
+    {
+      "name": "passenger designated AVD boot completed",
+      "result": "PASSED",
+      "serial": "emulator-5554",
+      "api": "37",
+      "abi": "x86_64"
+    }
+  ],
+  "warnings": [
+    {
+      "serial": "emulator-5554",
+      "condition": "Android System UI ANR on resource-constrained API 37 software renderer",
+      "action": "Wait once; repeated OS ANR or any TRISSEA error remains a failure"
+    }
+  ],
+  "screenshots": [
+    "passenger-system-ui-anr.png"
+  ],
+  "externalGates": "CLOSED",
+  "database": "trissea_m2_test_c9828a225d92",
+  "redis": "PONG",
+  "status": "FAILED",
+  "failure": {
+    "stage": "passenger emulator UI readiness",
+    "type": "AssertionError"
+  },
+  "finishedAt": "2026-11-08T05:17:27.960Z"
+}

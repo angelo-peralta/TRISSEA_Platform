@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { createHealthClient } from '@trissea/contracts';
 import { themes } from '@trissea/design-tokens';
+import { AdminAuthPanel } from './admin-auth';
 
 const client = createHealthClient('/v1');
 const navigation = ['Overview', 'Live Rides', 'Drivers & Vehicles', 'TODAs & Zones', 'Fare Management', 'Service Availability', 'Incidents', 'Audit', 'Settings'];
@@ -24,7 +25,7 @@ export function AdminShell() {
     <aside>
       <p className="brand">TRISSEA</p><p>Tuguegarao City</p>
       <nav aria-label="Preview navigation">{navigation.map(item => <button key={item} aria-current={section === item ? 'page' : undefined} onClick={() => setSection(item)}>{item}</button>)}</nav>
-      <p className="subtle">Preview only. No authenticated admin session.</p>
+      <p className="subtle">Local preview. Operational services remain disabled.</p>
     </aside>
     <main id="main">
       <p className="notice">M1 development preview · No live operations</p>
@@ -35,9 +36,10 @@ export function AdminShell() {
         <p>Signed source, origin, direction, effective date and pricing rules require independent city review.</p>
         <button disabled>Import and approval available in M3</button>
       </section> : section === 'Overview' ? <section aria-labelledby="foundation">
-        <h2 id="foundation">Local foundation</h2><p>Passenger, driver and admin shells are available for development. Authentication and operations are not enabled.</p>
+        <h2 id="foundation">Local foundation</h2><p>Passenger, driver and admin shells are available for development. Identity integration is available on the isolated M2 server; operations remain disabled.</p>
         <p role="status" aria-live="polite">{health}</p><button className="primary" disabled={pending} onClick={() => void checkConnection()}>{pending ? 'Checking…' : 'Check API connection'}</button>
       </section> : <section><h2>Not available in M1</h2><p>This is a navigation preview. No operational records, identity documents or precise locations are loaded.</p></section>}
+      {section === 'Overview' ? <AdminAuthPanel /> : null}
       <footer>Regular comes first · Shared OFF · Special OFF · Reservation deferred</footer>
     </main>
   </div>;

@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-11-09T07:08:41.359Z",
+  "phase": "AFTER_APPROVED_CLEANUP",
+  "canonicalFilesByteUnchanged": 4,
+  "retainedOriginalDotenvFilesByteVerified": 14,
+  "containersPreserved": 6,
+  "mountsAndExistingBindFilesUnchanged": true,
+  "remainingRootFiles": [
+    ".env.local",
+    ".env.local.example",
+    ".env.production",
+    ".env.production.example"
+  ],
+  "approvedDotenvRemoved": 6,
+  "otherCleanupFilesRemoved": 0,
+  "stagedPaths": 0,
+  "trackedDeletionUnstaged": ".env.example",
+  "newDevelopmentTemplateTracked": false,
+  "newDevelopmentTemplateDisposition": "Unignored but untracked; requires separately authorized Git review/staging",
+  "branch": "test/m2-security-acceptance",
+  "head": "47a57c4314fafe6478802e0553da991be26e93b5"
+}

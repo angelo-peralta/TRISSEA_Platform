@@ -1,0 +1,218 @@
+{
+  "recordedAt": "2026-11-09T04:00:56.767Z",
+  "scope": "Primary worktree consolidation; no new milestone implementation",
+  "status": "COMPLETE",
+  "environment": "LOCAL_SYNTHETIC",
+  "primaryDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform",
+  "branch": "test/m2-security-acceptance",
+  "head": "47a57c4314fafe6478802e0553da991be26e93b5",
+  "sourceWorktree": {
+    "directory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity",
+    "detached": true,
+    "dirtyFilesPreserved": 97
+  },
+  "preservation": {
+    "originalDirtyFiles": 216,
+    "exactFilesVerified": 214,
+    "mergedFiles": [
+      ".env.example",
+      "docs/43-DECISION-REGISTER.md"
+    ],
+    "draftsArchived": [
+      "docs/51-ADR-SMS-PROVIDER-AND-MOCK-OTP.md",
+      "docs/52-M2-TECHNICAL-IMPLEMENTATION-PLAN.md",
+      "docs/53-M2-DATA-AND-API-DESIGN.md",
+      "docs/54-M2-SECURITY-AND-ACCEPTANCE.md",
+      "docs/55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md"
+    ],
+    "originalBranchUnchanged": true,
+    "m1ConfigurationUnchanged": true,
+    "backupDirectory": ".cache/worktree-consolidation/2026-11-09T03-39-08-467Z",
+    "transferredM27Files": 96
+  },
+  "checks": [
+    {
+      "command": "pnpm.cmd install --frozen-lockfile",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm.cmd validate",
+      "exitCode": 0,
+      "finishedAt": "2026-11-09T03:50:42.2219629Z"
+    },
+    {
+      "command": "pnpm.cmd mobile:check",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T03:49:38.3993634Z",
+      "finishedAt": "2026-11-09T03:49:46.2611408Z"
+    },
+    {
+      "command": "pnpm.cmd mobile:doctor",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T03:49:46.2758173Z",
+      "finishedAt": "2026-11-09T03:50:28.7976308Z"
+    },
+    {
+      "command": "pnpm.cmd audit:dependencies",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T03:50:28.8016310Z",
+      "finishedAt": "2026-11-09T03:50:31.8917363Z"
+    },
+    {
+      "command": "pnpm.cmd test:m2:integration",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T03:50:59.8049583Z",
+      "finishedAt": "2026-11-09T03:51:31.3731547Z"
+    },
+    {
+      "command": "pnpm.cmd test:m2:browser",
+      "exitCode": 1,
+      "startedAt": "2026-11-09T03:51:31.4173042Z",
+      "finishedAt": "2026-11-09T03:52:40.7810049Z"
+    },
+    {
+      "command": "pnpm.cmd test:m2:browser",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T03:56:13.1749010Z",
+      "finishedAt": "2026-11-09T03:56:58.1025924Z",
+      "prerequisite": "pnpm.cmd keycloak:provision"
+    },
+    {
+      "command": "pnpm.cmd mobile:export",
+      "exitCode": 0,
+      "startedAt": "2026-11-09T03:51:31.7648600Z",
+      "finishedAt": "2026-11-09T03:51:56.3404027Z"
+    },
+    {
+      "command": "pnpm.cmd passenger:prepare",
+      "exitCode": 0,
+      "finishedAt": "2026-11-09T03:57:22.5609304Z"
+    },
+    {
+      "command": "pnpm.cmd driver:prepare",
+      "exitCode": 0,
+      "finishedAt": "2026-11-09T03:57:36.7494263Z"
+    },
+    {
+      "command": "pnpm.cmd admin:prepare",
+      "exitCode": 0,
+      "finishedAt": "2026-11-09T03:57:50.0486761Z"
+    }
+  ],
+  "validation": {
+    "tests": 138,
+    "batches": [
+      9,
+      15,
+      92,
+      22
+    ],
+    "failed": 0
+  },
+  "combinedIntegration": {
+    "passed": 8,
+    "failed": 0,
+    "redis": "PONG",
+    "preservationSentinelAndSevenMigrationsVerified": true
+  },
+  "browser": {
+    "firstAttempt": {
+      "passed": 0,
+      "failed": 5,
+      "primaryFailure": "Timeout after successful password/TOTP redirect; application session unavailable before fresh realm provisioning",
+      "cascadingFailures": 4
+    },
+    "remediation": {
+      "command": "pnpm.cmd keycloak:provision",
+      "exitCode": 0,
+      "controlsWeakened": false
+    },
+    "final": {
+      "passed": 5,
+      "failed": 0
+    },
+    "screenshotsVisuallyInspected": [
+      "assigned-driver-desktop.png",
+      "membership-mobile.png",
+      "restricted-role.png",
+      "revoked-access.png",
+      "verification-mobile-access-denied.png"
+    ]
+  },
+  "localPreparation": {
+    "reason": "Three copied development configurations referenced databases absent after stopped tmpfs clusters",
+    "oldConfigurationArchived": true,
+    "newDisposableDatabases": 3,
+    "existingDatabasesDeleted": false,
+    "defaultApplicationAdministratorsCreated": false,
+    "databaseVerification": [
+      {
+        "configuration": ".env.m2-passenger",
+        "users": 0,
+        "migrations": 4,
+        "disposableManifestVerified": true
+      },
+      {
+        "configuration": ".env.m2-driver",
+        "users": 0,
+        "migrations": 5,
+        "disposableManifestVerified": true
+      },
+      {
+        "configuration": ".env.local",
+        "users": 0,
+        "migrations": 6,
+        "disposableManifestVerified": true
+      }
+    ]
+  },
+  "android": {
+    "rerun": false,
+    "reason": "Relocation only; previous emulator evidence and exact tested APKs preserved",
+    "evidence": "../m2-7/android-results.json",
+    "reusedArtifacts": [
+      {
+        "path": "apps/passenger/android/app/build/outputs/apk/debug/app-debug.apk",
+        "sha256": "1c7e869a1630d0f4e952304cc80ec241db800e0ede50c57353bdf08c35c03c09",
+        "bytes": 87172396,
+        "previousArtifactArchived": true
+      },
+      {
+        "path": "apps/driver/android/app/build/outputs/apk/debug/app-debug.apk",
+        "sha256": "ab93c0c9f6040f1a611f1f3b5d2bd503ab463317a35f610d041188a307ace8c4",
+        "bytes": 87172322,
+        "previousArtifactArchived": true
+      }
+    ]
+  },
+  "git": {
+    "newCommit": false,
+    "indexEmpty": true,
+    "push": false,
+    "pullRequest": false,
+    "merge": false
+  },
+  "limitations": [
+    "M2 external approval gates A-E remain closed; owner review pending",
+    "Physical device, iOS, manual TalkBack and live SMS not newly tested",
+    "Running Keycloak/Postgres bind mounts retain the preserved sibling cache paths; no containers recreated",
+    "Standalone development databases are isolated slice fixtures; combined acceptance uses one fresh shared database"
+  ],
+  "next": "Owner review and separately authorized Git publication; no M3 implementation",
+  "finalReview": {
+    "reviewedAt": "2026-11-09T04:04:31.092Z",
+    "transferredFilesByteIdenticalToSnapshot": 94,
+    "reviewedTransferDifferences": [
+      ".env.example: original SMS planning block retained",
+      "docs/63-M2-INTEGRATION-SECURITY-ACCEPTANCE.md: primary worktree handoff added"
+    ],
+    "newHandoffFilesScanned": 12,
+    "knownPrivateKeyOrJwtPatterns": false,
+    "scope": "Handoff documents and primary-worktree evidence only; not a comprehensive credential audit",
+    "stagedPaths": 0,
+    "workingTree": {
+      "trackedChanges": 27,
+      "untrackedFiles": 289
+    }
+  }
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "check": "validate",
+    "command": "pnpm.cmd validate",
+    "exitCode": 0,
+    "seconds": 98.36
+  },
+  {
+    "check": "passenger-auth",
+    "command": "pnpm.cmd test:passenger:auth",
+    "exitCode": 0,
+    "seconds": 35.83
+  },
+  {
+    "check": "frozen-install",
+    "command": "pnpm.cmd install --frozen-lockfile",
+    "exitCode": 0,
+    "seconds": 4.56
+  },
+  {
+    "check": "audit",
+    "command": "pnpm.cmd audit:dependencies",
+    "exitCode": 0,
+    "seconds": 4.12
+  },
+  {
+    "check": "blueprint",
+    "command": "python scripts/validate_blueprint.py",
+    "exitCode": 0,
+    "seconds": 0.45
+  }
+]

@@ -1,0 +1,73 @@
+{
+  "recordedAt": "2026-11-06T08:04:07.587Z",
+  "environment": "LOCAL_SYNTHETIC",
+  "commands": [
+    {
+      "command": "pnpm.cmd validate",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T07:52:40.345Z",
+      "tests": [
+        9,
+        92,
+        14
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:identity:db",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T07:53:34.992Z",
+      "tests": [
+        11
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:authorization:db",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T07:54:44.085Z",
+      "tests": [
+        12
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:passenger:auth",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T07:56:03.515Z",
+      "tests": [
+        15
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:driver:auth",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T07:57:34.838Z",
+      "tests": [
+        15
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:admin:auth",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T08:01:22.387Z",
+      "tests": [
+        15
+      ]
+    },
+    {
+      "command": "pnpm.cmd test:verification",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T08:03:43.055Z",
+      "tests": [
+        12
+      ]
+    },
+    {
+      "command": "pnpm.cmd audit:dependencies",
+      "exitCode": 0,
+      "recordedAt": "2026-11-06T08:03:49.206Z",
+      "tests": []
+    }
+  ],
+  "productionAccepted": false,
+  "githubCi": "NOT RUN - unpublished branch",
+  "android": "NOT RUN - M2.7 gate"
+}

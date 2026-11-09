@@ -1,0 +1,11 @@
+{
+  "name": "@trissea/mobile-auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {".": "./src/index.ts", "./screen": "./src/AuthScreen.tsx"},
+  "scripts": {"typecheck": "tsc --noEmit", "test": "tsc -p tsconfig.test.json && node --test ../../.cache/mobile-auth/mobile-auth/test/*.test.js"},
+  "dependencies": {"@trissea/contracts": "workspace:*", "@trissea/mobile-ui": "workspace:*", "@trissea/design-tokens": "workspace:*"},
+  "peerDependencies": {"react": "19.2.3", "react-native": "0.86.3", "expo-crypto": "57.0.4", "expo-secure-store": "57.0.4"},
+  "devDependencies": {"@types/react": "19.2.17"}
+}

@@ -1,0 +1,259 @@
+{
+  "revision": 1,
+  "status": "APPROVED SIX-FILE CLEANUP EXECUTED - NO ADDITIONAL DELETIONS AUTHORIZED",
+  "primaryRoot": "C:\\Users\\apera\\Projects\\TRISSEA_Platform",
+  "valuesIncluded": false,
+  "deleteNow": false,
+  "scope": "Only the six explicitly proposed primary-root files; never sibling, generated bind mounts, archives or databases",
+  "rows": [
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.example",
+      "replacement": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local.example",
+      "dataPreserved": true,
+      "preservation": "Exact DPAPI CurrentUser backup verified outside repository; canonical mapping or safe replacement template prepared",
+      "referencesMigrated": "YES - canonical primary runtime/CI; historical acceptance references explicitly superseded",
+      "safeToRemove": "REMOVED under explicit owner approval after hash and encrypted-backup verification",
+      "proposedRemoval": true,
+      "removalStatus": "REMOVED",
+      "removedAt": "2026-11-09T06:57:11.043Z"
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env",
+      "replacement": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local",
+      "dataPreserved": true,
+      "preservation": "Exact DPAPI CurrentUser backup verified outside repository; canonical mapping or safe replacement template prepared",
+      "referencesMigrated": "YES - canonical primary runtime/CI; historical acceptance references explicitly superseded",
+      "safeToRemove": "REMOVED under explicit owner approval after hash and encrypted-backup verification",
+      "proposedRemoval": true,
+      "removalStatus": "REMOVED",
+      "removedAt": "2026-11-09T06:57:11.043Z"
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\worktree-consolidation\\2026-11-09T03-39-08-467Z\\prior-local-config\\.env.m2-passenger",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\worktree-consolidation\\2026-11-09T03-39-08-467Z\\source\\.env.production.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\worktree-consolidation\\2026-11-09T03-39-08-467Z\\prior-local-config\\.env.m2-driver",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\worktree-consolidation\\2026-11-09T03-39-08-467Z\\source\\.env.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\worktree-consolidation\\2026-11-09T03-39-08-467Z\\prior-local-config\\.env.local",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.m2-test",
+      "replacement": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local",
+      "dataPreserved": true,
+      "preservation": "Exact DPAPI CurrentUser backup verified outside repository; canonical mapping or safe replacement template prepared",
+      "referencesMigrated": "YES - canonical primary runtime/CI; historical acceptance references explicitly superseded",
+      "safeToRemove": "REMOVED under explicit owner approval after hash and encrypted-backup verification",
+      "proposedRemoval": true,
+      "removalStatus": "REMOVED",
+      "removedAt": "2026-11-09T06:57:11.043Z"
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.m2-passenger",
+      "replacement": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local",
+      "dataPreserved": true,
+      "preservation": "Exact DPAPI CurrentUser backup verified outside repository; canonical mapping or safe replacement template prepared",
+      "referencesMigrated": "YES - canonical primary runtime/CI; historical acceptance references explicitly superseded",
+      "safeToRemove": "REMOVED under explicit owner approval after hash and encrypted-backup verification",
+      "proposedRemoval": true,
+      "removalStatus": "REMOVED",
+      "removedAt": "2026-11-09T06:57:11.043Z"
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.m2-driver",
+      "replacement": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local",
+      "dataPreserved": true,
+      "preservation": "Exact DPAPI CurrentUser backup verified outside repository; canonical mapping or safe replacement template prepared",
+      "referencesMigrated": "YES - canonical primary runtime/CI; historical acceptance references explicitly superseded",
+      "safeToRemove": "REMOVED under explicit owner approval after hash and encrypted-backup verification",
+      "proposedRemoval": true,
+      "removalStatus": "REMOVED",
+      "removedAt": "2026-11-09T06:57:11.043Z"
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.m1.local",
+      "replacement": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local",
+      "dataPreserved": true,
+      "preservation": "Exact DPAPI CurrentUser backup verified outside repository; canonical mapping or safe replacement template prepared",
+      "referencesMigrated": "YES - canonical primary runtime/CI; historical acceptance references explicitly superseded",
+      "safeToRemove": "REMOVED under explicit owner approval after hash and encrypted-backup verification",
+      "proposedRemoval": true,
+      "removalStatus": "REMOVED",
+      "removedAt": "2026-11-09T06:57:11.043Z"
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local",
+      "replacement": "Canonical .env.local expanded without changing existing values",
+      "dataPreserved": true,
+      "preservation": "Original encrypted externally; all existing values and 34 mappings verified",
+      "referencesMigrated": "YES - canonical development boundary",
+      "safeToRemove": "NO - canonical file",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.production.example",
+      "replacement": "Updated canonical production example",
+      "dataPreserved": true,
+      "preservation": "Original template encrypted; replacement contains only safe placeholders",
+      "referencesMigrated": "YES - canonical production schema",
+      "safeToRemove": "NO - canonical template",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\m1-ci-crlf-after\\.env.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\worktree-consolidation\\2026-11-09T03-39-08-467Z\\primary\\.env.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\m1-ci-crlf-before\\.env.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.env.m2-passenger",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.env.m2-driver",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.env.local",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.env.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.env.production.example",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.env.m2-test",
+      "replacement": "Retain unchanged: sibling worktree or historical archive",
+      "dataPreserved": true,
+      "preservation": "File retained; original encrypted backup also verified",
+      "referencesMigrated": "Inactive historical/sibling scope; not an active primary loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\task5a\\baseline\\.env.example",
+      "replacement": "Retained immutable Task 5A template snapshot",
+      "dataPreserved": true,
+      "referencesMigrated": "No active loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\task5a\\baseline\\.env.production.example",
+      "replacement": "Retained immutable Task 5A template snapshot",
+      "dataPreserved": true,
+      "referencesMigrated": "No active loader",
+      "safeToRemove": "NO - excluded from this cleanup",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.local.example",
+      "replacement": "Approved canonical file; newly prepared",
+      "dataPreserved": true,
+      "preservation": "New safe template or unprovisioned gate-only file; no credentials invented",
+      "referencesMigrated": "YES",
+      "safeToRemove": "NO - approved canonical file",
+      "proposedRemoval": false
+    },
+    {
+      "originalPath": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.env.production",
+      "replacement": "Approved canonical file; newly prepared",
+      "dataPreserved": true,
+      "preservation": "New safe template or unprovisioned gate-only file; no credentials invented",
+      "referencesMigrated": "YES",
+      "safeToRemove": "NO - approved canonical file",
+      "proposedRemoval": false
+    }
+  ],
+  "deletionAuthorized": true,
+  "executed": true,
+  "executedAt": "2026-11-09T06:57:11.043Z",
+  "pendingRemovalPaths": [],
+  "ownerApprovalScope": "Only the six primary-root paths previously proposed in revision 1; no Git staging or publication"
+}

@@ -1,0 +1,912 @@
+{
+  "recordedAt": "2026-11-09T07:44:09.797Z",
+  "containers": [
+    {
+      "id": "fecdc94f8c65b9e3fff8217c1277035d66d73724192d88e3f386cbab62c57021",
+      "name": "trissea-m2-keycloak-keycloak-1",
+      "project": "trissea-m2-keycloak",
+      "service": "keycloak",
+      "configFiles": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra\\compose.m2-keycloak.yml",
+      "workingDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra",
+      "image": "quay.io/keycloak/keycloak:26.8.2@sha256:4340d05ee7d15be34293868d495ac772d61f1a4d0e43d53bae2e75e2f05de185",
+      "imageId": "sha256:4340d05ee7d15be34293868d495ac772d61f1a4d0e43d53bae2e75e2f05de185",
+      "imageRepoDigests": [
+        "quay.io/keycloak/keycloak@sha256:4340d05ee7d15be34293868d495ac772d61f1a4d0e43d53bae2e75e2f05de185"
+      ],
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "18080"
+          }
+        ],
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "19000"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.cache\\m2-keycloak\\realm-import",
+          "destination": "/opt/keycloak/data/import",
+          "rw": false
+        }
+      ],
+      "networks": [
+        "trissea-m2-keycloak_default"
+      ]
+    },
+    {
+      "id": "a2d2fcece85f657b536bcdf13ccc822ab7dd6ac7b36aa144eb023164bd018eae",
+      "name": "trissea-m2-keycloak-postgres-1",
+      "project": "trissea-m2-keycloak",
+      "service": "postgres",
+      "configFiles": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra\\compose.m2-keycloak.yml",
+      "workingDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra",
+      "image": "postgis/postgis:17-3.5@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6",
+      "imageId": "sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6",
+      "imageRepoDigests": [
+        "postgis/postgis@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6"
+      ],
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "5432/tcp": null
+      },
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\.cache\\m2-keycloak\\postgres-init.sql",
+          "destination": "/docker-entrypoint-initdb.d/10-keycloak.sql",
+          "rw": false
+        }
+      ],
+      "networks": [
+        "trissea-m2-keycloak_default"
+      ]
+    },
+    {
+      "id": "a1ceb7f581e39bede263b82d35fa48df55b5947964807ea59038a0670e399579",
+      "name": "trissea-m2-identity-test-redis-1",
+      "project": "trissea-m2-identity-test",
+      "service": "redis",
+      "configFiles": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra\\compose.m2-test.yml",
+      "workingDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra",
+      "image": "redis:7.4-alpine@sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f",
+      "imageId": "sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f",
+      "imageRepoDigests": [
+        "redis@sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f"
+      ],
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "6379/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "16380"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "07fdc703bd47b130367a310a3f1e76768f24c61862d531f4a42b513136e01342",
+          "source": "/var/lib/docker/volumes/07fdc703bd47b130367a310a3f1e76768f24c61862d531f4a42b513136e01342/_data",
+          "destination": "/data",
+          "rw": true
+        }
+      ],
+      "networks": [
+        "trissea-m2-identity-test_default"
+      ]
+    },
+    {
+      "id": "c2b5dad126bae7ac2efc0585794d624e2e3c7d46800dd2bc960b9f9774aae1db",
+      "name": "trissea-m2-identity-test-postgres-1",
+      "project": "trissea-m2-identity-test",
+      "service": "postgres",
+      "configFiles": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra\\compose.m2-test.yml",
+      "workingDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform_m2_identity\\infra",
+      "image": "postgis/postgis:17-3.5@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6",
+      "imageId": "sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6",
+      "imageRepoDigests": [
+        "postgis/postgis@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6"
+      ],
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "15433"
+          }
+        ]
+      },
+      "mounts": [],
+      "networks": [
+        "trissea-m2-identity-test_default"
+      ]
+    },
+    {
+      "id": "820b3dc1e844b40b30e0b1fa12309ca5830e9da51b35c85adae1241a47a3ca00",
+      "name": "trissea-m1-acceptance-redis-1",
+      "project": "trissea-m1-acceptance",
+      "service": "redis",
+      "configFiles": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\infra\\compose.yml",
+      "workingDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\infra",
+      "image": "redis:7.4-alpine",
+      "imageId": "sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f",
+      "imageRepoDigests": [
+        "redis@sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f"
+      ],
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "6379/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "16379"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "trissea-m1-acceptance_trissea_redis_data",
+          "source": "/var/lib/docker/volumes/trissea-m1-acceptance_trissea_redis_data/_data",
+          "destination": "/data",
+          "rw": true
+        }
+      ],
+      "networks": [
+        "trissea-m1-acceptance_default"
+      ]
+    },
+    {
+      "id": "1a2c8f30bb154c0ed6aa6b27323f371f6a74a99254df080393d0bd590dede449",
+      "name": "trissea-m1-acceptance-postgres-1",
+      "project": "trissea-m1-acceptance",
+      "service": "postgres",
+      "configFiles": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\infra\\compose.yml",
+      "workingDirectory": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\infra",
+      "image": "postgis/postgis:17-3.5",
+      "imageId": "sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6",
+      "imageRepoDigests": [
+        "postgis/postgis@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6"
+      ],
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "15432"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "trissea-m1-acceptance_trissea_pg_data",
+          "source": "/var/lib/docker/volumes/trissea-m1-acceptance_trissea_pg_data/_data",
+          "destination": "/var/lib/postgresql/data",
+          "rw": true
+        }
+      ],
+      "networks": [
+        "trissea-m1-acceptance_default"
+      ]
+    }
+  ],
+  "databaseClusters": [
+    {
+      "container": "trissea-m1-acceptance-postgres-1",
+      "id": "1a2c8f30bb154c0ed6aa6b27323f371f6a74a99254df080393d0bd590dede449",
+      "user": "trissea_m1",
+      "databases": [
+        {
+          "datname": "postgres",
+          "owner": "trissea_m1",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 7654547
+        },
+        {
+          "datname": "trissea_m1_acceptance",
+          "owner": "trissea_m1",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19516563
+        }
+      ],
+      "roles": [
+        {
+          "rolname": "trissea_m1",
+          "rolsuper": true,
+          "rolcreaterole": true,
+          "rolcreatedb": true,
+          "rolcanlogin": true,
+          "rolbypassrls": true
+        }
+      ],
+      "connections": [
+        {
+          "datname": "postgres",
+          "usename": "trissea_m1",
+          "application_name": "psql",
+          "state": "active",
+          "n": 1
+        }
+      ]
+    },
+    {
+      "container": "trissea-m2-identity-test-postgres-1",
+      "id": "c2b5dad126bae7ac2efc0585794d624e2e3c7d46800dd2bc960b9f9774aae1db",
+      "user": "m2_test_owner",
+      "databases": [
+        {
+          "datname": "m2_control",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19401875
+        },
+        {
+          "datname": "postgres",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 7654547
+        },
+        {
+          "datname": "trissea_m2_test_0da9003bd198",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19229843
+        },
+        {
+          "datname": "trissea_m2_test_1879ce0fa01b",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 17722515
+        },
+        {
+          "datname": "trissea_m2_test_29b2491cbaeb",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19377299
+        },
+        {
+          "datname": "trissea_m2_test_513070e58c42",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18541715
+        },
+        {
+          "datname": "trissea_m2_test_5589bab05160",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18934931
+        },
+        {
+          "datname": "trissea_m2_test_850999e5f989",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 17861779
+        },
+        {
+          "datname": "trissea_m2_test_884a5481026b",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 17706131
+        },
+        {
+          "datname": "trissea_m2_test_92d855c93830",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18943123
+        },
+        {
+          "datname": "trissea_m2_test_9a4c01ab9e72",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19377299
+        },
+        {
+          "datname": "trissea_m2_test_9deec5476818",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18115731
+        },
+        {
+          "datname": "trissea_m2_test_9f86ae409800",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18623635
+        },
+        {
+          "datname": "trissea_m2_test_b8150213905f",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18115731
+        },
+        {
+          "datname": "trissea_m2_test_ba3e88b79fda",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18779283
+        },
+        {
+          "datname": "trissea_m2_test_cd453d9c3741",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 17386643
+        },
+        {
+          "datname": "trissea_m2_test_cf26e957db9e",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18246803
+        },
+        {
+          "datname": "trissea_m2_test_d0cda8500fed",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19786899
+        },
+        {
+          "datname": "trissea_m2_test_f9c1eda37955",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 19377299
+        },
+        {
+          "datname": "trissea_m2_test_fbc8ddf8030a",
+          "owner": "m2_test_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 18934931
+        }
+      ],
+      "roles": [
+        {
+          "rolname": "m2_accept_admin_0da9003bd198",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_29b2491cbaeb",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_5589bab05160",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_92d855c93830",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_9a4c01ab9e72",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_9f86ae409800",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_f9c1eda37955",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_admin_fbc8ddf8030a",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_0da9003bd198",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_29b2491cbaeb",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_5589bab05160",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_92d855c93830",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_9a4c01ab9e72",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_9f86ae409800",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_f9c1eda37955",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_mobile_fbc8ddf8030a",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_0da9003bd198",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_29b2491cbaeb",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_5589bab05160",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_92d855c93830",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_9a4c01ab9e72",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_9f86ae409800",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_f9c1eda37955",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_accept_verification_fbc8ddf8030a",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_admin_513070e58c42",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_admin_850999e5f989",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_auth_9deec5476818",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_auth_b8150213905f",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_driver_1879ce0fa01b",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_driver_ba3e88b79fda",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_passenger_cd453d9c3741",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_passenger_cf26e957db9e",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_policy_884a5481026b",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_reader_9deec5476818",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_reader_b8150213905f",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_test_owner",
+          "rolsuper": true,
+          "rolcreaterole": true,
+          "rolcreatedb": true,
+          "rolcanlogin": true,
+          "rolbypassrls": true
+        },
+        {
+          "rolname": "m2_v_admin_d0cda8500fed",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_v_mobile_d0cda8500fed",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "m2_v_verification_d0cda8500fed",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_admin_auth",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_auth",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_authorization",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_driver_lock",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_policy_lock",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_runtime",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_verification",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        },
+        {
+          "rolname": "trissea_m2_verification_writer",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": false,
+          "rolbypassrls": false
+        }
+      ],
+      "connections": [
+        {
+          "datname": "postgres",
+          "usename": "m2_test_owner",
+          "application_name": "psql",
+          "state": "active",
+          "n": 1
+        }
+      ]
+    },
+    {
+      "container": "trissea-m2-keycloak-postgres-1",
+      "id": "a2d2fcece85f657b536bcdf13ccc822ab7dd6ac7b36aa144eb023164bd018eae",
+      "user": "keycloak_owner",
+      "databases": [
+        {
+          "datname": "keycloak_identity",
+          "owner": "keycloak_runtime",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 25799827
+        },
+        {
+          "datname": "postgres",
+          "owner": "keycloak_owner",
+          "encoding": 6,
+          "datcollate": "en_US.utf8",
+          "datctype": "en_US.utf8",
+          "bytes": 7654547
+        }
+      ],
+      "roles": [
+        {
+          "rolname": "keycloak_owner",
+          "rolsuper": true,
+          "rolcreaterole": true,
+          "rolcreatedb": true,
+          "rolcanlogin": true,
+          "rolbypassrls": true
+        },
+        {
+          "rolname": "keycloak_runtime",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolcreatedb": false,
+          "rolcanlogin": true,
+          "rolbypassrls": false
+        }
+      ],
+      "connections": [
+        {
+          "datname": "keycloak_identity",
+          "usename": "keycloak_runtime",
+          "application_name": "PostgreSQL JDBC Driver",
+          "state": "idle",
+          "n": 2
+        },
+        {
+          "datname": "postgres",
+          "usename": "keycloak_owner",
+          "application_name": "psql",
+          "state": "active",
+          "n": 1
+        }
+      ]
+    }
+  ],
+  "networks": [
+    {
+      "id": "09308ea7056b64e515cf97bee275a09e75cad4a9aee143aceccf893c98ebfb13",
+      "name": "trissea-m1-acceptance_default",
+      "project": "trissea-m1-acceptance",
+      "driver": "bridge",
+      "internal": false,
+      "containers": [
+        "1a2c8f30bb154c0ed6aa6b27323f371f6a74a99254df080393d0bd590dede449",
+        "820b3dc1e844b40b30e0b1fa12309ca5830e9da51b35c85adae1241a47a3ca00"
+      ]
+    },
+    {
+      "id": "62e960d1cc8cd640ccdfffdbbdbeffecf80dd0e19940eeff827e136c9e0dda22",
+      "name": "trissea-m2-identity-test_default",
+      "project": "trissea-m2-identity-test",
+      "driver": "bridge",
+      "internal": false,
+      "containers": [
+        "a1ceb7f581e39bede263b82d35fa48df55b5947964807ea59038a0670e399579",
+        "c2b5dad126bae7ac2efc0585794d624e2e3c7d46800dd2bc960b9f9774aae1db"
+      ]
+    },
+    {
+      "id": "16cbf80ecb15849afa08bab47468f90affa2b7001e3495a00ab05590faf36139",
+      "name": "trissea-m2-keycloak_default",
+      "project": "trissea-m2-keycloak",
+      "driver": "bridge",
+      "internal": false,
+      "containers": [
+        "a2d2fcece85f657b536bcdf13ccc822ab7dd6ac7b36aa144eb023164bd018eae",
+        "fecdc94f8c65b9e3fff8217c1277035d66d73724192d88e3f386cbab62c57021"
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "trissea-m1-acceptance_trissea_pg_data",
+      "driver": "local",
+      "mountpoint": "/var/lib/docker/volumes/trissea-m1-acceptance_trissea_pg_data/_data",
+      "project": "trissea-m1-acceptance"
+    },
+    {
+      "name": "trissea-m1-acceptance_trissea_redis_data",
+      "driver": "local",
+      "mountpoint": "/var/lib/docker/volumes/trissea-m1-acceptance_trissea_redis_data/_data",
+      "project": "trissea-m1-acceptance"
+    }
+  ],
+  "unrelatedContainerCount": 0,
+  "credentialsIncluded": false
+}

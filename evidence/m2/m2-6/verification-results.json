@@ -1,0 +1,78 @@
+{
+  "executedAt": "2026-11-06T08:02:14.291Z",
+  "database": "trissea_m2_test_f5915e84935c",
+  "syntheticOnly": true,
+  "tests": [
+    {
+      "name": "0007 incremental/fresh/repeated/failed commit/rollback/reapply preserves prior migrations and unrelated data",
+      "result": "PASSED"
+    },
+    {
+      "name": "combined actual Nest module starts with three least-privilege logins in one disposable application database",
+      "result": "PASSED"
+    },
+    {
+      "name": "all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL",
+      "result": "PASSED"
+    },
+    {
+      "name": "driver can submit synthetic cases; assigned real-TOTP reviewer approves scoped driver/vehicle and TODA manager reviews membership",
+      "result": "PASSED"
+    },
+    {
+      "name": "current evidence is required even for an otherwise eligible synthetic fixture; online and dispatch remain disabled",
+      "result": "PASSED"
+    },
+    {
+      "name": "ownership, assignment, exact role/scope, CSRF and input boundaries deny unauthorized review",
+      "result": "PASSED"
+    },
+    {
+      "name": "stale evidence/targets/policy are rejected; rejection and revised resubmission preserve immutable history",
+      "result": "PASSED"
+    },
+    {
+      "name": "idempotent retries and concurrent decisions produce one projection and one audit/outbox; failed audit rolls back all state",
+      "result": "PASSED"
+    },
+    {
+      "name": "revocation, expiry and resubmission deny stale eligibility without overwriting later approvals",
+      "result": "PASSED"
+    },
+    {
+      "name": "generated driver client validates actual verification HTTP contracts and optional cursor transport",
+      "result": "PASSED"
+    },
+    {
+      "name": "SQL privileges, RLS and pooled contexts isolate users/scopes and prohibit direct approvals or evidence provisioning",
+      "result": "PASSED"
+    },
+    {
+      "name": "populated 0007 rollback/reapply preserves prior driver facts, migration checksums and unrelated records",
+      "result": "PASSED"
+    }
+  ],
+  "checks": [
+    "Applied 0007_synthetic_verification",
+    "Rolled back 0007_synthetic_verification",
+    "Applied 0007_synthetic_verification",
+    "0007 fresh/no-op/concurrent apply/failed commit/down/reapply preserved 0001–0006 ledger, prior user and unrelated sentinel; no users/evidence/reviewers/grants seeded",
+    "Real AppModule: phone/driver/admin/verification cores; separate non-owner logins in SAME DB; real Redis PONG and Keycloak discovery; unauthenticated case/queue 401",
+    "Drizzle/PostgreSQL consistency: 7 tables, columns/defaults/nullability and all declared constraints/indexes",
+    "Actual mock driver OTP/consent/intake -> synthetic evidence submission -> real Keycloak password/TOTP officer and manager review; projected facts verified and capacity fixture-bound; no city membership/permit assertion/real operation; 3 atomic approval audit/outbox events",
+    "Explicit owner-only synthetic permit assertion proves positive identity eligibility with all operational flags false; replacing accepted evidence immediately denies eligibility and marks case STALE",
+    "Actual HTTP denies foreign driver/relationship, unassigned reviewer, wrong role/TODA/kind, revoked app session/grant, CSRF/Origin and mass assignment; real password/TOTP reauthentication restores a new session; DB denies self-assignment",
+    "Stale evidence, profile and intake-policy revisions each deny approval; explicit rejection permits revised resubmission; 4 immutable rounds retain all 4 decisions",
+    "Concurrent same-key requests return identical original result; changed-body 409; distinct-key decisions have one winner; forced audit failure rolls back decision/projection/receipt/outbox then retry succeeds",
+    "Explicit revocation invalidates projected facts; actual DB-clock expiry denies current approval before EXPIRE records history; revised reapplication appends rounds without rewriting prior decisions",
+    "Generated stateless driver SDK validates real evidence/list/detail response schemas, false operational flags and optional query cursor; no fixture OTP/token endpoint exists",
+    "Non-owner runtime cannot directly approve/provision/assign/read auth ciphertext; RLS owner data and empty recycled pool context verified; composite FK denies cross-city relationship; hardened projection owner is NOLOGIN/NOSUPERUSER/NOBYPASSRLS",
+    "Rolled back 0007_synthetic_verification",
+    "Applied 0007_synthetic_verification",
+    "Populated disposable rollback removes ONLY 0007 metadata, preserves earlier driver facts/ledger/sentinel; reapply empty-case guard keeps old projections ineligible"
+  ],
+  "screenshots": [
+    "reviewer-sign-in.png",
+    "reviewer-totp.png"
+  ]
+}

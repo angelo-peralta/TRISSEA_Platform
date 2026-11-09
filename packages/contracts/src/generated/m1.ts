@@ -1,6 +1,39 @@
 // Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.
-// Future operations are DESIGN ONLY; M1 implements getHealth only.
+// Only x-implemented-in operations are implemented; M2.3/M2.4/M2.5 require local-synthetic flags.
 export interface Schemas {
+  "VerificationOpenRequest": { "relationshipId": string; "kind": "DRIVER" | "VEHICLE" | "TODA_MEMBERSHIP"; };
+  "VerificationSubmitRequest": { "expectedVersion": number; "evidenceId": string; "evidenceVersion": number; };
+  "VerificationDecisionRequest": { "expectedVersion": number; "evidenceVersion": number; "outcome": "APPROVE" | "REJECT" | "REVOKE" | "EXPIRE"; "reasonCode": "SYNTHETIC_ACCEPTED" | "SYNTHETIC_INCOMPLETE" | "SYNTHETIC_MISMATCH" | "SYNTHETIC_WITHDRAWN" | "SYNTHETIC_EXPIRED"; };
+  "VerificationCase": { "id": string; "cityTenantId": string; "todaId": string; "relationshipId": string; "kind": "DRIVER" | "VEHICLE" | "TODA_MEMBERSHIP"; "state": "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "REVOKED" | "EXPIRED"; "effectiveState": "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "REVOKED" | "EXPIRED" | "STALE"; "evidenceCurrent": boolean | null; "version": number; "round": number; "assigned": boolean; "validUntil": string | null; "source": "SYNTHETIC_ONLY"; "realDocumentsEnabled": false; "operationalServicesEnabled": false; "realDriverApproved": false; };
+  "VerificationCases": { "items": Array<Schemas["VerificationCase"]>; "nextCursor": string | null; "source": "SYNTHETIC_ONLY"; };
+  "VerificationEvidenceChoices": { "items": Array<{ "evidenceId": string; "evidenceVersion": number; "relationshipId": string; "kind": "DRIVER" | "VEHICLE" | "TODA_MEMBERSHIP"; "referenceCode": string; "validUntil": string; }>; "source": "SYNTHETIC_ONLY"; };
+  "VerificationDetail": { "case": Schemas["VerificationCase"]; "evidence": { "evidenceId": string; "evidenceVersion": number; "referenceCode": string; "syntheticSeatCapacity": number | null; "validUntil": string; } | null; "historyTruncated": boolean; "submissions": Array<{ "round": number; "evidenceId": string; "evidenceVersion": number; "submittedAt": string; }>; "decisions": Array<{ "id": string; "round": number; "outcome": "APPROVE" | "REJECT" | "REVOKE" | "EXPIRE"; "reasonCode": "SYNTHETIC_ACCEPTED" | "SYNTHETIC_INCOMPLETE" | "SYNTHETIC_MISMATCH" | "SYNTHETIC_WITHDRAWN" | "SYNTHETIC_EXPIRED"; "evidenceVersion": number; "decidedAt": string; "validUntil": string | null; }>; };
+  "AdminLoginRequest": { "clientProof": string; };
+  "AdminLoginResponse": { "authorizationUrl": string; };
+  "AdminSession": { "userId": string; "sessionId": string; "clientPurpose": "ADMIN"; "mfaVerified": true; "csrfToken": string; "permissionsResolvedPerResource": true; "operationalServicesEnabled": false; };
+  "AdminScopeAccess": { "cityTenantId": string; "todaId": string; "canManageMemberships": true; "operationalServicesEnabled": false; };
+  "FutureObject": Record<string, unknown>;
+  "PhoneChallengeRequest": { "phone": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; };
+  "PhoneChallengeResponse": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deliveryMode": "MOCK"; };
+  "PhoneChallengeStatus": { "challengeId": string; "expiresAt": string; "resendAfter": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deliveryMode": "MOCK"; "state": "PENDING" | "EXPIRED" | "COMPLETED"; };
+  "PhoneVerifyRequest": { "phone": string; "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; "code": string; };
+  "MobileRefreshRequest": { "clientPurpose": "PASSENGER" | "DRIVER"; "deviceId": string; "clientProof": string; "refreshToken": string; };
+  "MobileAuthResult": { "accessToken": string; "accessTokenExpiresAt": string; "refreshToken": string; "tokenType": "Bearer"; "userId": string; "sessionId": string; "clientPurpose": "PASSENGER" | "DRIVER"; };
+  "PassengerProfile": { "userId": string; "sessionId": string; "clientPurpose": "PASSENGER"; "state": "CONSENT_REQUIRED" | "ACTIVE"; "displayName": string | null; "profileVersion": number; "requiredNoticeVersion": string; "requiredTermsVersion": string; "operationsEnabled": false; "environment": "LOCAL_SYNTHETIC"; };
+  "PassengerProfileUpdate": { "displayName": string | null; "expectedVersion": number; };
+  "PassengerConsentRequest": { "noticeVersion": "local-synthetic-notice-v1"; "termsVersion": "local-synthetic-terms-v1"; "noticeAcknowledged": true; "termsAccepted": true; };
+  "PassengerSessionList": { "sessions": Array<{ "id": string; "state": "PREAUTH" | "CONSENT_REQUIRED" | "ACTIVE" | "REVOKED" | "EXPIRED"; "lastSeenAt": string; "expiresAt": string; "current": boolean; }>; };
+  "EmptyMutation": Record<string, never>;
+  "PhoneAuthError": { "code": "INVALID_REQUEST" | "AUTH_FAILED" | "RATE_LIMITED" | "CONFLICT" | "UNAVAILABLE"; "message": string; };
+  "DriverProfile": { "userId": string; "sessionId": string; "clientPurpose": "DRIVER"; "state": "CONSENT_REQUIRED" | "ACTIVE"; "driverStatus": "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED" | "REVOKED" | "EXPIRED"; "profileVersion": number; "requiredNoticeVersion": string; "requiredTermsVersion": string; "canGoOnline": false; "operationalServicesEnabled": false; "realDocumentsEnabled": false; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverScopeOptions": { "scopes": Array<{ "cityTenantId": string; "todaId": string; "cityName": string; "todaName": string; }>; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverSyntheticVehicles": { "vehicles": Array<{ "id": string; "referenceCode": string; }>; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverAffiliationRequest": { "cityTenantId": string; "todaId": string; };
+  "DriverAffiliation": { "id": string; "cityTenantId": string; "todaId": string; "state": "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED" | "REVOKED" | "EXPIRED"; "version": number; "validUntil": string | null; };
+  "DriverVehicleRequest": { "affiliationId": string; "vehicleId": string; };
+  "DriverVehicleRelationship": { "id": string; "cityTenantId": string; "todaId": string; "state": "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED" | "REVOKED" | "EXPIRED"; "version": number; "validUntil": string | null; "affiliationId": string; "vehicleId": string; };
+  "DriverVerificationStatus": { "affiliations": Array<Schemas["DriverAffiliation"]>; "vehicleRelationships": Array<Schemas["DriverVehicleRelationship"]>; "realDocumentsEnabled": false; "environment": "LOCAL_SYNTHETIC"; };
+  "DriverEligibility": { "cityTenantId": string; "todaId": string; "identityEligible": boolean; "canGoOnline": false; "operationalServicesEnabled": false; "realDriverApproved": false; "eligibilityBasis": "SYNTHETIC_ONLY"; "reasons": Array<string>; };
   "HealthResponse": { "status": "ok"; "service": "trissea-api"; "milestone": "M1"; "bookingsEnabled": false; };
   "Error": { "code": string; "message": string; "traceId"?: string; };
   "Coords": { "longitude": number; "latitude": number; };
@@ -11,7 +44,27 @@ export interface Schemas {
 }
 export interface Operations {
   "getHealth": { method: "GET"; path: "/health"; body: never; response: Schemas["HealthResponse"] };
-  "getMe": { method: "GET"; path: "/me"; body: never; response: Record<string, unknown> };
+  "requestPassengerOtp": { method: "POST"; path: "/auth/phone/challenges"; body: Schemas["PhoneChallengeRequest"]; response: Schemas["PhoneChallengeResponse"] };
+  "verifyPassengerOtp": { method: "POST"; path: "/auth/phone/challenges/{challengeId}/verify"; body: Schemas["PhoneVerifyRequest"]; response: Schemas["MobileAuthResult"] };
+  "getPassengerChallengeStatus": { method: "GET"; path: "/auth/phone/challenges/{challengeId}"; body: never; response: Schemas["PhoneChallengeStatus"] };
+  "refreshPassengerSession": { method: "POST"; path: "/auth/mobile/refresh"; body: Schemas["MobileRefreshRequest"]; response: Schemas["MobileAuthResult"] };
+  "listPassengerSessions": { method: "GET"; path: "/auth/sessions"; body: never; response: Schemas["PassengerSessionList"] };
+  "revokePassengerSession": { method: "POST"; path: "/auth/sessions/{sessionId}/revoke"; body: Schemas["EmptyMutation"]; response: void };
+  "logoutPassenger": { method: "POST"; path: "/auth/logout"; body: Schemas["EmptyMutation"]; response: void };
+  "getMe": { method: "GET"; path: "/me"; body: never; response: Schemas["PassengerProfile"] };
+  "updatePassengerProfile": { method: "PATCH"; path: "/me"; body: Schemas["PassengerProfileUpdate"]; response: Schemas["PassengerProfile"] };
+  "recordPassengerConsent": { method: "POST"; path: "/me/consents"; body: Schemas["PassengerConsentRequest"]; response: Schemas["PassengerProfile"] };
+  "getDriverMe": { method: "GET"; path: "/driver/me"; body: never; response: Schemas["DriverProfile"] };
+  "recordDriverConsent": { method: "POST"; path: "/driver/me/consents"; body: Schemas["PassengerConsentRequest"]; response: Schemas["DriverProfile"] };
+  "listDriverSessions": { method: "GET"; path: "/driver/auth/sessions"; body: never; response: Schemas["PassengerSessionList"] };
+  "revokeDriverSession": { method: "POST"; path: "/driver/auth/sessions/{sessionId}/revoke"; body: Schemas["EmptyMutation"]; response: void };
+  "logoutDriver": { method: "POST"; path: "/driver/auth/logout"; body: Schemas["EmptyMutation"]; response: void };
+  "getDriverIntakeOptions": { method: "GET"; path: "/driver/onboarding/options"; body: never; response: Schemas["DriverScopeOptions"] };
+  "getDriverSyntheticVehicles": { method: "GET"; path: "/driver/cities/{cityTenantId}/todas/{todaId}/synthetic-vehicles"; body: never; response: Schemas["DriverSyntheticVehicles"] };
+  "requestDriverAffiliation": { method: "POST"; path: "/driver/toda-affiliation-requests"; body: Schemas["DriverAffiliationRequest"]; response: Schemas["DriverAffiliation"] };
+  "requestDriverVehicle": { method: "POST"; path: "/driver/vehicle-relationships"; body: Schemas["DriverVehicleRequest"]; response: Schemas["DriverVehicleRelationship"] };
+  "getDriverVerificationStatus": { method: "GET"; path: "/driver/verification-status"; body: never; response: Schemas["DriverVerificationStatus"] };
+  "getDriverEligibility": { method: "GET"; path: "/driver/cities/{cityTenantId}/todas/{todaId}/eligibility"; body: never; response: Schemas["DriverEligibility"] };
   "getAvailableServices": { method: "GET"; path: "/services/available"; body: never; response: Record<string, unknown> };
   "createQuote": { method: "POST"; path: "/quotes"; body: Schemas["QuoteRequest"]; response: Schemas["Quote"] };
   "createRide": { method: "POST"; path: "/rides"; body: { "quoteId": string; }; response: Schemas["Ride"] };
@@ -30,5 +83,21 @@ export interface Operations {
   "approveFareDraft": { method: "POST"; path: "/admin/fares/{policyId}/approve"; body: { "decision": "APPROVE" | "REJECT"; "reason": string; }; response: Record<string, unknown> };
   "listTodas": { method: "GET"; path: "/admin/todas"; body: never; response: Record<string, unknown> };
   "listOperationalRides": { method: "GET"; path: "/admin/rides"; body: never; response: Record<string, unknown> };
+  "startAdminLogin": { method: "POST"; path: "/admin/auth/login"; body: Schemas["AdminLoginRequest"]; response: Schemas["AdminLoginResponse"] };
+  "completeAdminLogin": { method: "GET"; path: "/admin/auth/callback"; body: never; response: void };
+  "getAdminSession": { method: "GET"; path: "/admin/auth/session"; body: never; response: Schemas["AdminSession"] };
+  "logoutAdmin": { method: "POST"; path: "/admin/auth/logout"; body: Record<string, never>; response: void };
+  "getAdminTodaAccess": { method: "GET"; path: "/admin/access/todas/{todaId}"; body: never; response: Schemas["AdminScopeAccess"] };
+  "listDriverSyntheticEvidence": { method: "GET"; path: "/driver/me/verification/evidence"; body: never; response: Schemas["VerificationEvidenceChoices"] };
+  "listDriverVerificationCases": { method: "GET"; path: "/driver/me/verification/cases"; body: never; response: Schemas["VerificationCases"] };
+  "openDriverVerificationCase": { method: "POST"; path: "/driver/me/verification/cases"; body: Schemas["VerificationOpenRequest"]; response: Schemas["VerificationCase"] };
+  "getDriverVerificationCase": { method: "GET"; path: "/driver/me/verification/cases/{caseId}"; body: never; response: Schemas["VerificationDetail"] };
+  "submitDriverVerificationCase": { method: "POST"; path: "/driver/me/verification/cases/{caseId}/submit"; body: Schemas["VerificationSubmitRequest"]; response: Schemas["VerificationCase"] };
+  "listAssignedVerificationCases": { method: "GET"; path: "/admin/verifications/todas/{todaId}/cases"; body: never; response: Schemas["VerificationCases"] };
+  "listAssignedMembershipCases": { method: "GET"; path: "/admin/verifications/todas/{todaId}/memberships"; body: never; response: Schemas["VerificationCases"] };
+  "getAssignedVerificationCase": { method: "GET"; path: "/admin/verifications/cases/{caseId}"; body: never; response: Schemas["VerificationDetail"] };
+  "getAssignedMembershipCase": { method: "GET"; path: "/admin/verifications/memberships/{caseId}"; body: never; response: Schemas["VerificationDetail"] };
+  "decideVerificationCase": { method: "POST"; path: "/admin/verifications/cases/{caseId}/decisions"; body: Schemas["VerificationDecisionRequest"]; response: Schemas["VerificationCase"] };
+  "decideMembershipCase": { method: "POST"; path: "/admin/verifications/memberships/{caseId}/decisions"; body: Schemas["VerificationDecisionRequest"]; response: Schemas["VerificationCase"] };
 }
 export type HealthResponse = Operations['getHealth']['response'];

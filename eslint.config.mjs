@@ -8,6 +8,7 @@ export default ts.config(
   js.configs.recommended,
   ...ts.configs.recommended,
   { languageOptions: { globals: { ...globals.node, ...globals.browser } } },
+  { files: ['scripts/*.cjs'], rules: { '@typescript-eslint/no-require-imports': 'off' } },
   {
     files: ['**/*.tsx'],
     plugins: { 'react-hooks': hooks },

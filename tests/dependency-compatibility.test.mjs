@@ -19,13 +19,16 @@ test('Router query parsing and serialization work with the patched ESM decoder',
   assert.doesNotThrow(() => query.parse(`label=${'%'.repeat(10_000)}`));
 });
 
-test('Expo CLI plugin schemas retain valid and invalid input behavior with patched Zod', () => {
-  const { PluginSchema, DevToolsPluginOutputSchema } = cliRequire(join(dirname(cliPackage), 'build/src/start/server/DevToolsPlugin.schema.js'));
+test('Expo CLI plugin JSON schemas retain valid and invalid input behavior after the SDK patch', () => {
+  // The SDK patch moved the consumer into devtools/ and replaced its Zod
+  // schemas with @expo/schema-utils. Exercise the actual replacement validator.
+  const { PluginSchema, DevToolsPluginOutputSchema } = cliRequire(join(dirname(cliPackage), 'build/src/start/server/devtools/DevToolsPlugin.schema.js'));
+  const { validate, ValidationError } = cliRequire('@expo/schema-utils');
   const plugin = { packageName: 'synthetic-plugin', packageRoot: '/synthetic', cliExtensions: { description: 'Test', commands: [{ name: 'inspect', title: 'Inspect', environments: ['cli'], parameters: [{ name: 'enabled', type: 'confirm' }] }], entryPoint: './test.js' } };
-  assert.equal(PluginSchema.parse(plugin).packageName, plugin.packageName);
-  assert.equal(PluginSchema.safeParse({ ...plugin, packageName: '' }).success, false);
-  assert.equal(DevToolsPluginOutputSchema.safeParse([{ type: 'text', text: 'Synthetic result', level: 'info' }]).success, true);
-  assert.equal(DevToolsPluginOutputSchema.safeParse([{ type: 'image', url: 'invalid' }]).success, false);
+  assert.doesNotThrow(() => validate(PluginSchema, plugin));
+  assert.throws(() => validate(PluginSchema, { ...plugin, packageName: '' }), ValidationError);
+  assert.doesNotThrow(() => validate(DevToolsPluginOutputSchema, [{ type: 'text', text: 'Synthetic result', level: 'info' }]));
+  assert.throws(() => validate(DevToolsPluginOutputSchema, [{ type: 'image', url: 'invalid' }]), ValidationError);
 });
 
 test('Expo glob consumers retain the filesystem matching API after security upgrades', () => {

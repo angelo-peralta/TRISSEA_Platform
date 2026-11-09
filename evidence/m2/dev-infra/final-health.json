@@ -1,0 +1,156 @@
+{
+  "recordedAt": "2026-11-09T09:53:57.178Z",
+  "phase": "POSIX_PRIVATE_BOOTSTRAP_FOLLOWUP",
+  "project": "trissea-dev",
+  "services": 4,
+  "healthy": true,
+  "postgis": true,
+  "redis": "PONG",
+  "coreRuntimeSuperusers": false,
+  "applicationIdpDatabaseAccessSeparated": true,
+  "testClusterSeparated": true,
+  "issuerPreserved": true,
+  "siblingBindDependencies": false,
+  "legacyRetirementPending": false,
+  "containers": [
+    {
+      "id": "fc5d43b405b92db05246d3ab2a86b7f05bc8ff47d600e79276bc2b777e6701a9",
+      "service": "keycloak",
+      "name": "trissea-dev-keycloak-1",
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "18080"
+          }
+        ],
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "19000"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "volume",
+          "volume": "trissea-dev_keycloak_import",
+          "source": "/var/lib/docker/volumes/trissea-dev_keycloak_import/_data",
+          "destination": "/opt/keycloak/data/import"
+        }
+      ]
+    },
+    {
+      "id": "1f205db6bc08e7ad1948a33e9800571b43d9200128c5d6f4fd4bbb9b9a896ec4",
+      "service": "postgres",
+      "name": "trissea-dev-postgres-1",
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "15432"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/apera/Projects/TRISSEA_Platform/infra/dev-core-init.sh",
+          "destination": "/docker-entrypoint-initdb.d/20-trissea.sh"
+        },
+        {
+          "type": "volume",
+          "volume": "trissea-dev_keycloak_import",
+          "source": "/var/lib/docker/volumes/trissea-dev_keycloak_import/_data",
+          "destination": "/run/trissea-realm-import"
+        },
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\dev-infra\\realm-import",
+          "destination": "/run/trissea-realm-source"
+        },
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\dev-infra\\secrets\\core-admin-password",
+          "destination": "/run/secrets/core_admin_password"
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/apera/Projects/TRISSEA_Platform/.cache/dev-infra/init/core.sql",
+          "destination": "/run/trissea/core.sql"
+        },
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\infra\\start-core-postgres.sh",
+          "destination": "/run/trissea/start-core-postgres.sh"
+        },
+        {
+          "type": "volume",
+          "volume": "trissea-dev_pg_data",
+          "source": "/var/lib/docker/volumes/trissea-dev_pg_data/_data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "id": "0a746c5173dd0b550db3d5d53c759f4391007dc67cf81fad080db09b14d4597e",
+      "service": "postgres-test",
+      "name": "trissea-dev-postgres-test-1",
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "15433"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/apera/Projects/TRISSEA_Platform/infra/dev-test-init.sh",
+          "destination": "/docker-entrypoint-initdb.d/20-trissea.sh"
+        },
+        {
+          "type": "bind",
+          "source": "C:\\Users\\apera\\Projects\\TRISSEA_Platform\\.cache\\dev-infra\\secrets\\test-owner-password",
+          "destination": "/run/secrets/test_owner_password"
+        },
+        {
+          "type": "volume",
+          "volume": "trissea-dev_pg_test_data",
+          "source": "/var/lib/docker/volumes/trissea-dev_pg_test_data/_data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "id": "22da5e9fb2618c142a71a91cbe69cda6852789ba8c000a88fa2712038b184de8",
+      "service": "redis",
+      "name": "trissea-dev-redis-1",
+      "state": "running",
+      "health": "healthy",
+      "ports": {
+        "6379/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "16380"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "volume",
+          "volume": "trissea-dev_redis_data",
+          "source": "/var/lib/docker/volumes/trissea-dev_redis_data/_data",
+          "destination": "/data"
+        }
+      ]
+    }
+  ]
+}

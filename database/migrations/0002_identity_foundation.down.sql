@@ -1,0 +1,29 @@
+-- Named disposable test database only. No CASCADE; unknown dependent objects abort rollback.
+DROP TABLE identity."outbox_events";
+DROP TABLE identity."audit_events";
+DROP TABLE identity."administrative_identity_mappings";
+DROP TABLE identity."account_consents";
+DROP TABLE identity."otp_redemptions";
+DROP TABLE identity."otp_challenge_metadata";
+DROP TABLE identity."refresh_credentials";
+DROP TABLE identity."app_sessions";
+DROP TABLE identity."scoped_role_assignments";
+DROP TABLE identity."role_permissions";
+DROP TABLE identity."role_scopes";
+DROP TABLE identity."permissions";
+DROP TABLE identity."roles";
+DROP TABLE identity."city_memberships";
+DROP TABLE identity."toda_organizations";
+DROP TABLE identity."city_tenants";
+DROP TABLE identity."auth_identities";
+DROP TABLE identity."user_personas";
+DROP TABLE identity."app_users";
+DROP FUNCTION identity.reject_mutation();
+DROP FUNCTION identity.protect_binding();
+DROP FUNCTION identity.restrict_account();
+DROP FUNCTION identity.revoke_session();
+DROP FUNCTION identity.protect_refresh();
+DROP FUNCTION identity.check_session_insert();
+DROP FUNCTION identity.protect_outbox();
+DROP SCHEMA identity;
+-- NOLOGIN role groups retained: never drop a cluster role that another database may use.

@@ -4,7 +4,16 @@
 - Passenger: mobile number in `+63` E.164 format → SMS OTP → create account/consent → optional email. Do NOT require password or government ID for every passenger.
 - Driver: same phone OTP, then separate legal identity, TODA affiliation, vehicle documentation, MTOP/license/insurance verification by authorized staff. Unverified driver can sign in but cannot go online/receive ride offers.
 - Admin/dispatcher: individual email/password or organization SSO, **mandatory TOTP MFA** and phishing-resistant method where supported; high-impact actions require recent reauthentication.
-- Initial provider recommendation: **Supabase Auth** for phone OTP if a production SMS provider with validated Philippine deliverability, cost and rate limits is contracted. Abstract behind `IdentityProvider`; do not assume Supabase Auth includes free SMS or offers reliable delivery without configuration. For local tests use development-only OTP simulator (NEVER deployed).
+- **Historical recommendation, superseded/rejected by the owner M2 directive (2026-11-05), not an implementation choice:** **Supabase Auth** for phone OTP if a production SMS provider with validated Philippine deliverability, cost and rate limits is contracted. Abstract behind `IdentityProvider`; do not assume Supabase Auth includes free SMS or offers reliable delivery without configuration. For local tests use development-only OTP simulator (NEVER deployed).
+
+## Approved M2 identity providers ? 2026-11-05
+
+TRISSEA owns six-digit SMS OTP and application sessions. Mock transport is local/CI
+only; PhilSMS is a future gated transport. Self-hosted Keycloak supplies administrator
+email/password + REQUIRED TOTP over OIDC Authorization Code/PKCE S256 through a secure
+Nest BFF. Supabase must not be installed or integrated. No public staff registration
+or recovery activation. Architecture approval does not satisfy privacy/legal gates.
+See [ADR-011](55-ADR-011-M2-IDENTITY-TENANCY-DRAFT.md) and [realm boundary](56-M2-ARCHITECTURE-AND-KEYCLOAK.md).
 
 ## Protection by design
 1. Collect only data needed for bookings; separately explain foreground location and background driver-only tracking. Passenger background location is not a requirement for MVP.

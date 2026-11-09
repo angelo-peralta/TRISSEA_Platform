@@ -1,0 +1,28 @@
+[
+  {
+    "app": "passenger",
+    "exitCode": 0,
+    "executedAt": "2026-11-06T13:21:09.096Z",
+    "command": "gradlew.bat app:assembleDebug --no-daemon --max-workers=2 --console=plain -PreactNativeArchitectures=x86_64",
+    "java": "Existing Temurin 17.0.20.1, process-local JAVA_HOME",
+    "packageIdentifier": "ph.trissea.passenger.dev",
+    "abi": "x86_64",
+    "artifact": "apps/passenger/android/app/build/outputs/apk/debug/app-debug.apk",
+    "bytes": 87172396,
+    "sha256": "1c7e869a1630d0f4e952304cc80ec241db800e0ede50c57353bdf08c35c03c09",
+    "binaryCommitted": false
+  },
+  {
+    "app": "driver",
+    "exitCode": 0,
+    "executedAt": "2026-11-06T13:35:08.849Z",
+    "command": "gradlew.bat app:assembleDebug --no-daemon --max-workers=2 --console=plain -PreactNativeArchitectures=x86_64",
+    "java": "Existing Temurin 17.0.20.1, process-local JAVA_HOME",
+    "packageIdentifier": "ph.trissea.driver.dev",
+    "abi": "x86_64",
+    "artifact": "apps/driver/android/app/build/outputs/apk/debug/app-debug.apk",
+    "bytes": 87172322,
+    "sha256": "ab93c0c9f6040f1a611f1f3b5d2bd503ab463317a35f610d041188a307ace8c4",
+    "binaryCommitted": false
+  }
+]

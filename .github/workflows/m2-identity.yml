@@ -1,0 +1,78 @@
+name: M2 identity foundation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  isolated-identity-database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.17.0
+      - run: npm install --global pnpm@11.20.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm dev:infra:prepare
+      - run: pnpm dev:infra:up
+      - run: pnpm test:infra:bootstrap
+      - run: pnpm test:identity:db
+      - run: pnpm test:authorization:db
+      - run: pnpm test:passenger:auth
+      - run: pnpm test:driver:auth
+      - run: pnpm keycloak:provision
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:admin:auth
+      - run: pnpm test:verification
+      - run: pnpm test:m2:integration
+      - run: pnpm test:m2:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-combined-acceptance-results
+          path: |
+            .cache/m2-acceptance/integration-results.json
+            .cache/m2-acceptance/browser/results.json
+            .cache/m2-acceptance/browser/*.png
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-synthetic-verification-results
+          path: .cache/m2-verification/results.json
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-identity-database-results
+          path: .cache/m2-identity/database-results.json
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-authorization-database-results
+          path: .cache/m2-authorization/database-results.json
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-passenger-auth-results
+          path: .cache/m2-passenger/results.json
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m2-driver-auth-results
+          path: .cache/m2-driver/results.json
+          include-hidden-files: true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2-admin-keycloak-results
+          path: |
+            .cache/m2-admin/results.json
+            .cache/m2-admin/screenshots/*.png
+          include-hidden-files: true
+      - if: failure()
+        run: pnpm dev:infra:status && pnpm dev:infra:logs
+      - if: always()
+        run: pnpm dev:infra:down

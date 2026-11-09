@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: TRISSEA Tuguegarao MVP API
-  version: 0.5.1
-  description: M1 implements public health only. Other operations remain future design. Requires verified legal fare and operator permission before public use.
+  version: 0.9.0
+  description: M1 health and M2.3-M2.6 local synthetic identity, Keycloak BFF and verification are implemented behind explicit flags. Real documents, live SMS, recovery and operations remain disabled.
 servers:
 - url: https://api.example.invalid/v1
   description: placeholder
@@ -19,6 +19,12 @@ tags:
 - name: Ops
 components:
   securitySchemes:
+    adminCookie:
+      type: apiKey
+      in: cookie
+      name: trissea_admin_local
+      description: Local-only HttpOnly host-only SameSite=Strict cookie. Production contract requires
+        __Host-trissea-admin Secure; production activation is gated. No bearer/provider token accepted.
     bearerAuth:
       type: http
       scheme: bearer
@@ -46,7 +52,943 @@ components:
         type: string
         minLength: 12
         maxLength: 128
+  responses:
+    PhoneAuthFailure:
+      description: Sanitized failure; no codes, contacts or credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PhoneAuthError'
   schemas:
+    VerificationOpenRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - relationshipId
+        - kind
+      properties:
+        relationshipId: &a1
+          type: string
+          format: uuid
+        kind: &a3
+          type: string
+          enum:
+            - DRIVER
+            - VEHICLE
+            - TODA_MEMBERSHIP
+    VerificationSubmitRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedVersion
+        - evidenceId
+        - evidenceVersion
+      properties:
+        expectedVersion: &a2
+          type: integer
+          minimum: 1
+          maximum: 2147483646
+        evidenceId: *a1
+        evidenceVersion: *a2
+    VerificationDecisionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedVersion
+        - evidenceVersion
+        - outcome
+        - reasonCode
+      properties:
+        expectedVersion: *a2
+        evidenceVersion: *a2
+        outcome:
+          type: string
+          enum:
+            - APPROVE
+            - REJECT
+            - REVOKE
+            - EXPIRE
+        reasonCode:
+          type: string
+          enum:
+            - SYNTHETIC_ACCEPTED
+            - SYNTHETIC_INCOMPLETE
+            - SYNTHETIC_MISMATCH
+            - SYNTHETIC_WITHDRAWN
+            - SYNTHETIC_EXPIRED
+      description: Reason must match outcome. Only APPROVE accepts current synthetic target/policy/evidence.
+        Terminal decisions require an approved case; EXPIRE requires database time past validity. No caller
+        capacity, validity, reviewer, permit or status fields.
+    VerificationCase:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - todaId
+        - relationshipId
+        - kind
+        - state
+        - effectiveState
+        - evidenceCurrent
+        - version
+        - round
+        - assigned
+        - validUntil
+        - source
+        - realDocumentsEnabled
+        - operationalServicesEnabled
+        - realDriverApproved
+      properties:
+        id: *a1
+        cityTenantId: *a1
+        todaId: *a1
+        relationshipId: *a1
+        kind: *a3
+        state: &a4
+          type: string
+          enum:
+            - DRAFT
+            - SUBMITTED
+            - APPROVED
+            - REJECTED
+            - REVOKED
+            - EXPIRED
+        effectiveState:
+          type: string
+          enum: [DRAFT, SUBMITTED, APPROVED, REJECTED, REVOKED, EXPIRED, STALE]
+        evidenceCurrent:
+          type: [boolean, "null"]
+        version: *a2
+        round:
+          type: integer
+          minimum: 0
+        assigned: &a8
+          type: boolean
+        validUntil: &a9
+          type:
+            - string
+            - "null"
+          format: date-time
+        source: &a6
+          type: string
+          const: SYNTHETIC_ONLY
+        realDocumentsEnabled: &a5
+          type: boolean
+          const: false
+        operationalServicesEnabled: *a5
+        realDriverApproved: *a5
+    VerificationCases:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+        - source
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerificationCase"
+        nextCursor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        source: *a6
+    VerificationEvidenceChoices:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - source
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - evidenceId
+              - evidenceVersion
+              - relationshipId
+              - kind
+              - referenceCode
+              - validUntil
+            properties:
+              evidenceId: *a1
+              evidenceVersion: *a2
+              relationshipId: *a1
+              kind: *a3
+              referenceCode:
+                type: string
+                pattern: ^SYNTHETIC_[A-Z0-9_]{1,32}$
+              validUntil: &a7
+                type: string
+                format: date-time
+        source: *a6
+    VerificationDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - case
+        - evidence
+        - historyTruncated
+        - submissions
+        - decisions
+      properties:
+        case:
+          $ref: "#/components/schemas/VerificationCase"
+        evidence:
+          type:
+            - object
+            - "null"
+          additionalProperties: false
+          required:
+            - evidenceId
+            - evidenceVersion
+            - referenceCode
+            - syntheticSeatCapacity
+            - validUntil
+          properties:
+            evidenceId: *a1
+            evidenceVersion: *a2
+            referenceCode:
+              type: string
+              pattern: ^SYNTHETIC_[A-Z0-9_]{1,32}$
+            syntheticSeatCapacity:
+              type:
+                - integer
+                - "null"
+              minimum: 1
+            validUntil: *a7
+        historyTruncated: *a8
+        submissions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - round
+              - evidenceId
+              - evidenceVersion
+              - submittedAt
+            properties:
+              round: *a2
+              evidenceId: *a1
+              evidenceVersion: *a2
+              submittedAt: *a7
+        decisions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - round
+              - outcome
+              - reasonCode
+              - evidenceVersion
+              - decidedAt
+              - validUntil
+            properties:
+              id: *a1
+              round: *a2
+              outcome:
+                type: string
+                enum:
+                  - APPROVE
+                  - REJECT
+                  - REVOKE
+                  - EXPIRE
+              reasonCode:
+                type: string
+                enum:
+                  - SYNTHETIC_ACCEPTED
+                  - SYNTHETIC_INCOMPLETE
+                  - SYNTHETIC_MISMATCH
+                  - SYNTHETIC_WITHDRAWN
+                  - SYNTHETIC_EXPIRED
+              evidenceVersion: *a2
+              decidedAt: *a7
+              validUntil: *a9
+    AdminLoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientProof
+      properties:
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43}$
+          description: 256-bit CSPRNG browser attempt proof held in memory. Same key+proof permits a bounded
+            retry; changed proof conflicts.
+    AdminLoginResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - authorizationUrl
+      properties:
+        authorizationUrl:
+          type: string
+          format: uri
+          description: Approved Keycloak authorization URL with state and S256 PKCE, no provider token.
+    AdminSession:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - sessionId
+        - clientPurpose
+        - mfaVerified
+        - csrfToken
+        - permissionsResolvedPerResource
+        - operationalServicesEnabled
+      properties:
+        userId: &a1
+          type: string
+          format: uuid
+        sessionId: *a1
+        clientPurpose:
+          type: string
+          const: ADMIN
+        mfaVerified:
+          type: boolean
+          const: true
+        csrfToken:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{64}$
+        permissionsResolvedPerResource:
+          type: boolean
+          const: true
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+    AdminScopeAccess:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - todaId
+        - canManageMemberships
+        - operationalServicesEnabled
+      properties:
+        cityTenantId: &a2
+          type: string
+          format: uuid
+        todaId: *a2
+        canManageMemberships:
+          type: boolean
+          const: true
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+    FutureObject: &id001
+      type: object
+    PhoneChallengeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - phone
+        - clientPurpose
+        - deviceId
+        - clientProof
+      properties:
+        phone:
+          type: string
+          maxLength: 32
+          description: Philippine mobile; normalized to E.164. Synthetic numbers only in
+            this local slice.
+        clientPurpose:
+          type: string
+          enum:
+            - PASSENGER
+            - DRIVER
+        deviceId:
+          type: string
+          format: uuid
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43,86}$
+          description: Secret generated with a CSPRNG and kept in secure client storage.
+            Never log.
+    PhoneChallengeResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - challengeId
+        - expiresAt
+        - resendAfter
+        - clientPurpose
+        - deliveryMode
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
+        resendAfter:
+          type: string
+          format: date-time
+        clientPurpose:
+          type: string
+          enum:
+            - PASSENGER
+            - DRIVER
+        deliveryMode:
+          type: string
+          const: MOCK
+    PhoneChallengeStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - challengeId
+        - expiresAt
+        - resendAfter
+        - clientPurpose
+        - deliveryMode
+        - state
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
+        resendAfter:
+          type: string
+          format: date-time
+        clientPurpose:
+          type: string
+          enum:
+            - PASSENGER
+            - DRIVER
+        deliveryMode:
+          type: string
+          const: MOCK
+        state:
+          type: string
+          enum:
+            - PENDING
+            - EXPIRED
+            - COMPLETED
+    PhoneVerifyRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - phone
+        - clientPurpose
+        - deviceId
+        - clientProof
+        - code
+      properties:
+        phone:
+          type: string
+          maxLength: 32
+        clientPurpose:
+          type: string
+          enum:
+            - PASSENGER
+            - DRIVER
+        deviceId:
+          type: string
+          format: uuid
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43,86}$
+          description: Secret generated with a CSPRNG and kept in secure client storage.
+            Never log.
+        code:
+          type: string
+          pattern: ^[0-9]{6}$
+    MobileRefreshRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientPurpose
+        - deviceId
+        - clientProof
+        - refreshToken
+      properties:
+        clientPurpose:
+          type: string
+          enum:
+            - PASSENGER
+            - DRIVER
+        deviceId:
+          type: string
+          format: uuid
+        clientProof:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43,86}$
+          description: Secret generated with a CSPRNG and kept in secure client storage.
+            Never log.
+        refreshToken:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{64}$
+    MobileAuthResult:
+      type: object
+      additionalProperties: false
+      required:
+        - accessToken
+        - accessTokenExpiresAt
+        - refreshToken
+        - tokenType
+        - userId
+        - sessionId
+        - clientPurpose
+      properties:
+        accessToken:
+          type: string
+        accessTokenExpiresAt:
+          type: string
+          format: date-time
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          const: Bearer
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        clientPurpose:
+          type: string
+          enum:
+            - PASSENGER
+            - DRIVER
+    PassengerProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - sessionId
+        - clientPurpose
+        - state
+        - displayName
+        - profileVersion
+        - requiredNoticeVersion
+        - requiredTermsVersion
+        - operationsEnabled
+        - environment
+      properties:
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        clientPurpose:
+          type: string
+          const: PASSENGER
+        state:
+          type: string
+          enum:
+            - CONSENT_REQUIRED
+            - ACTIVE
+        displayName:
+          type:
+            - string
+            - "null"
+        profileVersion:
+          type: integer
+          minimum: 1
+        requiredNoticeVersion:
+          type: string
+        requiredTermsVersion:
+          type: string
+        operationsEnabled:
+          type: boolean
+          const: false
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    PassengerProfileUpdate:
+      type: object
+      additionalProperties: false
+      required:
+        - displayName
+        - expectedVersion
+      properties:
+        displayName:
+          type:
+            - string
+            - "null"
+          maxLength: 80
+        expectedVersion:
+          type: integer
+          minimum: 1
+    PassengerConsentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - noticeVersion
+        - termsVersion
+        - noticeAcknowledged
+        - termsAccepted
+      properties:
+        noticeVersion:
+          type: string
+          const: local-synthetic-notice-v1
+        termsVersion:
+          type: string
+          const: local-synthetic-terms-v1
+        noticeAcknowledged:
+          type: boolean
+          const: true
+        termsAccepted:
+          type: boolean
+          const: true
+    PassengerSessionList:
+      type: object
+      additionalProperties: false
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - state
+              - lastSeenAt
+              - expiresAt
+              - current
+            properties:
+              id:
+                type: string
+                format: uuid
+              state:
+                type: string
+                enum:
+                  - PREAUTH
+                  - CONSENT_REQUIRED
+                  - ACTIVE
+                  - REVOKED
+                  - EXPIRED
+              lastSeenAt:
+                type: string
+                format: date-time
+              expiresAt:
+                type: string
+                format: date-time
+              current:
+                type: boolean
+    EmptyMutation:
+      type: object
+      additionalProperties: false
+      required: []
+      properties: {}
+    PhoneAuthError:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - INVALID_REQUEST
+            - AUTH_FAILED
+            - RATE_LIMITED
+            - CONFLICT
+            - UNAVAILABLE
+        message:
+          type: string
+    DriverProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - sessionId
+        - clientPurpose
+        - state
+        - driverStatus
+        - profileVersion
+        - requiredNoticeVersion
+        - requiredTermsVersion
+        - canGoOnline
+        - operationalServicesEnabled
+        - realDocumentsEnabled
+        - environment
+      properties:
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        clientPurpose:
+          type: string
+          const: DRIVER
+        state:
+          type: string
+          enum:
+            - CONSENT_REQUIRED
+            - ACTIVE
+        driverStatus:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - SUSPENDED
+            - REVOKED
+            - EXPIRED
+        profileVersion:
+          type: integer
+          minimum: 1
+        requiredNoticeVersion:
+          type: string
+        requiredTermsVersion:
+          type: string
+        canGoOnline:
+          type: boolean
+          const: false
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+        realDocumentsEnabled:
+          type: boolean
+          const: false
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverScopeOptions:
+      type: object
+      additionalProperties: false
+      required:
+        - scopes
+        - environment
+      properties:
+        scopes:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - cityTenantId
+              - todaId
+              - cityName
+              - todaName
+            properties:
+              cityTenantId:
+                type: string
+                format: uuid
+              todaId:
+                type: string
+                format: uuid
+              cityName:
+                type: string
+              todaName:
+                type: string
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverSyntheticVehicles:
+      type: object
+      additionalProperties: false
+      required:
+        - vehicles
+        - environment
+      properties:
+        vehicles:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - referenceCode
+            properties:
+              id:
+                type: string
+                format: uuid
+              referenceCode:
+                type: string
+                pattern: ^SYNTHETIC_[A-Z0-9_]{1,32}$
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverAffiliationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - todaId
+      properties:
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+    DriverAffiliation:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - todaId
+        - state
+        - version
+        - validUntil
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - SUSPENDED
+            - REVOKED
+            - EXPIRED
+        version:
+          type: integer
+          minimum: 1
+        validUntil:
+          type:
+            - string
+            - "null"
+          format: date-time
+    DriverVehicleRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - affiliationId
+        - vehicleId
+      properties:
+        affiliationId:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+    DriverVehicleRelationship:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - todaId
+        - state
+        - version
+        - validUntil
+        - affiliationId
+        - vehicleId
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - SUSPENDED
+            - REVOKED
+            - EXPIRED
+        version:
+          type: integer
+          minimum: 1
+        validUntil:
+          type:
+            - string
+            - "null"
+          format: date-time
+        affiliationId:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+    DriverVerificationStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - affiliations
+        - vehicleRelationships
+        - realDocumentsEnabled
+        - environment
+      properties:
+        affiliations:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/DriverAffiliation"
+        vehicleRelationships:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/DriverVehicleRelationship"
+        realDocumentsEnabled:
+          type: boolean
+          const: false
+        environment:
+          type: string
+          const: LOCAL_SYNTHETIC
+    DriverEligibility:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - todaId
+        - identityEligible
+        - canGoOnline
+        - operationalServicesEnabled
+        - realDriverApproved
+        - eligibilityBasis
+        - reasons
+      properties:
+        cityTenantId:
+          type: string
+          format: uuid
+        todaId:
+          type: string
+          format: uuid
+        identityEligible:
+          type: boolean
+        canGoOnline:
+          type: boolean
+          const: false
+        operationalServicesEnabled:
+          type: boolean
+          const: false
+        realDriverApproved:
+          type: boolean
+          const: false
+        eligibilityBasis:
+          type: string
+          const: SYNTHETIC_ONLY
+        reasons:
+          type: array
+          items:
+            type: string
     HealthResponse:
       type: object
       additionalProperties: false
@@ -211,19 +1153,808 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /auth/phone/challenges:
+    post:
+      tags:
+        - Identity
+      operationId: requestPassengerOtp
+      x-implemented-in: M2.3-local-synthetic
+      summary: requestPassengerOtp
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhoneChallengeRequest"
+      responses:
+        "202":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneChallengeResponse"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "404":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "413":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: requestDriverOtp
+  /auth/phone/challenges/{challengeId}/verify:
+    post:
+      tags:
+        - Identity
+      operationId: verifyPassengerOtp
+      x-implemented-in: M2.3-local-synthetic
+      summary: verifyPassengerOtp
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhoneVerifyRequest"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAuthResult"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "404":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "413":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: verifyDriverOtp
+  /auth/phone/challenges/{challengeId}:
+    get:
+      tags:
+        - Identity
+      operationId: getPassengerChallengeStatus
+      x-implemented-in: M2.3-local-synthetic
+      summary: getPassengerChallengeStatus
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Device-Id
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Client-Proof
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{43,86}$
+            description: Secret generated with a CSPRNG and kept in secure client storage.
+              Never log.
+        - name: X-Client-Purpose
+          in: header
+          required: false
+          schema:
+            type: string
+            enum:
+              - PASSENGER
+              - DRIVER
+            default: PASSENGER
+          description: Driver client must send DRIVER; omission preserves the passenger
+            contract.
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneChallengeStatus"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "404":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "413":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: getDriverChallengeStatus
+  /auth/mobile/refresh:
+    post:
+      tags:
+        - Identity
+      operationId: refreshPassengerSession
+      x-implemented-in: M2.3-local-synthetic
+      summary: refreshPassengerSession
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MobileRefreshRequest"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAuthResult"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "404":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "413":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-driver-operation-id: refreshDriverSession
+  /auth/sessions:
+    get:
+      tags:
+        - Identity
+      operationId: listPassengerSessions
+      x-implemented-in: M2.3-local-synthetic
+      summary: listPassengerSessions
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerSessionList"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/sessions/{sessionId}/revoke:
+    post:
+      tags:
+        - Identity
+      operationId: revokePassengerSession
+      x-implemented-in: M2.3-local-synthetic
+      summary: revokePassengerSession
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Completed; no response body
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /auth/logout:
+    post:
+      tags:
+        - Identity
+      operationId: logoutPassenger
+      x-implemented-in: M2.3-local-synthetic
+      summary: logoutPassenger
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Completed; no response body
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
   /me:
     get:
       tags:
-      - Identity
+        - Identity
       operationId: getMe
-      summary: Get authenticated identity and scoped roles
+      x-implemented-in: M2.3-local-synthetic
+      summary: getMe
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
       responses:
-        '200':
-          description: Success
+        "200":
+          description: Success (local mock only)
           content:
             application/json:
-              schema: &id001
-                type: object
+              schema:
+                $ref: "#/components/schemas/PassengerProfile"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+    patch:
+      tags:
+        - Identity
+      operationId: updatePassengerProfile
+      x-implemented-in: M2.3-local-synthetic
+      summary: updatePassengerProfile
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassengerProfileUpdate"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerProfile"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /me/consents:
+    post:
+      tags:
+        - Identity
+      operationId: recordPassengerConsent
+      x-implemented-in: M2.3-local-synthetic
+      summary: recordPassengerConsent
+      description: "Explicit local-synthetic feature flag required. No live SMS or
+        operational services. Cache-Control: no-store."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassengerConsentRequest"
+      responses:
+        "200":
+          description: Success (local mock only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerProfile"
+        "400":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "401":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "403":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "404":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "409":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "413":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "429":
+          $ref: '#/components/responses/PhoneAuthFailure'
+        "503":
+          $ref: '#/components/responses/PhoneAuthFailure'
+  /driver/me:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverMe
+      summary: getDriverMe
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverProfile"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/me/consents:
+    post:
+      tags:
+        - Driver
+      operationId: recordDriverConsent
+      summary: recordDriverConsent
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassengerConsentRequest"
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverProfile"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/auth/sessions:
+    get:
+      tags:
+        - Driver
+      operationId: listDriverSessions
+      summary: listDriverSessions
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassengerSessionList"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/auth/sessions/{sessionId}/revoke:
+    post:
+      tags:
+        - Driver
+      operationId: revokeDriverSession
+      summary: revokeDriverSession
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Local synthetic result
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/auth/logout:
+    post:
+      tags:
+        - Driver
+      operationId: logoutDriver
+      summary: logoutDriver
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmptyMutation"
+      responses:
+        "204":
+          description: Local synthetic result
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/onboarding/options:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverIntakeOptions
+      summary: getDriverIntakeOptions
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverScopeOptions"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/cities/{cityTenantId}/todas/{todaId}/synthetic-vehicles:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverSyntheticVehicles
+      summary: getDriverSyntheticVehicles
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - in: path
+          name: cityTenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: todaId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverSyntheticVehicles"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/toda-affiliation-requests:
+    post:
+      tags:
+        - Driver
+      operationId: requestDriverAffiliation
+      summary: requestDriverAffiliation
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverAffiliationRequest"
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverAffiliation"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/vehicle-relationships:
+    post:
+      tags:
+        - Driver
+      operationId: requestDriverVehicle
+      summary: requestDriverVehicle
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverVehicleRequest"
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverVehicleRelationship"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/verification-status:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverVerificationStatus
+      summary: getDriverVerificationStatus
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverVerificationStatus"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
+  /driver/cities/{cityTenantId}/todas/{todaId}/eligibility:
+    get:
+      tags:
+        - Driver
+      operationId: getDriverEligibility
+      summary: getDriverEligibility
+      x-implemented-in: M2.4-local-synthetic
+      description: Driver-purpose own-account operation. Explicit local-synthetic
+        feature flag, consent and configured scope required for intake. No real
+        document/driver approval or operation.
+      parameters:
+        - in: path
+          name: cityTenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: todaId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Local synthetic result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverEligibility"
+        "400":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "409":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "429":
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "503":
+          $ref: "#/components/responses/PhoneAuthFailure"
   /services/available:
     get:
       tags:
@@ -382,17 +2113,18 @@ paths:
   /driver/shifts:
     post:
       tags:
-      - Driver
+        - Driver
       operationId: startOrEndShift
       summary: Request driver online/offline shift after authorization
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
-              schema: *id001
-        '403':
-          description: Not authorized or role-scoped
+              schema:
+                type: object
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
       requestBody:
         required: true
         content:
@@ -400,33 +2132,38 @@ paths:
             schema:
               type: object
               required:
-              - operation
+                - operation
               properties:
                 operation:
                   type: string
                   enum:
-                  - START
-                  - END
+                    - START
+                    - END
                 todaId:
                   type: string
                   format: uuid
                 vehicleId:
                   type: string
                   format: uuid
+      x-m2-capability: DENIED
+      description: M2 always denies this operational capability, including synthetic
+        identity-eligible drivers. Existing success response is future design
+        only.
   /driver/locations:
     post:
       tags:
-      - Driver
+        - Driver
       operationId: postDriverLocation
       summary: Authenticated driver heartbeat; sequence protects out-of-order data
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
-              schema: *id001
-        '403':
-          description: Not authorized or role-scoped
+              schema:
+                type: object
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
       requestBody:
         required: true
         content:
@@ -434,10 +2171,10 @@ paths:
             schema:
               type: object
               required:
-              - longitude
-              - latitude
-              - capturedAt
-              - sequence
+                - longitude
+                - latitude
+                - capturedAt
+                - sequence
               properties:
                 longitude:
                   type: number
@@ -450,18 +2187,29 @@ paths:
                   type: number
                 sequence:
                   type: integer
+      x-m2-capability: DENIED
+      description: M2 always denies this operational capability, including synthetic
+        identity-eligible drivers. Existing success response is future design
+        only.
   /driver/offers:
     get:
       tags:
-      - Driver
+        - Driver
       operationId: getDriverOffers
       summary: List current eligible offers
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
-              schema: *id001
+              schema:
+                type: object
+        "403":
+          $ref: "#/components/responses/PhoneAuthFailure"
+      x-m2-capability: DENIED
+      description: M2 always denies this operational capability, including synthetic
+        identity-eligible drivers. Existing success response is future design
+        only.
   /driver/offers/{offerId}/accept:
     post:
       tags:
@@ -644,3 +2392,489 @@ paths:
           content:
             application/json:
               schema: *id001
+  /admin/auth/login:
+    post:
+      tags:
+        - Identity
+      operationId: startAdminLogin
+      summary: Start bounded password/TOTP OIDC flow or reauthenticate; no public registration
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "200":
+          description: Bound authorization URL and short-lived HttpOnly SameSite=Lax flow cookie
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginResponse"
+        "400": &a1
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "429": *a1
+        "503": *a1
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - in: header
+          name: Origin
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginRequest"
+  /admin/auth/callback:
+    get:
+      tags:
+        - Identity
+      operationId: completeAdminLogin
+      summary: Consume one browser-bound OIDC state, validate code/nonce/PKCE/current TOTP and approved
+        internal mapping
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "303":
+          description: Rotate opaque app cookie, clear flow cookie and redirect to configured same-origin
+            dashboard. Provider tokens never reach the SPA.
+        "400": &a2
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a2
+        "403": *a2
+        "409": *a2
+        "429": *a2
+        "503": *a2
+      security: []
+      parameters:
+        - in: query
+          name: code
+          required: true
+          schema: &a3
+            type: string
+        - in: query
+          name: state
+          required: true
+          schema: *a3
+  /admin/auth/session:
+    get:
+      tags:
+        - Identity
+      operationId: getAdminSession
+      summary: Current application identity, DB session, provider factor and MFA assurance; grants
+        resolved per resource
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "200":
+          description: Own application session and in-memory CSRF credential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "400": &a4
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a4
+        "403": *a4
+        "409": *a4
+        "429": *a4
+        "503": *a4
+      security:
+        - adminCookie: []
+  /admin/auth/logout:
+    post:
+      tags:
+        - Identity
+      operationId: logoutAdmin
+      summary: Revoke current application session transactionally; exact Origin and CSRF required
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "204":
+          description: Revoked application session and cleared cookie. A replay is denied because the session
+            is revoked; no duplicate mutation.
+        "400": &a5
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a5
+        "403": *a5
+        "409": *a5
+        "429": *a5
+        "503": *a5
+      security:
+        - adminCookie: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - in: header
+          name: Origin
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: X-CSRF-Token
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: []
+              properties: {}
+  /admin/access/todas/{todaId}:
+    get:
+      tags:
+        - Identity
+      operationId: getAdminTodaAccess
+      summary: Read-only authorization probe; current TODA_MANAGER grant in this city/TODA and MFA
+        freshness <= 5 minutes
+      x-implemented-in: M2.5-local-synthetic
+      responses:
+        "200":
+          description: Authorized scope only, no operational write
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminScopeAccess"
+        "400": &a6
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a6
+        "403": *a6
+        "409": *a6
+        "429": *a6
+        "503": *a6
+      security:
+        - adminCookie: []
+      parameters:
+        - in: path
+          name: todaId
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+  /driver/me/verification/evidence:
+    get:
+      tags:
+        - Identity
+      operationId: listDriverSyntheticEvidence
+      summary: Own owner-provisioned synthetic reference choices; no uploads or storage URLs
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters: []
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationEvidenceChoices"
+        "400": &a1
+          $ref: "#/components/responses/PhoneAuthFailure"
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /driver/me/verification/cases:
+    get:
+      tags:
+        - Identity
+      operationId: listDriverVerificationCases
+      summary: Own bounded case summaries
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - &a4
+          name: after
+          in: query
+          required: false
+          schema: &a2
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCases"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+    post:
+      tags:
+        - Identity
+      operationId: openDriverVerificationCase
+      summary: Ensure one owner/context/kind case; create DRAFT, never approval
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - &a3
+          $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationOpenRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /driver/me/verification/cases/{caseId}:
+    get:
+      tags:
+        - Identity
+      operationId: getDriverVerificationCase
+      summary: Own case and latest bounded immutable history, with explicit truncation flag
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationDetail"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /driver/me/verification/cases/{caseId}/submit:
+    post:
+      tags:
+        - Identity
+      operationId: submitDriverVerificationCase
+      summary: Submit/reapply with a current synthetic evidence revision and target snapshot
+      x-implemented-in: M2.6-local-synthetic
+      x-client-purpose: DRIVER
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+        - *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationSubmitRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/todas/{todaId}/cases:
+    get:
+      tags:
+        - Identity
+      operationId: listAssignedVerificationCases
+      summary: Current driver.verify scope, fresh MFA and assigned driver/vehicle queue only
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: todaId
+          in: path
+          required: true
+          schema: *a2
+        - *a4
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCases"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/todas/{todaId}/memberships:
+    get:
+      tags:
+        - Identity
+      operationId: listAssignedMembershipCases
+      summary: Current toda.members.manage exact TODA, fresh MFA and assigned membership queue only
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: todaId
+          in: path
+          required: true
+          schema: *a2
+        - *a4
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCases"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/cases/{caseId}:
+    get:
+      tags:
+        - Identity
+      operationId: getAssignedVerificationCase
+      summary: Assigned Verification Officer, current scope and fresh MFA; no self review
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationDetail"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/memberships/{caseId}:
+    get:
+      tags:
+        - Identity
+      operationId: getAssignedMembershipCase
+      summary: Assigned TODA Manager, exact organization and fresh MFA; no self review
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationDetail"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/cases/{caseId}/decisions:
+    post:
+      tags:
+        - Identity
+      operationId: decideVerificationCase
+      summary: Append officer decision with CAS, current evidence, CSRF, assignment, scope, audit/outbox and
+        synthetic projection
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+        - *a3
+        - &a5
+          name: Origin
+          in: header
+          required: true
+          schema:
+            type: string
+        - &a6
+          name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationDecisionRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1
+  /admin/verifications/memberships/{caseId}/decisions:
+    post:
+      tags:
+        - Identity
+      operationId: decideMembershipCase
+      summary: Append TODA membership decision; no city membership, staff grant or permit creation
+      x-implemented-in: M2.6-local-synthetic
+      security:
+        - adminCookie: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: *a2
+        - *a3
+        - *a5
+        - *a6
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationDecisionRequest"
+      responses:
+        "200":
+          description: Synthetic-only result; no operating authority or real documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationCase"
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "409": *a1
+        "503": *a1

@@ -1,5 +1,7 @@
 # M1 local foundation and acceptance record
 
+> Environment setup update (Task 5A): use [the canonical configuration guide](65-ENVIRONMENT-CONSOLIDATION.md). Legacy dotenv names/commands below are historical acceptance evidence, not current setup instructions. Existing files remain pending explicit cleanup approval.
+
 Scope: pnpm TypeScript workspace, NestJS/Fastify liveness API, React/Vite admin,
 two Expo Router apps, shared tokens/UI/contracts, PostGIS/Redis Compose,
 transactional local migration runner and Windows/Linux CI. No public deployment.

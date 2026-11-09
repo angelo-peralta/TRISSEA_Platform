@@ -1,0 +1,92 @@
+{
+  "executedAt": "2026-11-06T07:58:15.792Z",
+  "database": "trissea_m2_test_c838ad302925",
+  "syntheticOnly": true,
+  "keycloak": "26.8.2",
+  "tests": [
+    {
+      "name": "0006 fresh/repeat/failed commit/rollback/reapply preserves M1-M2.4 and unrelated data",
+      "result": "PASSED"
+    },
+    {
+      "name": "non-owner admin runtime and real Keycloak discovery start with no public staff provisioning",
+      "result": "PASSED"
+    },
+    {
+      "name": "real password plus TOTP yields opaque BFF cookie, current scoped access and accessible browser UI",
+      "result": "PASSED"
+    },
+    {
+      "name": "replayed and expired TOTP deny; fresh password/TOTP reauthentication rotates app session",
+      "result": "PASSED"
+    },
+    {
+      "name": "read-only provider identity service cannot mutate users, delete factors or delegate privileges; recovery stays disabled",
+      "result": "PASSED"
+    },
+    {
+      "name": "browser loading, failure/retry, keyboard, proxy health and unapproved fares remain functional",
+      "result": "PASSED"
+    },
+    {
+      "name": "incorrect password, incorrect TOTP, missing enrollment, unmapped and unverified identities receive no app session",
+      "result": "PASSED"
+    },
+    {
+      "name": "anonymous login retries are proof-bound and exact-Origin checked",
+      "result": "PASSED"
+    },
+    {
+      "name": "state/browser binding, nonce, PKCE and consumed callback prevent protocol replay",
+      "result": "PASSED"
+    },
+    {
+      "name": "CSRF/Origin and credential mixing deny; successful logout revokes DB session and replay fails",
+      "result": "PASSED"
+    },
+    {
+      "name": "current factor removal, provider suspension, internal restriction, mapping removal and app revocation deny immediately",
+      "result": "PASSED"
+    },
+    {
+      "name": "absolute expiry and policy-clock idle/step-up expiry deny without extending MFA freshness",
+      "result": "PASSED"
+    },
+    {
+      "name": "provider/DB failures and revocation during provider I/O fail closed; rate exhaustion denies new flows",
+      "result": "PASSED"
+    },
+    {
+      "name": "all Drizzle columns, PK/unique/FK/check/index definitions match PostgreSQL",
+      "result": "PASSED"
+    },
+    {
+      "name": "actual Vite proxy failure redacts callback query and error stack from logs",
+      "result": "PASSED"
+    }
+  ],
+  "checks": [
+    "0006 transactional fresh/no-op/concurrent apply/failed commit/down/reapply; prior ledger, user and unrelated table preserved; column privileges revoked on down",
+    "Actual NestJS/Fastify server + non-owner DB + pinned Keycloak discovery + Vite proxy started; no cookie 401, no grant/mapping mutation privileges",
+    "Real Keycloak password+TOTP signed AMR accepted; HttpOnly Strict host cookie, no web storage or plaintext private auth material in app/audit rows; pooled user context clears; positive TODA A, TODA B and revoked-grant denials; desktop/mobile screenshots",
+    "Real Keycloak TOTP reuse in same counter and expired counter denied; fresh mandatory password/TOTP reauthentication rotates cookie/session, revokes old session and old-cookie replay",
+    "Actual assurance-reader GET allowed; user update, factor deletion and role delegation all 403; registration, reset, recovery actions and account consoles disabled; deny-recovery flow enforced",
+    "Playwright API failure/retry, keyboard button focus, Vite health proxy, unapproved fare reference and disabled editing passed; no page exceptions",
+    "Real Keycloak wrong password, wrong TOTP and absent enrollment denied; verified proof without approved mapping and unverified email denied; zero application sessions",
+    "Concurrent same-key/proof login retries return one flow; changed proof 409; absent/foreign Origin 403; role mass assignment 400",
+    "Actual code flow: changed state, other browser, wrong nonce and wrong S256 verifier denied; concurrent callback admits exactly one (303/401); replay denied",
+    "Missing/bad CSRF and foreign Origin 403 without clearing active cookie; bearer+cookie 401; correct logout 204, DB revoked, stolen-cookie replay 401 and audit committed",
+    "Next protected request denies removed TOTP factor, suspended Keycloak user, restricted application account, revoked mapping and revoked application session",
+    "Actual absolute expiry 401; policy clock using genuine provider proof denies idle >15 minutes and sensitive TODA action >5 minutes; no MFA timestamp extension",
+    "Actual isolated Keycloak pause causes 401 and unpause restores access; injected provider/DB failures 401 without detail; concurrent DB revocation during provider check denies; IP rate exhaustion 429 + Retry-After",
+    "Drizzle/PostgreSQL consistency: 2 tables, columns/defaults/nullability and all declared constraints/indexes",
+    "Actual API-offline Vite proxy returns 502; logger emits sanitized diagnostic without callback query/code/state or error stack"
+  ],
+  "screenshots": [
+    "keycloak-sign-in.png",
+    "keycloak-totp.png",
+    "admin-desktop.png",
+    "admin-mobile.png",
+    "admin-error.png"
+  ]
+}

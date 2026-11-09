@@ -1,0 +1,22 @@
+[
+  {
+    "command": "pnpm.cmd validate",
+    "execution": "Installed pnpm CLI invoked through Node without another shell",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T11:43:41.211Z",
+    "passedTests": 138,
+    "testGroups": [
+      9,
+      15,
+      92,
+      22
+    ]
+  },
+  {
+    "command": "pnpm.cmd audit:dependencies",
+    "execution": "Installed pnpm CLI invoked through Node without another shell",
+    "exitCode": 0,
+    "recordedAt": "2026-11-08T11:43:44.035Z",
+    "noKnownVulnerabilities": true
+  }
+]

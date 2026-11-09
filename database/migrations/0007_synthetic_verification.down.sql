@@ -1,0 +1,43 @@
+-- Disposable databases only. Populated deployments require a forward repair plan.
+DROP FUNCTION identity.driver_verification_current(uuid,uuid,uuid,uuid);
+DROP FUNCTION identity.verification_evidence_current(uuid);
+DROP TABLE identity.verification_receipts;
+DROP TABLE identity.verification_decisions;
+DROP TABLE identity.verification_assignments;
+DROP TABLE identity.verification_submissions;
+DROP TABLE identity.verification_evidence_versions;
+DROP TABLE identity.verification_evidence_heads;
+DROP TABLE identity.verification_cases;
+DROP FUNCTION identity.project_verification_decision();
+DROP FUNCTION identity.check_verification_decision();
+DROP FUNCTION identity.check_verification_submission();
+DROP FUNCTION identity.protect_verification_head();
+DROP FUNCTION identity.check_verification_head();
+DROP FUNCTION identity.check_verification_pointers();
+DROP FUNCTION identity.protect_verification_case();
+DROP FUNCTION identity.verification_target(uuid);
+DROP FUNCTION identity.verification_locate(uuid);
+DROP FUNCTION identity.verification_visible(uuid);
+DROP POLICY verification_own_consent ON identity.account_consents;
+DROP POLICY verification_actor_lock ON identity.app_users;
+REVOKE UPDATE(version) ON identity.app_users FROM trissea_m2_verification;
+REVOKE SELECT(session_id,csrf_digest) ON identity.admin_browser_sessions FROM trissea_m2_verification;
+REVOKE SELECT ON identity.account_consents FROM trissea_m2_verification;
+REVOKE INSERT ON identity.audit_events,identity.outbox_events FROM trissea_m2_verification,trissea_m2_verification_writer;
+DO $$ DECLARE t text;BEGIN
+ FOREACH t IN ARRAY ARRAY['app_users','app_sessions','user_personas','city_memberships','scoped_role_assignments','city_tenants','toda_organizations'] LOOP EXECUTE format('DROP POLICY verification_metadata ON identity.%I',t);END LOOP;
+ FOREACH t IN ARRAY ARRAY['driver_profiles','driver_toda_affiliations','driver_synthetic_vehicles','driver_vehicle_relationships'] LOOP
+  EXECUTE format('DROP POLICY verification_projection ON identity.%I',t);
+  EXECUTE format('REVOKE SELECT,UPDATE(state,version,verification_reference,valid_until) ON identity.%I FROM trissea_m2_verification_writer',t);
+ END LOOP;
+END $$;
+REVOKE UPDATE(seat_capacity) ON identity.driver_synthetic_vehicles FROM trissea_m2_verification_writer;
+DROP POLICY verification_intake_lock ON identity.driver_intake_scopes;
+REVOKE SELECT,UPDATE(version) ON identity.driver_intake_scopes FROM trissea_m2_verification_writer;
+REVOKE SELECT(id,state,version,auth_version),UPDATE(version) ON identity.app_users FROM trissea_m2_verification_writer;
+REVOKE SELECT(id,user_id,identity_id,identity_kind,client_purpose,state,auth_version,authenticated_at,mfa_verified_at,last_seen_at,expires_at) ON identity.app_sessions FROM trissea_m2_verification_writer;
+REVOKE SELECT(id,user_id,kind,state) ON identity.auth_identities FROM trissea_m2_verification_writer;
+REVOKE SELECT(identity_id,user_id,state) ON identity.administrative_identity_mappings FROM trissea_m2_verification_writer;
+REVOKE SELECT ON identity.user_personas,identity.city_memberships,identity.scoped_role_assignments,identity.role_permissions FROM trissea_m2_verification_writer;
+REVOKE SELECT(id,state),UPDATE(state) ON identity.city_tenants FROM trissea_m2_verification_writer;
+REVOKE SELECT(id,city_tenant_id,state),UPDATE(state) ON identity.toda_organizations FROM trissea_m2_verification_writer;
