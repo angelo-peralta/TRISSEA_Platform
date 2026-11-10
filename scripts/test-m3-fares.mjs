@@ -147,6 +147,41 @@ test('admin browser edits proposals, imports matrix, compares prices, calibrates
   await page.getByRole('button',{name:'LGU Fare Matrix',exact:true}).click();await page.getByLabel('CSV content',{exact:true}).fill(csv);await page.getByRole('button',{name:'Validate and import CSV',exact:true}).click();await wait('43 rows validated and imported');await page.getByRole('button',{name:'Load fare policies',exact:true}).click();await wait('Current editor access verified');await page.getByRole('button',{name:'Tuguegarao LGU Plaza matrix · LGU_MATRIX',exact:true}).click();await wait('Immutable policy history loaded');assert.equal(await page.locator('table').filter({hasText:'Original published regular'}).locator('tbody tr').count(),43);
   await page.getByRole('button',{name:'Matrix Calibration',exact:true}).click();await page.getByLabel('Matrix policy version',{exact:true}).fill(imported.version.id);await page.getByLabel('Distance policy version',{exact:true}).fill(distance.version.id);await page.getByRole('button',{name:'Compare candidate rates',exact:true}).click();await wait('Calibration complete');await page.getByText('Average measured road distance: not available.',{exact:false}).waitFor();
   await mkdir(new URL('../.cache/m3/browser',import.meta.url),{recursive:true});await page.screenshot({path:fileURLToPath(new URL('../.cache/m3/browser/calibration.png',import.meta.url)),fullPage:true});
+  // The two target families sort first; extra families force a second real API page.
+  const paginationDistance={...defaultDistance,baseCentavos:2800,includedMetres:4000,rateCentavosPerKm:350,incrementMetres:250,rounding:'CENTAVO_CEIL',reviewThresholdCentavos:15000,maximumCentavos:20000,discounted:{baseCentavos:1900,rateCentavosPerKm:175,assumption:'PAGINATION_SYNTHETIC_DISCOUNT'}};
+  const paginationPrivate={...defaultPrivate,simulationCapacity:4,capacityPolicyReference:'PAGINATION_SYNTHETIC_CAPACITY',bands:[{upToMetres:2000,compensationBps:1250},{upToMetres:6000,compensationBps:2000},{upToMetres:null,compensationBps:3000}],rounding:'CENTAVO_CEIL',discountedCompensationBps:500,discountAssumption:'PAGINATION_SYNTHETIC_COMPENSATION'};
+  const paginationTargets=[{id:'ffffffff-ffff-ffff-ffff-ffffffffffff',kind:'DISTANCE_PROPOSAL',name:'Pagination distance',config:paginationDistance},{id:'ffffffff-ffff-ffff-ffff-fffffffffffe',kind:'PRIVATE_HIRE_PROPOSAL',name:'Pagination private',config:paginationPrivate}];
+  for(const target of [...paginationTargets,...Array.from({length:21},(_,index)=>({id:'00000000-0000-4000-8000-'+String(index+1).padStart(12,'0'),kind:'DISTANCE_PROPOSAL',name:'Pagination extra '+index,config:defaultDistance}))]){
+   await authorization.execute({cookie:editor.cookie},'FARE_CITY_EDIT',city,async c=>{
+    const [family]=await c.tx.insert(fareSchema.fareFamilies).values({id:target.id,cityTenantId:city,makerUserId:editor.userId,kind:target.kind,name:target.name}).returning();
+    await c.tx.insert(fareSchema.fareVersions).values({cityTenantId:city,familyId:family.id,kind:family.kind,revision:1,config:target.config});
+   });
+  }
+  async function paginateDraft(){
+   const selected=await page.getByLabel('Policy revision').inputValue();
+   const response=page.waitForResponse(r=>r.request().method()==='GET'&&new URL(r.url()).pathname.endsWith('/editor/policies')&&new URL(r.url()).searchParams.has('after'));
+   await page.getByRole('button',{name:'Load more fare policies',exact:true}).click();const loaded=await response;assert.equal(loaded.status(),200);assert.ok((await loaded.json()).items.length>0);await page.waitForFunction(()=>document.querySelectorAll('.fare-policy-list li').length>20);await wait('Current editor access verified');
+   assert.equal(await page.getByLabel('Policy revision').inputValue(),selected);
+  }
+  for(const target of paginationTargets){
+   await page.getByRole('button',{name:'Load fare policies',exact:true}).click();await wait('Current editor access verified');
+   assert.equal(await page.locator('.fare-policy-list li').count(),20);assert.equal(await page.getByRole('button',{name:'Load more fare policies',exact:true}).count(),1);
+   await page.getByRole('button',{name:target.name+' · '+target.kind,exact:true}).click();await wait('Immutable policy history loaded');
+   await page.getByRole('button',{name:'Distance Pricing',exact:true}).click();await page.getByLabel('Base regular fare (PHP)',{exact:true}).fill('37.5');
+   await page.getByRole('button',{name:'Private Tricycle Pricing',exact:true}).click();await page.getByLabel('Unused-seat compensation (%)',{exact:true}).first().fill('17.5');
+   await paginateDraft();
+   assert.equal(await page.getByLabel('Unused-seat compensation (%)',{exact:true}).first().inputValue(),'17.5');
+   await page.getByRole('button',{name:'Distance Pricing',exact:true}).click();assert.equal(await page.getByLabel('Base regular fare (PHP)',{exact:true}).inputValue(),'37.5');
+   assert.equal(await page.getByLabel('Policy name',{exact:true}).inputValue(),target.name);
+   if(target.kind==='PRIVATE_HIRE_PROPOSAL')await page.getByRole('button',{name:'Private Tricycle Pricing',exact:true}).click();
+   const savedResponse=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname.endsWith('/policies'));
+   await page.getByRole('button',{name:target.kind==='DISTANCE_PROPOSAL'?'Save distance draft revision':'Save private-hire draft revision',exact:true}).click();
+   const saved=await savedResponse;assert.equal(saved.status(),200);const result=await saved.json();await wait('Draft revision saved');
+   const expected=target.kind==='DISTANCE_PROPOSAL'?{...paginationDistance,baseCentavos:3750}:{...paginationPrivate,bands:paginationPrivate.bands.map((band,index)=>index===0?{...band,compensationBps:1750}:band)};
+   assert.equal(result.family.id,target.id);assert.equal(result.version.revision,2);assert.deepEqual(result.version.config,expected);
+   assert.deepEqual((await owner`SELECT config FROM fare.policy_versions WHERE id=${result.version.id}`)[0].config,expected);
+  }
+  note('Second policy-list page preserves both unsaved pricing drafts, selected revision and name; distance/private saves append exact edited configurations to their original families');
   principal=checker;await page.reload();await page.getByRole('button',{name:'Fare Management',exact:true}).click();await page.getByLabel('Assigned city identifier').fill(city);await page.getByLabel('Workspace').selectOption('reviewer');await page.getByRole('button',{name:'Load fare policies',exact:true}).click();await wait('Current reviewer access verified');await page.getByRole('button',{name:'Browser distance proposal · DISTANCE_PROPOSAL',exact:true}).click();await wait('Immutable policy history loaded');await page.getByRole('button',{name:'Policy Approval',exact:true}).click();await page.getByLabel('Review reason',{exact:true}).fill('Independent synthetic browser review; activation remains closed.');await page.getByRole('button',{name:'Approve proposal only',exact:true}).click();await wait('Review recorded');
   unavailable=true;await page.getByRole('button',{name:'Load fare policies',exact:true}).click();await wait('Fare service unavailable');unavailable=false;await page.getByLabel('Assigned city identifier').fill(otherCity);await page.getByRole('button',{name:'Load fare policies',exact:true}).click();await wait('Access denied');
   await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);assert.deepEqual(errors,[]);
