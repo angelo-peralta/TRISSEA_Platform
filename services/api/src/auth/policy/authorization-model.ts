@@ -66,6 +66,8 @@ export const actionPolicies = Object.freeze({
   DRIVER_VERIFY: scoped('VERIFICATION_CASE', 'driver.verify', ['VERIFICATION_OFFICER'], ['CITY', 'TODA'], { fresh: true, assigned: true, noSelfApproval: true }),
   FARE_DRAFT: scoped('FARE_POLICY', 'fare.draft', ['CITY_FARE_EDITOR'], ['CITY']),
   FARE_APPROVE: scoped('FARE_POLICY', 'fare.approve', ['CITY_FARE_APPROVER'], ['CITY'], { fresh: true, noSelfApproval: true, requiredMaker: true }),
+  FARE_CITY_EDIT: scoped('CITY_CONFIG','fare.draft',['CITY_FARE_EDITOR'],['CITY'],{clientPurpose:'ADMIN'}),
+  FARE_CITY_REVIEW: scoped('CITY_CONFIG','fare.approve',['CITY_FARE_APPROVER'],['CITY'],{clientPurpose:'ADMIN',fresh:true}),
   SUPPORT_READ_MASKED: scoped('SUPPORT_CASE', 'rides.read.masked', ['SUPPORT_AGENT'], ['CITY', 'TODA'], { assigned: true }),
   DISPATCH_READ_MASKED: scoped('TODA', 'rides.read.masked', ['TODA_DISPATCHER'], ['TODA']),
   INCIDENT_ESCALATE: scoped('SUPPORT_CASE', 'incidents.escalate', ['SUPPORT_AGENT'], ['CITY', 'TODA'], { assigned: true }),

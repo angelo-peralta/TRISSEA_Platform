@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: TRISSEA Tuguegarao MVP API
-  version: 0.9.0
+  version: 0.10.0
   description: M1 health and M2.3-M2.6 local synthetic identity, Keycloak BFF and verification are implemented behind explicit flags. Real documents, live SMS, recovery and operations remain disabled.
 servers:
 - url: https://api.example.invalid/v1
@@ -1138,6 +1138,1209 @@ components:
           type: array
           items:
             type: object
+    FareDistanceConfig:
+      type: object
+      additionalProperties: false
+      required:
+        - baseCentavos
+        - includedMetres
+        - rateCentavosPerKm
+        - incrementMetres
+        - rounding
+        - reviewThresholdCentavos
+        - maximumCentavos
+        - discounted
+      properties:
+        baseCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        includedMetres:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        rateCentavosPerKm:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        incrementMetres:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        rounding:
+          type: string
+          enum:
+            - CENTAVO_HALF_UP
+            - CENTAVO_CEIL
+        reviewThresholdCentavos:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        maximumCentavos:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        discounted:
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required:
+                - baseCentavos
+                - rateCentavosPerKm
+                - assumption
+              properties:
+                baseCentavos:
+                  type: integer
+                  minimum: 0
+                  maximum: 100000000
+                rateCentavosPerKm:
+                  type: integer
+                  minimum: 0
+                  maximum: 100000000
+                assumption:
+                  type: string
+    FarePrivateConfig:
+      type: object
+      additionalProperties: false
+      required:
+        - simulationCapacity
+        - capacityPolicyReference
+        - bands
+        - rounding
+        - discountedCompensationBps
+        - discountAssumption
+      properties:
+        simulationCapacity:
+          type: integer
+          minimum: 1
+          maximum: 5
+        capacityPolicyReference:
+          type: string
+        bands:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - upToMetres
+              - compensationBps
+            properties:
+              upToMetres:
+                type:
+                  - integer
+                  - "null"
+                minimum: 0
+              compensationBps:
+                type: integer
+                minimum: 0
+                maximum: 10000
+          minItems: 1
+          maxItems: 20
+        rounding:
+          type: string
+          enum:
+            - CENTAVO_HALF_UP
+            - CENTAVO_CEIL
+        discountedCompensationBps:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        discountAssumption:
+          type:
+            - string
+            - "null"
+    FareMatrixConfig:
+      type: object
+      additionalProperties: false
+      required:
+        - importId
+      properties:
+        importId:
+          type: string
+          format: uuid
+    FareFamily:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - kind
+        - name
+        - makerUserId
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - LGU_MATRIX
+            - DISTANCE_PROPOSAL
+            - PRIVATE_HIRE_PROPOSAL
+        name:
+          type: string
+        makerUserId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+    FareVersion:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - familyId
+        - kind
+        - revision
+        - previousVersionId
+        - config
+        - state
+        - lifecycleVersion
+        - effectiveFrom
+        - effectiveUntil
+        - legalReference
+        - geographicScope
+        - activationStatus
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        familyId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - LGU_MATRIX
+            - DISTANCE_PROPOSAL
+            - PRIVATE_HIRE_PROPOSAL
+        revision:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        previousVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        config:
+          oneOf:
+            - $ref: "#/components/schemas/FareDistanceConfig"
+            - $ref: "#/components/schemas/FarePrivateConfig"
+            - $ref: "#/components/schemas/FareMatrixConfig"
+        state:
+          type: string
+          enum:
+            - DRAFT
+            - SUBMITTED
+            - APPROVED
+            - REJECTED
+        lifecycleVersion:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        effectiveFrom:
+          type:
+            - string
+            - "null"
+        effectiveUntil:
+          type:
+            - string
+            - "null"
+        legalReference:
+          type:
+            - string
+            - "null"
+        geographicScope:
+          const: TUGUEGARAO_SIMULATION_ONLY
+        activationStatus:
+          const: CLOSED
+        createdAt:
+          type: string
+    FareMatrixRow:
+      type: object
+      additionalProperties: false
+      required:
+        - cityTenantId
+        - importId
+        - destinationLabel
+        - category
+        - regularCentavos
+        - discountedCentavos
+        - regularPhp
+        - discountedPhp
+        - sourcePage
+        - originalStatus
+        - originalOriginScope
+        - originalEffectiveFrom
+      properties:
+        cityTenantId:
+          type: string
+          format: uuid
+        importId:
+          type: string
+          format: uuid
+        destinationLabel:
+          type: string
+        category:
+          type: string
+          enum:
+            - LISTED_AREA
+            - POBLACION
+        regularCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        discountedCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        regularPhp:
+          type: string
+        discountedPhp:
+          type: string
+        sourcePage:
+          type: integer
+          minimum: 1
+          maximum: 2
+        originalStatus:
+          type: string
+        originalOriginScope:
+          type: string
+        originalEffectiveFrom:
+          type: string
+    FareSource:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - label
+        - reference
+        - provenance
+        - makerUserId
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        label:
+          type: string
+        reference:
+          type: string
+        provenance:
+          type: string
+        makerUserId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+    FareImportBatch:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - sourceId
+        - sha256
+        - originConfirmation
+        - effectiveFrom
+        - effectiveUntil
+        - tariffReference
+        - makerUserId
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        sourceId:
+          type: string
+          format: uuid
+        sha256:
+          type: string
+        originConfirmation:
+          const: OWNER_CONFIRMED_PLAZA_ONE_WAY_PER_PASSENGER
+        effectiveFrom:
+          type:
+            - string
+            - "null"
+        effectiveUntil:
+          type:
+            - string
+            - "null"
+        tariffReference:
+          type:
+            - string
+            - "null"
+        makerUserId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+    FareReview:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - policyVersionId
+        - expectedLifecycleVersion
+        - outcome
+        - reason
+        - actorUserId
+        - actorSessionId
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        policyVersionId:
+          type: string
+          format: uuid
+        expectedLifecycleVersion:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        outcome:
+          type: string
+          enum:
+            - APPROVE
+            - REJECT
+        reason:
+          type: string
+        actorUserId:
+          type: string
+          format: uuid
+        actorSessionId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+    FarePolicyList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+        - defaults
+        - activationStatus
+        - simulationOnly
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FareFamily"
+        nextCursor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        defaults:
+          type: object
+          additionalProperties: false
+          required:
+            - distance
+            - privateHire
+          properties:
+            distance:
+              $ref: "#/components/schemas/FareDistanceConfig"
+            privateHire:
+              $ref: "#/components/schemas/FarePrivateConfig"
+        activationStatus:
+          const: CLOSED
+        simulationOnly:
+          const: true
+    FareImportRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - csv
+        - sourceLabel
+        - sourceReference
+        - provenance
+        - effectiveFrom
+        - effectiveUntil
+        - tariffReference
+      properties:
+        csv:
+          type: string
+          maxLength: 30000
+        sourceLabel:
+          type: string
+        sourceReference:
+          type: string
+        provenance:
+          type: string
+        effectiveFrom:
+          type:
+            - string
+            - "null"
+        effectiveUntil:
+          type:
+            - string
+            - "null"
+        tariffReference:
+          type:
+            - string
+            - "null"
+    FareSubmitRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedLifecycleVersion
+      properties:
+        expectedLifecycleVersion:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+    FareReviewRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedLifecycleVersion
+        - outcome
+        - reason
+      properties:
+        expectedLifecycleVersion:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        outcome:
+          type: string
+          enum:
+            - APPROVE
+            - REJECT
+        reason:
+          type: string
+    FareSimulationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - mode
+        - service
+        - origin
+        - destinationLabel
+        - fareClass
+        - roadDistanceMetres
+        - routeEvidence
+        - routeReference
+        - passengerCount
+        - capacity
+        - referencePolicyVersionId
+        - privatePolicyVersionId
+      properties:
+        mode:
+          type: string
+          enum:
+            - SIMULATION
+            - PAYABLE
+        service:
+          type: string
+          enum:
+            - PER_PASSENGER
+            - REGULAR
+            - SPECIAL
+            - SHARED
+            - RESERVATION
+        origin:
+          type: string
+          enum:
+            - PLAZA
+            - OFF_PLAZA
+            - POBLACION
+            - UNKNOWN
+        destinationLabel:
+          type:
+            - string
+            - "null"
+        fareClass:
+          type: string
+          enum:
+            - REGULAR
+            - DISCOUNTED
+            - MIXED
+        roadDistanceMetres:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        routeEvidence:
+          type: string
+          enum:
+            - SYNTHETIC
+            - PERMITTED_ROAD
+            - UNVALIDATED
+        routeReference:
+          type:
+            - string
+            - "null"
+        passengerCount:
+          type: integer
+          minimum: 1
+          maximum: 100
+        capacity:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        referencePolicyVersionId:
+          type: string
+          format: uuid
+        privatePolicyVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+    FareResult:
+      type: object
+      additionalProperties: true
+      required:
+        - method
+        - reason
+        - payable
+        - simulationOnly
+        - totalCentavos
+        - referenceCentavos
+        - reviewRequired
+        - rounding
+        - referencePolicyVersionId
+        - privatePolicyVersionId
+        - sourceVersion
+        - routeDistanceMetres
+        - routeEvidence
+        - input
+      properties:
+        method:
+          type: string
+          enum:
+            - LGU_MATRIX
+            - DISTANCE_PROPOSAL
+            - PRIVATE_HIRE_PROPOSAL
+            - UNAVAILABLE
+        reason:
+          type:
+            - string
+            - "null"
+        payable:
+          const: false
+        simulationOnly:
+          const: true
+        totalCentavos:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        referenceCentavos:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        reviewRequired:
+          type: boolean
+        rounding:
+          type:
+            - string
+            - "null"
+        referencePolicyVersionId:
+          type: string
+          format: uuid
+        privatePolicyVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        sourceVersion:
+          type:
+            - string
+            - "null"
+        routeDistanceMetres:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        routeEvidence:
+          type: string
+        input:
+          $ref: "#/components/schemas/FareSimulationRequest"
+        referenceMethod:
+          type: string
+        referenceDetails:
+          type: object
+        occupiedCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        unusedSeats:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        compensationBps:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        compensationCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        capacityPolicyReference:
+          type: string
+        discountAssumption:
+          type:
+            - string
+            - "null"
+    FareMeasurement:
+      type: object
+      additionalProperties: false
+      required:
+        - destinationLabel
+        - roadDistanceMetres
+        - routeReference
+      properties:
+        destinationLabel:
+          type: string
+        roadDistanceMetres:
+          type: integer
+          minimum: 1
+          maximum: 1000000
+        routeReference:
+          type: string
+    FareCalibrationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - matrixPolicyVersionId
+        - distancePolicyVersionId
+        - measurements
+        - candidateRatesCentavosPerKm
+      properties:
+        matrixPolicyVersionId:
+          type: string
+          format: uuid
+        distancePolicyVersionId:
+          type: string
+          format: uuid
+        measurements:
+          type: array
+          items:
+            $ref: "#/components/schemas/FareMeasurement"
+          maxItems: 42
+        candidateRatesCentavosPerKm:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+            maximum: 100000000
+          minItems: 1
+          maxItems: 20
+    FarePrediction:
+      type: object
+      additionalProperties: false
+      required:
+        - destinationLabel
+        - roadDistanceMetres
+        - routeReference
+        - actualCentavos
+        - predictedCentavos
+        - errorCentavos
+        - absoluteErrorCentavos
+        - percentageError
+        - absolutePercentageError
+        - effectiveCentavosPerKm
+        - effectiveRateDifferenceCentavosPerKm
+        - outlier
+      properties:
+        destinationLabel:
+          type: string
+        roadDistanceMetres:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        routeReference:
+          type: string
+        actualCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        predictedCentavos:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        errorCentavos:
+          type: number
+        absoluteErrorCentavos:
+          type: number
+        percentageError:
+          type:
+            - number
+            - "null"
+        absolutePercentageError:
+          type:
+            - number
+            - "null"
+        effectiveCentavosPerKm:
+          type: number
+        effectiveRateDifferenceCentavosPerKm:
+          type: number
+        outlier:
+          type: boolean
+    FareSnapshot:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - referencePolicyVersionId
+        - privatePolicyVersionId
+        - actorUserId
+        - actorSessionId
+        - input
+        - result
+        - payable
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        referencePolicyVersionId:
+          type: string
+          format: uuid
+        privatePolicyVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        actorUserId:
+          type: string
+          format: uuid
+        actorSessionId:
+          type: string
+          format: uuid
+        input:
+          $ref: "#/components/schemas/FareSimulationRequest"
+        result:
+          $ref: "#/components/schemas/FareResult"
+        payable:
+          const: false
+        createdAt:
+          type: string
+    FareSnapshotResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - snapshot
+      properties:
+        snapshot:
+          $ref: "#/components/schemas/FareSnapshot"
+    FareVersionDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - cityTenantId
+        - familyId
+        - kind
+        - revision
+        - previousVersionId
+        - config
+        - state
+        - lifecycleVersion
+        - effectiveFrom
+        - effectiveUntil
+        - legalReference
+        - geographicScope
+        - activationStatus
+        - createdAt
+        - reviews
+        - source
+      properties:
+        id:
+          type: string
+          format: uuid
+        cityTenantId:
+          type: string
+          format: uuid
+        familyId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - LGU_MATRIX
+            - DISTANCE_PROPOSAL
+            - PRIVATE_HIRE_PROPOSAL
+        revision:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        previousVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        config:
+          oneOf:
+            - $ref: "#/components/schemas/FareDistanceConfig"
+            - $ref: "#/components/schemas/FarePrivateConfig"
+            - $ref: "#/components/schemas/FareMatrixConfig"
+        state:
+          type: string
+          enum:
+            - DRAFT
+            - SUBMITTED
+            - APPROVED
+            - REJECTED
+        lifecycleVersion:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        effectiveFrom:
+          type:
+            - string
+            - "null"
+        effectiveUntil:
+          type:
+            - string
+            - "null"
+        legalReference:
+          type:
+            - string
+            - "null"
+        geographicScope:
+          const: TUGUEGARAO_SIMULATION_ONLY
+        activationStatus:
+          const: CLOSED
+        createdAt:
+          type: string
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/FareReview"
+        source:
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required:
+                - batch
+                - provenance
+                - rows
+              properties:
+                batch:
+                  $ref: "#/components/schemas/FareImportBatch"
+                provenance:
+                  $ref: "#/components/schemas/FareSource"
+                rows:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/FareMatrixRow"
+    FarePolicyDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - family
+        - versions
+        - nextBeforeRevision
+        - activationStatus
+        - legalRequirements
+        - simulationOnly
+      properties:
+        family:
+          $ref: "#/components/schemas/FareFamily"
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FareVersionDetail"
+        nextBeforeRevision:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+        activationStatus:
+          const: CLOSED
+        legalRequirements:
+          type: array
+          items:
+            type: string
+        simulationOnly:
+          const: true
+    FareSaveRequest:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required:
+            - familyId
+            - expectedRevision
+            - kind
+            - name
+            - config
+            - effectiveFrom
+            - effectiveUntil
+            - legalReference
+          properties:
+            familyId:
+              type:
+                - string
+                - "null"
+              format: uuid
+            expectedRevision:
+              type: integer
+              minimum: 0
+              maximum: 100000000
+            kind:
+              const: LGU_MATRIX
+            name:
+              type: string
+            config:
+              $ref: "#/components/schemas/FareMatrixConfig"
+            effectiveFrom:
+              type:
+                - string
+                - "null"
+            effectiveUntil:
+              type:
+                - string
+                - "null"
+            legalReference:
+              type:
+                - string
+                - "null"
+        - type: object
+          additionalProperties: false
+          required:
+            - familyId
+            - expectedRevision
+            - kind
+            - name
+            - config
+            - effectiveFrom
+            - effectiveUntil
+            - legalReference
+          properties:
+            familyId:
+              type:
+                - string
+                - "null"
+              format: uuid
+            expectedRevision:
+              type: integer
+              minimum: 0
+              maximum: 100000000
+            kind:
+              const: DISTANCE_PROPOSAL
+            name:
+              type: string
+            config:
+              $ref: "#/components/schemas/FareDistanceConfig"
+            effectiveFrom:
+              type:
+                - string
+                - "null"
+            effectiveUntil:
+              type:
+                - string
+                - "null"
+            legalReference:
+              type:
+                - string
+                - "null"
+        - type: object
+          additionalProperties: false
+          required:
+            - familyId
+            - expectedRevision
+            - kind
+            - name
+            - config
+            - effectiveFrom
+            - effectiveUntil
+            - legalReference
+          properties:
+            familyId:
+              type:
+                - string
+                - "null"
+              format: uuid
+            expectedRevision:
+              type: integer
+              minimum: 0
+              maximum: 100000000
+            kind:
+              const: PRIVATE_HIRE_PROPOSAL
+            name:
+              type: string
+            config:
+              $ref: "#/components/schemas/FarePrivateConfig"
+            effectiveFrom:
+              type:
+                - string
+                - "null"
+            effectiveUntil:
+              type:
+                - string
+                - "null"
+            legalReference:
+              type:
+                - string
+                - "null"
+    FareSaveResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - family
+        - version
+      properties:
+        family:
+          $ref: "#/components/schemas/FareFamily"
+        version:
+          $ref: "#/components/schemas/FareVersion"
+    FareImportResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - family
+        - version
+        - importId
+        - sha256
+        - rowCount
+        - activationStatus
+      properties:
+        family:
+          $ref: "#/components/schemas/FareFamily"
+        version:
+          $ref: "#/components/schemas/FareVersion"
+        importId:
+          type: string
+          format: uuid
+        sha256:
+          type: string
+        rowCount:
+          const: 43
+        activationStatus:
+          const: CLOSED
+    FareTransitionResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - version
+      properties:
+        version:
+          $ref: "#/components/schemas/FareVersion"
+        activationStatus:
+          const: CLOSED
+    FareCalibrationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - matrixPolicyVersionId
+        - distancePolicyVersionId
+        - sourceVersion
+        - listedDestinations
+        - measuredDestinations
+        - missingDestinations
+        - averageFareCentavos
+        - medianFareCentavos
+        - averageDiscountedCentavos
+        - medianDiscountedCentavos
+        - averageMeasuredRoadMetres
+        - outlierDefinition
+        - candidates
+        - simulationOnly
+      properties:
+        matrixPolicyVersionId:
+          type: string
+          format: uuid
+        distancePolicyVersionId:
+          type: string
+          format: uuid
+        sourceVersion:
+          type: string
+        listedDestinations:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        measuredDestinations:
+          type: integer
+          minimum: 0
+          maximum: 100000000
+        missingDestinations:
+          type: array
+          items:
+            type: string
+        averageFareCentavos:
+          type:
+            - number
+            - "null"
+        medianFareCentavos:
+          type:
+            - number
+            - "null"
+        averageDiscountedCentavos:
+          type:
+            - number
+            - "null"
+        medianDiscountedCentavos:
+          type:
+            - number
+            - "null"
+        averageMeasuredRoadMetres:
+          type:
+            - number
+            - "null"
+        outlierDefinition:
+          type: string
+        candidates:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - rateCentavosPerKm
+              - meanAbsoluteErrorCentavos
+              - meanAbsolutePercentageError
+              - predictions
+            properties:
+              rateCentavosPerKm:
+                type: integer
+                minimum: 0
+                maximum: 100000000
+              meanAbsoluteErrorCentavos:
+                type:
+                  - number
+                  - "null"
+              meanAbsolutePercentageError:
+                type:
+                  - number
+                  - "null"
+              predictions:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FarePrediction"
+        simulationOnly:
+          const: true
 paths:
   /health:
     get:
@@ -2878,3 +4081,650 @@ paths:
         "403": *a1
         "409": *a1
         "503": *a1
+
+  /admin/fares/cities/{cityId}/editor/policies:
+    get:
+      tags:
+        - FareAdmin
+      operationId: m3ListFarePolicies
+      summary: List current-city fare families; current editor grant required
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarePolicyList"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/editor/policies/{familyId}:
+    get:
+      tags:
+        - FareAdmin
+      operationId: m3GetFarePolicy
+      summary: Read immutable policy/source/review history
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: familyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: beforeRevision
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100000000
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarePolicyDetail"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/editor/simulations:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3SimulateFare
+      summary: Persist an immutable synthetic simulation; payable always false
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareSimulationRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareSnapshotResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/editor/snapshots/{snapshotId}:
+    get:
+      tags:
+        - FareAdmin
+      operationId: m3GetFareSnapshot
+      summary: Read original calculation snapshot without recalculation
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: snapshotId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareSnapshotResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/editor/calibration:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3RunFareCalibration
+      summary: Compare supplied distances with exact matrix; no distances fabricated
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareCalibrationRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareCalibrationResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/reviewer/policies:
+    get:
+      tags:
+        - FareAdmin
+      operationId: m3ListFareReviewPolicies
+      summary: List current-city fare families; current reviewer grant required
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarePolicyList"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/reviewer/policies/{familyId}:
+    get:
+      tags:
+        - FareAdmin
+      operationId: m3GetFareReviewPolicy
+      summary: Read immutable policy/source/review history
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: familyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: beforeRevision
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100000000
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarePolicyDetail"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/reviewer/simulations:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3SimulateFareReview
+      summary: Persist an immutable synthetic simulation; payable always false
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareSimulationRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareSnapshotResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/reviewer/snapshots/{snapshotId}:
+    get:
+      tags:
+        - FareAdmin
+      operationId: m3GetFareReviewSnapshot
+      summary: Read original calculation snapshot without recalculation
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: snapshotId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareSnapshotResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/reviewer/calibration:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3RunFareReviewCalibration
+      summary: Compare supplied distances with exact matrix; no distances fabricated
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareCalibrationRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareCalibrationResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/imports:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3ImportFareMatrix
+      summary: Validate 42 destinations plus Poblacion; preserve exact CSV and source hash
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareImportRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareImportResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/policies:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3SaveFareDraft
+      summary: Append a draft revision using expectedRevision; only original maker edits family
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareSaveRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareSaveResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/versions/{versionId}/submit:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3SubmitFareDraft
+      summary: Submit latest draft with lifecycle concurrency control
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: versionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareSubmitRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareTransitionResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure
+  /admin/fares/cities/{cityId}/versions/{versionId}/reviews:
+    post:
+      tags:
+        - FareAdmin
+      operationId: m3ReviewFareDraft
+      summary: Independent fresh-MFA review; approval never activates
+      x-implemented-in: M3-local-simulation
+      security:
+        - adminCookie: []
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: versionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FareReviewRequest"
+      responses:
+        "200":
+          description: Administrative simulation only; activation remains CLOSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FareTransitionResponse"
+        "400":
+          description: Sanitized validation, access, conflict or availability failure
+        "401":
+          description: Sanitized validation, access, conflict or availability failure
+        "403":
+          description: Sanitized validation, access, conflict or availability failure
+        "404":
+          description: Sanitized validation, access, conflict or availability failure
+        "409":
+          description: Sanitized validation, access, conflict or availability failure
+        "503":
+          description: Sanitized validation, access, conflict or availability failure

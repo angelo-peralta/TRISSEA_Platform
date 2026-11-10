@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Schemas } from '@trissea/contracts';
 import {AssignedVerificationPanel} from './verification';
+import {FareManagement} from './fares';
 
 type Session = Schemas['AdminSession'];
 const endpoint = '/v1/admin/auth';
@@ -11,7 +12,7 @@ async function fetchSession(signal: AbortSignal): Promise<Session | null> {
   return response.json() as Promise<Session>;
 }
 
-export function AdminAuthPanel() {
+export function AdminAuthPanel({fareManagement=false}:{fareManagement?:boolean}) {
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState('Checking administrator session…');
   const [busy, setBusy] = useState(true);
@@ -97,6 +98,6 @@ export function AdminAuthPanel() {
       <button onClick={() => void checkScope()} disabled={busy}>Check scoped access</button>
     </div> : null}
     <p className="subtle">No public registration, account recovery, role delegation or live operations.</p>
-    {session?<AssignedVerificationPanel key={session.sessionId} csrfToken={session.csrfToken}/>:null}
+    {session?(fareManagement?<FareManagement key={session.sessionId} csrfToken={session.csrfToken}/>:<AssignedVerificationPanel key={session.sessionId} csrfToken={session.csrfToken}/>):null}
   </section>;
 }

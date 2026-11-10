@@ -22,6 +22,14 @@
 5. Keep immutable history of previously quoted prices; NEVER silently rewrite completed trip fares or existing quotes.
 
 ## Import QA
+
+M3 owner confirmation (10 November 2026): the supplied matrix is from Tuguegarao
+LGU, with Plaza as the origin, one-way per-passenger amounts and the exact printed
+discounted prices. This supersedes the earlier unknown-origin engineering
+assumption above. The importer retains the original CSV fields unchanged and
+stores this confirmation separately. It does not confirm reverse-direction use,
+tariff effective dates or exclusive-hire authorization. See the
+[proposed framework](67-TUGUEGARAO-PROPOSED-FARE-FRAMEWORK.md).
 - 42 named rows, plus 1 poblacion-only row; no duplicate destination labels. All prices are ≥0 and each printed discount does not exceed printed regular fare.
 - Each row links to a screenshot page, import timestamp, reviewer and signed supporting ordinance once acquired.
 - Distinguish `DRAFT_UNVERIFIED`, `UNDER_REVIEW`, `APPROVED_SCHEDULED`, `ACTIVE`, `SUPERSEDED`, `REJECTED`.

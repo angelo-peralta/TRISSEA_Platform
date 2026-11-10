@@ -11,6 +11,7 @@ export function schemaType(schema) {
     if (!schema.$ref.startsWith(prefix)) throw new Error('Unsupported schema reference');
     return `Schemas[${JSON.stringify(schema.$ref.slice(prefix.length))}]`;
   }
+  if(schema.oneOf?.length)return schema.oneOf.map(item=>'('+schemaType(item)+')').join(' | ');
   for (const keyword of ['allOf', 'oneOf', 'anyOf', 'not', 'patternProperties']) {
     if (keyword in schema) throw new Error(`Unsupported schema keyword: ${keyword}`);
   }
@@ -143,6 +144,48 @@ export function createHealthClient(baseUrl: string, fetcher: typeof fetch = fetc
 }
 `;
 }
+export function generateFareClient(document){
+ const specs={},inputs=[],names=new Set();
+ const collect=shape=>{if(!shape)return;if(shape.$ref){const name=shape.$ref.split('/').at(-1);if(!names.has(name)){names.add(name);collect(document.components.schemas[name]);}}for(const value of Object.values(shape.properties??{}))collect(value);if(shape.items)collect(shape.items);for(const option of shape.oneOf??[])collect(option);};
+ for(const [path,item]of Object.entries(document.paths))for(const [method,op]of Object.entries(item)){
+  if(op['x-implemented-in']!=='M3-local-simulation')continue;
+  const parameters=(op.parameters??[]).map(p=>p.$ref?document.components.parameters[p.$ref.split('/').at(-1)]:p),request=op.requestBody?.content['application/json'].schema??null,response=op.responses['200'].content['application/json'].schema;
+  const fields=parameters.map(p=>`${JSON.stringify(p.name==='Idempotency-Key'?'idempotencyKey':p.name==='X-CSRF-Token'?'csrfToken':p.name)}${p.required?'':'?'}: ${p.schema.type==='integer'?'number':'string'};`);
+  if(request)fields.push('body: Operations['+JSON.stringify(op.operationId)+']["body"];');
+  inputs.push(`${JSON.stringify(op.operationId)}: {${fields.join(' ')} signal?:AbortSignal};`);
+  specs[op.operationId]={path,method:method.toUpperCase(),parameters,request,response};collect(request);collect(response);
+ }
+ if(Object.keys(specs).length!==14)throw new Error('Unexpected fare operation count');
+ return `// Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.
+import type {Operations} from './generated/m1';
+export interface FareInputs {${inputs.join('\n')}}
+type Shape={type?:string|string[];oneOf?:Shape[];$ref?:string;const?:unknown;enum?:unknown[];properties?:Record<string,Shape>;required?:string[];additionalProperties?:boolean;items?:Shape;minItems?:number;maxItems?:number;minimum?:number;maximum?:number;format?:string;minLength?:number;maxLength?:number};
+const specs=${JSON.stringify(specs)} as const;
+const schemas:Record<string,Shape>=${JSON.stringify(Object.fromEntries([...names].map(n=>[n,document.components.schemas[n]])))};
+function valid(v:unknown,s:Shape):boolean{
+ if(s.$ref)return valid(v,schemas[s.$ref.split('/').pop()!]!);
+ if(s.oneOf)return s.oneOf.filter(o=>valid(v,o)).length===1;
+ if('const'in s)return v===s.const;
+ if(s.enum&&!s.enum.includes(v))return false;
+ if(Array.isArray(s.type))return s.type.some(type=>valid(v,{...s,type}));
+ if(s.type==='null')return v===null;
+ if(s.type==='object'){if(!v||typeof v!=='object'||Array.isArray(v))return false;const b=v as Record<string,unknown>;return (s.required??[]).every(k=>Object.hasOwn(b,k))&&Object.entries(b).every(([k,value])=>s.properties?.[k]?valid(value,s.properties[k]):s.additionalProperties!==false);}
+ if(s.type==='array')return Array.isArray(v)&&(s.minItems===undefined||v.length>=s.minItems)&&(s.maxItems===undefined||v.length<=s.maxItems)&&v.every(value=>valid(value,s.items!));
+ if(s.type==='string')return typeof v==='string'&&(s.minLength===undefined||v.length>=s.minLength)&&(s.maxLength===undefined||v.length<=s.maxLength)&&(s.format!=='uuid'||/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v));
+ if(s.type==='integer'||s.type==='number')return typeof v==='number'&&Number.isFinite(v)&&(s.type!=='integer'||Number.isSafeInteger(v))&&(s.minimum===undefined||v>=s.minimum)&&(s.maximum===undefined||v<=s.maximum);
+ return s.type==='boolean'&&typeof v==='boolean';
+}
+export class FareApiError extends Error{constructor(readonly status:number){super('Fare request unavailable');}}
+/** Same-origin BFF only. No credential storage, automatic retry or activation transport. */
+export function createFareClient(fetcher:typeof fetch=fetch){return {async request<K extends keyof FareInputs>(operation:K,input:FareInputs[K]):Promise<Operations[K]['response']>{
+ const spec=specs[operation],args=input as unknown as Record<string,unknown>,headers:Record<string,string>={Accept:'application/json'};let path:string=spec.path;
+ for(const p of spec.parameters){const field=p.name==='Idempotency-Key'?'idempotencyKey':p.name==='X-CSRF-Token'?'csrfToken':p.name,value=args[field];if(value===undefined&&!p.required)continue;if(!valid(value,p.schema))throw new FareApiError(400);if(p.in==='path')path=path.replace('{'+p.name+'}',encodeURIComponent(String(value)));else if(p.in==='query')path+=(path.includes('?')?'&':'?')+p.name+'='+encodeURIComponent(String(value));else headers[p.name]=String(value);}
+ if(spec.request&&!valid(args.body,spec.request))throw new FareApiError(400);if(spec.request)headers['Content-Type']='application/json';
+ const response=await fetcher('/v1'+path,{method:spec.method,headers,credentials:'same-origin',cache:'no-store',...(args.signal?{signal:args.signal as AbortSignal}:{}),...(spec.request?{body:JSON.stringify(args.body)}:{})});
+ if(response.status!==200)throw new FareApiError(response.status);let body:unknown;try{body=await response.json();}catch{throw new FareApiError(502);}if(!valid(body,spec.response))throw new FareApiError(502);return body as Operations[K]['response'];
+ }};}
+`;
+}
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const input = new URL('../contracts/openapi-mvp.yaml', import.meta.url);
@@ -152,6 +195,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     ['../packages/contracts/src/health-client.ts', generateHealthClient(document)],
     ['../packages/contracts/src/passenger-client.ts', generatePassengerClient(document)],
     ['../packages/contracts/src/driver-client.ts', generateDriverClient(document)],
+    ['../packages/contracts/src/fare-client.ts', generateFareClient(document)],
     ['../services/api/src/contracts/generated/mvp.ts', generate(document)],
   ];
   for (const [path, generated] of outputs) {
