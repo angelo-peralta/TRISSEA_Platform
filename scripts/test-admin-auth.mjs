@@ -225,9 +225,9 @@ test('browser loading, failure/retry, keyboard, proxy health and unapproved fare
   await page.unroute('**/v1/admin/auth/session');await page.getByRole('button',{name:'Check session / Retry'}).click();await page.getByRole('status').filter({hasText:'Sign in with your approved'}).waitFor();
   await page.getByRole('button',{name:'Check API connection'}).click();await page.getByRole('status').filter({hasText:'API connected'}).waitFor();
   await page.keyboard.press('Tab');assert.ok(await page.evaluate(()=>document.activeElement?.tagName==='BUTTON'));
-  await page.getByRole('button',{name:'Fare Management',exact:true}).click();await page.getByText('Not yet approved',{exact:true}).waitFor();
-  assert.equal(await page.getByRole('button',{name:'Import and approval available in M3'}).isDisabled(),true);assert.deepEqual(errors,[]);
-  await context.close();note('Playwright API failure/retry, keyboard button focus, Vite health proxy, unapproved fare reference and disabled editing passed; no page exceptions');
+  await page.getByRole('button',{name:'Fare Management',exact:true}).click();await page.getByRole('status').filter({hasText:'Sign in with your approved'}).waitFor();
+  assert.equal(await page.getByRole('heading',{name:'Fare management',exact:true}).count(),0);assert.equal(await page.getByRole('button',{name:'Validate and import CSV'}).count(),0);assert.deepEqual(errors,[]);
+  await context.close();note('Playwright API failure/retry, keyboard button focus and Vite health proxy passed; unauthenticated Fare Management requires sign-in and exposes no editor; no page exceptions');
 });
 
 test('incorrect password, incorrect TOTP, missing enrollment, unmapped and unverified identities receive no app session',async()=>{

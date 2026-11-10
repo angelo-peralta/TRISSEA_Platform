@@ -25,6 +25,15 @@ jobs:
       - run: pnpm test:verification
       - run: pnpm test:m2:integration
       - run: pnpm test:m2:browser
+      - run: pnpm test:m3:integration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m3-fare-governance-results
+          path: |
+            .cache/m3/results.json
+            .cache/m3/browser/*.png
+          include-hidden-files: true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

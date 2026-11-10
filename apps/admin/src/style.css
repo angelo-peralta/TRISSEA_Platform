@@ -32,5 +32,24 @@ footer { margin-top: 32px; line-height: 1.8; }
 .verification-panel li button { width: 100%; overflow-wrap: anywhere; }
 .skip { position: absolute; top: -100px; padding: 16px; background: white; }
 .skip:focus { top: 0; }
+.fare-management { margin-top: 24px; padding: clamp(12px, 2vw, 24px); }
+.fare-management section, .fare-management fieldset { margin-top: 20px; min-width: 0; }
+.fare-management fieldset { border: 1px solid #51606f; border-radius: 8px; padding: 16px; }
+.fare-management legend { font-weight: 650; }
+.fare-management label { display: block; margin-top: 12px; }
+.fare-management select, .fare-management textarea { font: inherit; display: block; width: 100%; min-height: 48px; padding: 12px; margin: 8px 0; color: inherit; background: #fff; border: 1px solid #51606f; border-radius: 8px; }
+.fare-management textarea { resize: vertical; }
+.fare-management input[type=checkbox] { display: inline-block; width: 24px; min-height: 24px; vertical-align: middle; margin-right: 10px; }
+.fare-management input[type=file] { max-width: 100%; }
+.fare-management :is(select,textarea):focus-visible { outline: 3px solid #102a43; outline-offset: 3px; }
+.fare-management nav { grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); }
+.fare-management pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; }
+.fare-management button { margin: 4px 4px 4px 0; }
+.fare-policy-list ul { padding-left: 20px; }
+.fare-band { border-bottom: 1px solid #51606f; padding-bottom: 16px; }
+.fare-table { overflow-x: auto; margin-block: 20px; }
+.fare-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.fare-table caption { text-align: left; padding-block: 12px; font-weight: 650; }
+.fare-table :is(th,td) { padding: 12px; border-bottom: 1px solid #51606f; text-align: left; }
 @media (max-width: 760px) { .app { display: block; } aside { border-right: 0; border-bottom: 1px solid #51606f; padding: 24px; } nav { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin: 16px 0; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }

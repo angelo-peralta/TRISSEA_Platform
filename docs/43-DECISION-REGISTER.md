@@ -199,3 +199,23 @@ infrastructure staging, conventional commit, normal feature-branch push and a
 no-publication statements record their original slice approval scope and are
 superseded for this submission only. Merge, deployment, volume/worktree deletion,
 production activation and M3 remain unauthorized.
+
+## M3 owner implementation directive — 10 November 2026
+
+Local fare engineering is now authorized, superseding the preceding M3 stop.
+The owner confirms LGU provenance, Plaza origin, one-way per-passenger amounts
+and the exact printed discounts for the 42 destinations plus Poblacion row.
+Original CSV fields remain unchanged; signed tariff/effective dates and reverse
+applicability remain unestablished. D03/D04 are clarified for local simulation,
+without changing their real-activation documentary requirements.
+
+The PHP 22 / 3 km / PHP 2 per km / 0.5 km model and 10%/15%/25% unused-capacity
+bands are configurable **proposals**, not LGU kilometer or private-hire tariffs.
+Five passengers is an explicit unverified simulation example, never vehicle
+capacity authority. Off-Plaza discounts, mixed categories, exclusive-hire
+legality, capacity, routes and applicable geography require LGU/TRU decisions.
+The [proposal](67-TUGUEGARAO-PROPOSED-FARE-FRAMEWORK.md) records measurements and
+policy questions still needed. Maker-checker approval leaves activation CLOSED;
+`fare.activate` remains unassigned and every payable request is unavailable.
+M4–M7 and external Gates A–E remain outside this implementation. M3 push/PR
+publication requires new explicit authorization; merge/deployment are prohibited.

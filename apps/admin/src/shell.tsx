@@ -30,12 +30,7 @@ export function AdminShell() {
     <main id="main">
       <p className="notice">M1 development preview · No live operations</p>
       <h1>{section}</h1>
-      {section === 'Fare Management' ? <section aria-labelledby="fares">
-        <h2 id="fares">Reference fare schedule</h2><p className="status">Not yet approved</p>
-        <p>The supplied 42 destination lines and within-poblacion row are unverified reference data. No active fare schedule is available.</p>
-        <p>Signed source, origin, direction, effective date and pricing rules require independent city review.</p>
-        <button disabled>Import and approval available in M3</button>
-      </section> : section === 'Overview' ? <section aria-labelledby="foundation">
+      {section === 'Fare Management' ? <AdminAuthPanel fareManagement/> : section === 'Overview' ? <section aria-labelledby="foundation">
         <h2 id="foundation">Local foundation</h2><p>Passenger, driver and admin shells are available for development. Identity integration is available on the isolated M2 server; operations remain disabled.</p>
         <p role="status" aria-live="polite">{health}</p><button className="primary" disabled={pending} onClick={() => void checkConnection()}>{pending ? 'Checking…' : 'Check API connection'}</button>
       </section> : <section><h2>Not available in M1</h2><p>This is a navigation preview. No operational records, identity documents or precise locations are loaded.</p></section>}

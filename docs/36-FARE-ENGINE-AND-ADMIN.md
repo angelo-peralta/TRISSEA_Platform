@@ -30,6 +30,16 @@ If an approved fare were ₱22 per passenger for a specific route and a register
 Tables: `fare_sources`, `fare_policies_v2`, `fare_rules_v2`, `fare_change_requests`, `fare_approvals`, `quote_fare_snapshots`; exact schema in `database/005_tuguegarao_pilot_REFERENCE.sql`. For each quote: policy id/version, line id(s), source id, discount basis, seats charged, service class, breakdown, totals; quote expiry and specific rider consent.
 
 ## Critical tests
+
+M3 implements administrative simulations in `services/api/src/fares` and reviewed
+migration `0009_fare_governance`, in the existing application database. The
+reference SQL named above remains design history, not a migration target.
+City-scoped routes under `/v1/admin/fares/cities/:cityId` provide imports,
+append-only policy revisions, submit/review, calibration and synthetic snapshots.
+The React/Vite Fare Management workspace uses their generated contract client.
+All versions keep activation CLOSED, even after approval; payable simulation
+requests return UNAVAILABLE. The [proposal](67-TUGUEGARAO-PROPOSED-FARE-FRAMEWORK.md)
+records the owner-confirmed matrix origin and all outstanding LGU/TRU decisions.
 - Changing active rates does not rewrite accepted quotes/ride receipts.
 - Two reviewers racing to approve overlapping effective policies → at most one active by scoped transaction/advisory lock.
 - Maker cannot approve own changes; disabled/expires policy cannot price ride.
