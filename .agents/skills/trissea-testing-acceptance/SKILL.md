@@ -5,6 +5,8 @@ description: Create, run or audit TRISSEA unit/integration/contract/concurrency/
 
 # Testing and acceptance — evidence, not assertions
 
+Use the phases and test-selection table in `docs/15-AGENT-WORKFLOW.md`. Select tests by affected behavior and risk; do not run full validation merely to start development unless investigating a baseline failure.
+
 ## Build a risk-driven test matrix
 
 For every changed behavior, identify contract, layer, positive case, negative case, failure/retry path, concurrency exposure and authorization scope. Focus on proving actual domain invariants rather than maximizing test counts.
@@ -19,12 +21,14 @@ For every changed behavior, identify contract, layer, positive case, negative ca
 
 ## Execute and assess
 
-1. Inspect existing `package.json` scripts and test config; avoid inventing commands. Run targeted tests first, then applicable `lint`, `typecheck`, `contracts:check`, `test`, `build`, `validate` or CI jobs.
-2. Capture command, environment type, exit code and useful error summary without leaking environment values or tokens. Do not record screenshots with real OTPs, phone numbers or identity documents.
-3. Investigate failing tests; do not delete assertions, blanket skip tests, relax policy or change production logic solely to make CI green.
-4. Differentiate **not run**, **blocked**, **failed**, **passed in simulation**, **passed on physical device** and **production verified**. If dependencies are missing, explain precise missing prerequisite.
-5. Review `git diff`, package changes, env/template parity, migrations, attack paths and acceptance criteria before declaring the local slice complete.
+1. Inspect existing `package.json` scripts and test config; avoid inventing commands. During implementation, run directly relevant fast checks after logical changes and preserve meaningful slice checkpoints. Avoid repeated full builds, all integration tests, Docker reprovisioning or emulator acceptance.
+2. Prove critical security and transaction invariants before broader implementation. Once the feature is complete, run targeted units, affected contract/type checks and relevant positive, negative and boundary cases. Schema, transaction, authorization or persisted-state changes require real database/integration checks; mocks cannot replace real transaction validation.
+3. Run applicable full acceptance once on the final implementation candidate: `pnpm.cmd validate`, relevant database/integration tests, `pnpm.cmd audit:dependencies`, `pnpm.cmd environment:check`, diff/secret checks and mobile/browser acceptance where required. Use `pnpm` on Linux. Documentation-only changes use documentation/link and applicable skill/configuration checks; preserve required CI and milestone criteria.
+4. Do not duplicate checks already covered by `validate` solely to increase test counts. Reuse valid focused evidence when relevant code, dependencies, configuration and environment are unchanged. If final checks find defects, investigate, fix and rerun affected tests; repeat full validation where fixes invalidate its prior result. Never delete assertions, blanket skip tests, relax policy or change production logic solely to make CI green.
+5. Capture command, environment type, exit code and useful error summary without leaking environment values or tokens. Do not record screenshots with real OTPs, phone numbers or identity documents.
+6. Differentiate **not run**, **blocked**, **failed**, **passed in simulation**, **passed on physical device** and **production verified**. Report unrun checks and precise reasons or missing prerequisites.
+7. Review `git diff`, secrets, package changes, env/template parity, migrations, attack paths and acceptance criteria before declaring the local slice complete. Never publish known blocking security or correctness failures.
 
 ## Handoff format
 
-Provide a compact matrix (check, evidence/result, limitation) for high-risk changes. Record defects, required approvals and next test environment. Never treat green health checks as proof of working authentication, dispatch or production readiness.
+Report only changes, tests/results, incomplete work, risks/blockers and Git commit/PR status. A compact matrix (check, evidence/result, limitation) helps for high-risk changes. Include unrun checks and reasons, defects and required approvals. Never treat green health checks as proof of working authentication, dispatch or production readiness.
