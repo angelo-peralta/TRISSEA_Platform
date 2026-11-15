@@ -68,6 +68,24 @@ export interface Schemas {
   "FareImportResponse": { "family": Schemas["FareFamily"]; "version": Schemas["FareVersion"]; "importId": string; "sha256": string; "rowCount": 43; "activationStatus": "CLOSED"; };
   "FareTransitionResponse": { "version": Schemas["FareVersion"]; "activationStatus"?: "CLOSED"; };
   "FareCalibrationResponse": { "matrixPolicyVersionId": string; "distancePolicyVersionId": string; "sourceVersion": string; "listedDestinations": number; "measuredDestinations": number; "missingDestinations": Array<string>; "averageFareCentavos": number | null; "medianFareCentavos": number | null; "averageDiscountedCentavos": number | null; "medianDiscountedCentavos": number | null; "averageMeasuredRoadMetres": number | null; "outlierDefinition": string; "candidates": Array<{ "rateCentavosPerKm": number; "meanAbsoluteErrorCentavos": number | null; "meanAbsolutePercentageError": number | null; "predictions": Array<Schemas["FarePrediction"]>; }>; "simulationOnly": true; };
+  "M4Fare": { "method": "PRIVATE_HIRE_PROPOSAL"; "referenceMethod": "LGU_MATRIX" | "DISTANCE_PROPOSAL"; "referenceCentavos": number; "totalCentavos": number; "occupiedCentavos": number; "unusedSeats": number; "compensationBps": number; "compensationCentavos": number; "rounding": string; "referencePolicyVersionId": string; "privatePolicyVersionId": string; "sourceVersion": string | null; "routeDistanceMetres": number; "routeEvidence": "SYNTHETIC"; "input": { "passengerCount": number; "capacity": number; "fareClass": string; }; "pickup": string; "destination": string; "quoteTimestamp": string; "quoteExpiry": string; "paymentMethod": "CASH_SIMULATION"; "payable": false; "simulationOnly": true; };
+  "M4Scenario": { "id": string; "cityTenantId": string; "todaId": string; "reference": string; "pickup": string; "destination": string; "origin": "PLAZA" | "OFF_PLAZA" | "POBLACION"; "destinationLabel": string | null; "roadMetres": number; "capacity": number; "referencePolicyId": string; "privatePolicyId": string; "enabled": boolean; "version": number; "quoteSeconds": number; "offerSeconds": number; "searchSeconds": number; };
+  "M4Scenarios": { "items": Array<Schemas["M4Scenario"]>; "participantReference": string; "available": boolean; "simulationOnly": true; "operationalServicesEnabled": false; };
+  "M4Quote": { "id": string; "userId": string; "scenarioId": string; "cityTenantId": string; "todaId": string; "scenarioVersion": number; "referencePolicyId": string; "privatePolicyId": string; "referenceRevision": number; "privateRevision": number; "passengerCount": number; "fareClass": "REGULAR" | "DISCOUNTED"; "snapshot": Schemas["M4Fare"]; "createdAt": string; "expiresAt": string; };
+  "M4QuoteRequest": { "scenarioId": string; "passengerCount": number; "fareClass": "REGULAR" | "DISCOUNTED"; };
+  "M4Preview": { "quote": Schemas["M4Quote"]; "simulationOnly": true; };
+  "M4Confirm": { "quoteId": string; };
+  "M4Receipt": { "id": string; "rideId": string; "createdAt": string; "snapshot": Record<string, unknown>; "cashState": "NOT_SIMULATED" | "COLLECTION_SIMULATED"; };
+  "M4Ride": { "id": string; "quoteId": string; "state": "REQUESTED" | "SEARCHING" | "OFFERED" | "DRIVER_ASSIGNED" | "DRIVER_EN_ROUTE" | "DRIVER_ARRIVED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "EXPIRED" | "FAILED" | "NO_DRIVER_AVAILABLE"; "version": number; "cityTenantId": string; "todaId": string; "createdAt": string; "updatedAt": string; "searchUntil": string; "pickupVerified": boolean; "pickupAttemptsRemaining": number; "driverReference": string | null; "vehicleDescription": string | null; "fare": Schemas["M4Fare"]; "receipt": (null) | (Schemas["M4Receipt"]); "pickupCode": string | null; "simulationOnly": true; "operationalServicesEnabled": false; };
+  "M4Action": { "expectedVersion": number; "offerId"?: string; "pickupCode"?: string; };
+  "M4ActionResult": { "outcome": string; "ride": (Schemas["M4Ride"]) | (null); };
+  "M4Availability": { "available": boolean; };
+  "M4AvailabilityResult": { "available": boolean; "simulationOnly": true; "operationalServicesEnabled": false; };
+  "M4Offer": { "id": string; "rideId": string; "driverId": string; "state": "PENDING" | "ACCEPTED" | "DECLINED" | "EXPIRED" | "CANCELLED"; "createdAt": string; "expiresAt": string; };
+  "M4Offers": { "items": Array<{ "offer": Schemas["M4Offer"]; "ride": Schemas["M4Ride"]; }>; "simulationOnly": true; };
+  "M4Current": { "ride": (null) | (Schemas["M4Ride"]); "simulationOnly": true; };
+  "M4Recent": { "items": Array<{ "id": string; "state": "REQUESTED" | "SEARCHING" | "OFFERED" | "DRIVER_ASSIGNED" | "DRIVER_EN_ROUTE" | "DRIVER_ARRIVED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "EXPIRED" | "FAILED" | "NO_DRIVER_AVAILABLE"; "version": number; "createdAt": string; }>; "nextCursor": string | null; "simulationOnly": true; };
+  "M4ReceiptResult": { "receipt": Schemas["M4Receipt"]; "simulationOnly": true; };
 }
 export interface Operations {
   "getHealth": { method: "GET"; path: "/health"; body: never; response: Schemas["HealthResponse"] };
@@ -140,5 +158,22 @@ export interface Operations {
   "m3SaveFareDraft": { method: "POST"; path: "/admin/fares/cities/{cityId}/policies"; body: Schemas["FareSaveRequest"]; response: Schemas["FareSaveResponse"] };
   "m3SubmitFareDraft": { method: "POST"; path: "/admin/fares/cities/{cityId}/versions/{versionId}/submit"; body: Schemas["FareSubmitRequest"]; response: Schemas["FareTransitionResponse"] };
   "m3ReviewFareDraft": { method: "POST"; path: "/admin/fares/cities/{cityId}/versions/{versionId}/reviews"; body: Schemas["FareReviewRequest"]; response: Schemas["FareTransitionResponse"] };
+  "m4RideEvents": { method: "GET"; path: "/simulation/events"; body: never; response: void };
+  "m4PASSENGERScenarios": { method: "GET"; path: "/simulation/passenger/scenarios"; body: never; response: Schemas["M4Scenarios"] };
+  "m4PASSENGERCurrent": { method: "GET"; path: "/simulation/passenger/current"; body: never; response: Schemas["M4Current"] };
+  "m4PASSENGERRecent": { method: "GET"; path: "/simulation/passenger/rides"; body: never; response: Schemas["M4Recent"] };
+  "m4Confirm": { method: "POST"; path: "/simulation/passenger/rides"; body: Schemas["M4Confirm"]; response: Schemas["M4Ride"] };
+  "m4PASSENGERRide": { method: "GET"; path: "/simulation/passenger/rides/{rideId}"; body: never; response: Schemas["M4Ride"] };
+  "m4PASSENGERReceipt": { method: "GET"; path: "/simulation/passenger/rides/{rideId}/receipt"; body: never; response: Schemas["M4ReceiptResult"] };
+  "m4DRIVERScenarios": { method: "GET"; path: "/simulation/driver/context"; body: never; response: Schemas["M4Scenarios"] };
+  "m4DRIVERCurrent": { method: "GET"; path: "/simulation/driver/current"; body: never; response: Schemas["M4Current"] };
+  "m4DRIVERRecent": { method: "GET"; path: "/simulation/driver/rides"; body: never; response: Schemas["M4Recent"] };
+  "m4DRIVERRide": { method: "GET"; path: "/simulation/driver/rides/{rideId}"; body: never; response: Schemas["M4Ride"] };
+  "m4DRIVERReceipt": { method: "GET"; path: "/simulation/driver/rides/{rideId}/receipt"; body: never; response: Schemas["M4ReceiptResult"] };
+  "m4Quote": { method: "POST"; path: "/simulation/passenger/quotes"; body: Schemas["M4QuoteRequest"]; response: Schemas["M4Preview"] };
+  "m4Cancel": { method: "POST"; path: "/simulation/passenger/rides/{rideId}/cancel"; body: Schemas["M4Action"]; response: Schemas["M4ActionResult"] };
+  "m4Offers": { method: "GET"; path: "/simulation/driver/offers"; body: never; response: Schemas["M4Offers"] };
+  "m4Availability": { method: "POST"; path: "/simulation/driver/availability"; body: Schemas["M4Availability"]; response: Schemas["M4AvailabilityResult"] };
+  "m4DriverAction": { method: "POST"; path: "/simulation/driver/rides/{rideId}/actions/{action}"; body: Schemas["M4Action"]; response: Schemas["M4ActionResult"] };
 }
 export type HealthResponse = Operations['getHealth']['response'];

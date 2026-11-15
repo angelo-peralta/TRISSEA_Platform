@@ -12,6 +12,10 @@ import { AdminHttpModule } from './auth/admin/admin-http.module';
 import {VerificationCoreModule} from './auth/verification/verification-runtime';
 import {VerificationHttpModule} from './auth/verification/verification-http.module';
 import {FareHttpModule} from './fares/fare-http.module';
+import {RideCoreModule} from './rides/ride-runtime';
+import {RideHttpModule} from './rides/ride-http.module';
+const ridesEnabled=process.env.M4_SIMULATION_ENABLED==='true';
+if(process.env.M4_SIMULATION_ENABLED!==undefined&&!['true','false'].includes(process.env.M4_SIMULATION_ENABLED))throw new Error('Invalid simulation flag');
 const passengerEnabled=process.env.M2_PASSENGER_AUTH_ENABLED==='true';
 if(process.env.M2_PASSENGER_AUTH_ENABLED!==undefined&&!['true','false'].includes(process.env.M2_PASSENGER_AUTH_ENABLED))throw new Error('Invalid passenger feature flag');
 const driverEnabled=process.env.M2_DRIVER_AUTH_ENABLED==='true';
@@ -22,7 +26,7 @@ if(process.env.M2_ADMIN_AUTH_ENABLED!==undefined&&!['true','false'].includes(pro
 if((process.env.M2_DRIVER_AUTH_ENABLED!==undefined&&!['true','false'].includes(process.env.M2_DRIVER_AUTH_ENABLED))||(driverEnabled&&!passengerEnabled))throw new Error('Invalid driver feature flag');
 
 @Module({
-  imports: [...passengerEnabled?[PassengerCoreModule.register()]:[],...adminEnabled?[AdminCoreModule.register()]:[],...verificationEnabled?[VerificationCoreModule.register()]:[],AuthorizationModule,...passengerEnabled?[PassengerHttpModule]:[],...driverEnabled?[DriverHttpModule]:[],...adminEnabled?[AdminHttpModule,FareHttpModule]:[],...verificationEnabled?[VerificationHttpModule]:[]],
+  imports: [...passengerEnabled?[PassengerCoreModule.register()]:[],...adminEnabled?[AdminCoreModule.register()]:[],...verificationEnabled?[VerificationCoreModule.register()]:[],AuthorizationModule,...passengerEnabled?[PassengerHttpModule]:[],...driverEnabled?[DriverHttpModule]:[],...adminEnabled?[AdminHttpModule,FareHttpModule]:[],...verificationEnabled?[VerificationHttpModule]:[],...ridesEnabled?[RideCoreModule.register(),RideHttpModule]:[]],
   controllers: [HealthController],
   providers: [
     { provide: IdentityProvider, useFactory:(runtime?:PassengerRuntime,admin?:AdminRuntime)=>new CompositeIdentityProvider(runtime?.identity??new DenyIdentityProvider(),admin?.identity),inject:[{token:PassengerRuntime,optional:true},{token:AdminRuntime,optional:true}] },

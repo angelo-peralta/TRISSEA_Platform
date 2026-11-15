@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { parse } from 'yaml';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 
@@ -9,6 +12,17 @@ const routerRequire = createRequire(appRequire.resolve('expo-router/package.json
 const expoRequire = createRequire(appRequire.resolve('expo/package.json'));
 const cliPackage = expoRequire.resolve('@expo/cli/package.json');
 const cliRequire = createRequire(cliPackage);
+
+test('reviewed patches retain portable LF bytes, lock hashes and clean added source', () => {
+  const workspace=parse(readFileSync(new URL('../pnpm-workspace.yaml',import.meta.url),'utf8'));
+  const lock=parse(readFileSync(new URL('../pnpm-lock.yaml',import.meta.url),'utf8'));
+  for(const [name,path] of Object.entries(workspace.patchedDependencies)){
+    const bytes=readFileSync(new URL('../'+path,import.meta.url)),patch=bytes.toString('utf8');
+    assert.equal(patch.includes('\r'),false,name+' must survive Git LF normalization');
+    assert.equal(createHash('sha256').update(bytes).digest('hex'),lock.patchedDependencies[name],name+' lock hash');
+    for(const line of patch.split('\n'))if(line.startsWith('+')&&!line.startsWith('+++'))assert.doesNotMatch(line,/\s+$/,name+' added source whitespace');
+  }
+});
 
 test('Router query parsing and serialization work with the patched ESM decoder', () => {
   const query = routerRequire('query-string');

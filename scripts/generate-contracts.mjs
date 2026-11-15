@@ -187,6 +187,31 @@ export function createFareClient(fetcher:typeof fetch=fetch){return {async reque
 `;
 }
 
+export function generateRideClient(document){
+ const specs={},inputs=[];
+ for(const [path,item]of Object.entries(document.paths))for(const [method,op]of Object.entries(item)){
+  if(op['x-implemented-in']!=='M4-local-simulation')continue;
+  const parameters=(op.parameters??[]).map(p=>p.$ref?document.components.parameters[p.$ref.split('/').at(-1)]:p),request=op.requestBody?.content['application/json'].schema??null,response=op.responses['200'].content['application/json'].schema;
+  const fields=['accessToken:string;',...parameters.map(p=>`${JSON.stringify(p.name==='Idempotency-Key'?'idempotencyKey':p.name)}${p.required?'':'?'}:string;`),...request?['body:Operations['+JSON.stringify(op.operationId)+']["body"];']:[],'signal?:AbortSignal;'];inputs.push(JSON.stringify(op.operationId)+':{'+fields.join('')+'};');specs[op.operationId]={path,method:method.toUpperCase(),purpose:op['x-client-purpose'],parameters,request,response};
+ }
+ const fareClient=generateFareClient(document),validation=fareClient.slice(fareClient.indexOf('type Shape='),fareClient.indexOf('export class FareApiError'));
+ // Reuse the reviewed structural validator; resolve M4 schemas from the same source document.
+ const validator=validation.slice(validation.indexOf('function valid('));
+ return `// Generated from contracts/openapi-mvp.yaml. Run pnpm contracts:generate.
+import type {Operations} from './generated/m1';
+export interface RideInputs {${inputs.join('\n')}}
+${validation.slice(0,validation.indexOf('const specs=')).replace('enum?:unknown[]','enum?:readonly unknown[]').replace('type Shape={','type Shape={pattern?:string;')}
+const specs=${JSON.stringify(specs)} as const;
+const schemas:Record<string,Shape>=${JSON.stringify(Object.fromEntries(Object.entries(document.components.schemas).filter(([name])=>name.startsWith('M4'))))};
+${validator}
+export class RideApiError extends Error{constructor(readonly status:number){super('Simulation request unavailable');}}
+export function createRideClient(baseUrl:string,purpose:'PASSENGER'|'DRIVER',fetcher:typeof fetch=fetch){return {async request<K extends keyof RideInputs>(operation:K,input:RideInputs[K]):Promise<Operations[K]['response']>{
+ const spec=specs[operation],args=input as unknown as Record<string,unknown>;if(spec.purpose!==purpose||typeof args.accessToken!=='string'||!args.accessToken)throw new RideApiError(403);const headers:Record<string,string>={Accept:'application/json',Authorization:'Bearer '+args.accessToken};let path:string=spec.path;
+ for(const p of spec.parameters){const field=p.name==='Idempotency-Key'?'idempotencyKey':p.name,value=args[field];if(value===undefined&&!p.required)continue;if(!valid(value,p.schema))throw new RideApiError(400);if(p.in==='path')path=path.replace('{'+p.name+'}',encodeURIComponent(String(value)));else if(p.in==='query')path+=(path.includes('?')?'&':'?')+p.name+'='+encodeURIComponent(String(value));else headers[p.name]=String(value);}
+ if(spec.request&&!valid(args.body,spec.request))throw new RideApiError(400);if(spec.request)headers['Content-Type']='application/json';const response=await fetcher(baseUrl.replace(/\\/$/,'')+path,{method:spec.method,headers,credentials:'omit',cache:'no-store',...(args.signal?{signal:args.signal as AbortSignal}:{}),...(spec.request?{body:JSON.stringify(args.body)}:{})});if(response.status!==200)throw new RideApiError(response.status);let body:unknown;try{body=await response.json();}catch{throw new RideApiError(502);}if(!valid(body,spec.response))throw new RideApiError(502);return body as Operations[K]['response'];
+ }};}
+`;
+}
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const input = new URL('../contracts/openapi-mvp.yaml', import.meta.url);
   const document = parse(await readFile(input, 'utf8'));
@@ -196,6 +221,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     ['../packages/contracts/src/passenger-client.ts', generatePassengerClient(document)],
     ['../packages/contracts/src/driver-client.ts', generateDriverClient(document)],
     ['../packages/contracts/src/fare-client.ts', generateFareClient(document)],
+    ['../packages/contracts/src/ride-client.ts', generateRideClient(document)],
     ['../services/api/src/contracts/generated/mvp.ts', generate(document)],
   ];
   for (const [path, generated] of outputs) {

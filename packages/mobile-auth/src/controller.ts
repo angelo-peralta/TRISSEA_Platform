@@ -58,7 +58,7 @@ export class MobileSession {
   this.state={phase,busy,message:text,profile,challengeExpiresAt:this.flow?.challenge.expiresAt??null,resendAfter:this.flow?.challenge.resendAfter??null};
   for(const listener of this.listeners)listener();
  }
- private enqueue(work:()=>Promise<void>):Promise<void>{const next=this.tail.then(work,work);this.tail=next.catch(()=>{});return next;}
+ private enqueue<T>(work:()=>Promise<T>):Promise<T>{const next=this.tail.then(work,work);this.tail=next.catch(()=>{});return next;}
  private async save(value:Credentials){try{await this.options.store.write(JSON.stringify(value));this.credentials=value;}catch{throw new StorageFailure();}}
  private async clear(){this.access=null;this.flow=null;this.pendingChallenge=null;try{await this.options.store.clear();this.credentials=null;}catch{throw new StorageFailure();}}
  private async load(){
@@ -81,6 +81,8 @@ export class MobileSession {
   try{await this.save(next);}catch(e){this.access=null;try{await this.options.transport.logout(result.accessToken,this.options.uuid());}catch{/* No successful revocation is claimed. Native storage stays blocked. */}throw e;}
   this.access={value:result.accessToken,expiresAt:Date.parse(result.accessTokenExpiresAt)};
  }
+ /** Serialize protected feature calls with refresh/logout; credentials never enter feature state. */
+ authorized<T>(work:(accessToken:string)=>Promise<T>):Promise<T>{return this.enqueue(async()=>{try{await this.load();if(this.logoutRequested||!this.active)throw new Error('Session unavailable');return await work(await this.token());}catch(error){if(error instanceof StorageFailure||error instanceof ExpiredRetry||status(error)===401){this.access=null;try{await this.failure(error,'EXPIRED');}catch{this.publish('STORAGE_UNAVAILABLE','Secure storage is unavailable. Close the app and retry.');}}throw error;}});}
  private async token():Promise<string>{
   const c=await this.binding();
   if(!c.refreshToken)throw new ExpiredRetry();

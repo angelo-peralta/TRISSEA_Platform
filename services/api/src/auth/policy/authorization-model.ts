@@ -44,6 +44,8 @@ const scoped = (resource: ResourceKind, permission: Permission, roles: readonly 
 
 /** Action keys are server route metadata, not new role/permission identifiers or public operations. */
 export const actionPolicies = Object.freeze({
+  SIMULATION_PASSENGER:{...self('ACCOUNT'),clientPurpose:'PASSENGER' as const,activeSelf:true},
+  SIMULATION_DRIVER:{...self('ACCOUNT'),clientPurpose:'DRIVER' as const,activeSelf:true},
   ACCOUNT_READ_SELF: self('ACCOUNT'), SESSION_READ_SELF: self('SESSION'),
   ACCOUNT_UPDATE_SELF:self('ACCOUNT',true),CONSENT_RECORD_SELF:self('ACCOUNT',true),SESSION_REVOKE_SELF:self('SESSION',true,true),
   PASSENGER_READ_SELF:{...self('ACCOUNT'),clientPurpose:'PASSENGER' as const},

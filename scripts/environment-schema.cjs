@@ -1,6 +1,8 @@
 // Supported first-party dotenv keys and safe template values.
 module.exports = {
   "fields": {
+    "M4_SIMULATION_ENABLED": ["false", "Local-only ride simulator; requires a manifest-verified disposable database and explicit synthetic participants. Production prohibited."],
+    "M4_DATABASE_URL": ["", "Injected least-privilege simulation login in the SAME disposable mobile application database; never core/IdP."],
     "NODE_ENV": [
       "development",
       "Required: development only; process injection wins."
