@@ -91,6 +91,38 @@ test('two different drivers racing on synthetic offers produce one winner and a 
  const [counts]=await f.owner`SELECT count(*) FILTER(WHERE state='ACCEPTED')::int AS winners,count(*) FILTER(WHERE state='PENDING')::int AS pending FROM simulation.offers WHERE ride_id=${ride.id}`;assert.equal(counts.winners,1);assert.equal(counts.pending,0);
  const assigned=results[winner].json().ride;await call('POST',passenger+'/rides/'+ride.id+'/cancel',{expectedVersion:assigned.version});
 });
+test('recent rides use creation order and a scoped, precision-safe cursor for both personas',async()=>{
+ const who=await f.login(),assigned=await f.login('DRIVER'),other=await f.login();
+ const idFor=i=>'00000000-0000-4000-8000-'+(1000-i).toString(16).padStart(12,'0');
+ const seed=async(i,passengerOwner=who,driverOwner=assigned,id=idFor(i))=>{
+  const quote=(await call('POST',passenger+'/quotes',{scenarioId:f.scenarios[1],passengerCount:1,fareClass:'REGULAR'},passengerOwner)).quote;
+  // Explicit terminal fixtures: UUID order opposes creation order, and all
+  // timestamps share a JavaScript millisecond. The page boundary splits a tie.
+  await f.owner`INSERT INTO simulation.rides(id,quote_id,passenger_id,driver_id,city_tenant_id,toda_id,scenario_id,state,created_at,search_until)
+   VALUES(${id},${quote.id},${passengerOwner.userId},${driverOwner.userId},${f.city},${f.toda},${f.scenarios[1]},'CANCELLED',
+    '2026-11-15T00:00:00Z'::timestamptz+${i===4?5:i}*interval '1 microsecond',clock_timestamp())`;
+  return id;
+ };
+ for(let i=0;i<25;i++)await seed(i);
+ const expected=[...Array.from({length:19},(_,i)=>idFor(24-i)),idFor(4),idFor(5),idFor(3),idFor(2),idFor(1),idFor(0)];
+ const foreign=await seed(30,other,d2,'ffffffff-ffff-4fff-8fff-ffffffffffff');
+ for(const [path,viewer]of [[passenger,who],[driver,assigned]]){
+  const first=await call('GET',path+'/rides',undefined,viewer);
+  assert.deepEqual(first.items.map(r=>r.id),expected.slice(0,20));
+  assert.deepEqual(first.items.slice(0,5).map(r=>r.id),expected.slice(0,5),'Mobile first-five history contains the newest rides');
+  assert.equal(first.nextCursor,idFor(4));
+  const next=await call('GET',path+'/rides?after='+first.nextCursor,undefined,viewer);
+  assert.deepEqual(next.items.map(r=>r.id),expected.slice(20));assert.equal(next.nextCursor,null);
+  assert.equal(new Set([...first.items,...next.items].map(r=>r.id)).size,25);
+  assert.deepEqual((await call('GET',path+'/rides?after='+foreign,undefined,viewer)).items,[],'Another account cannot anchor this history');
+  assert.deepEqual((await call('GET',path+'/rides?after='+randomUUID(),undefined,viewer)).items,[]);
+  await call('GET',path+'/rides?after=invalid',undefined,viewer,400);
+ }
+ const inserted=await seed(25),fresh=await call('GET',passenger+'/rides',undefined,who);
+ assert.equal(fresh.items[0].id,inserted);
+ assert.deepEqual((await call('GET',passenger+'/rides?after='+idFor(4),undefined,who)).items.map(r=>r.id),expected.slice(20),'A newer insertion does not shift an existing cursor');
+});
+
 test('revoked sessions, suspended accounts and disabled enrollment cannot recover synthetic rides',async()=>{
  const revoked=await f.login(),suspended=await f.login(),disabled=await f.login();
  await f.owner`UPDATE identity.app_sessions SET state='REVOKED',revoked_at=clock_timestamp(),version=version+1 WHERE user_id=${revoked.userId}`;await call('GET',passenger+'/current',undefined,revoked,401);

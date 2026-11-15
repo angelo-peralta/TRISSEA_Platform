@@ -5395,6 +5395,7 @@ paths:
       tags:
         - RegularSimulation
       operationId: m4PASSENGERRecent
+      description: Returns up to 20 own rides ordered by createdAt descending, then id descending. The after UUID identifies the last returned ride; unknown or unowned cursor IDs return an empty page.
       x-implemented-in: M4-local-simulation
       x-client-purpose: PASSENGER
       summary: Enrolled local synthetic passenger only; never payable or operational
@@ -5587,6 +5588,7 @@ paths:
       tags:
         - RegularSimulation
       operationId: m4DRIVERRecent
+      description: Returns up to 20 assigned rides ordered by createdAt descending, then id descending. The after UUID identifies the last returned ride; unknown or unowned cursor IDs return an empty page.
       x-implemented-in: M4-local-simulation
       x-client-purpose: DRIVER
       summary: Enrolled local synthetic driver only; never payable or operational

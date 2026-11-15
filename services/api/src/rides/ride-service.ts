@@ -1,6 +1,6 @@
 import {randomInt} from 'node:crypto';
 import {ConflictException,ForbiddenException,NotFoundException} from '@nestjs/common';
-import {and,desc,eq,lt,sql} from 'drizzle-orm';
+import {and,desc,eq,sql} from 'drizzle-orm';
 import type {AuthorizedWork} from '../auth/policy/authorization.service';
 import type {PolicyTransaction} from '../auth/policy/authorization-database';
 import {PassengerSecrets} from '../auth/passenger/passenger-settings';
@@ -49,8 +49,12 @@ export class RideService{
   return {...value,pickupCode:ride.passengerId===c.userId&&!ride.pickupVerified&&!terminal.includes(ride.state)&&ride.pickupCiphertext?this.secrets.identity.decrypt(ride.pickupCiphertext,'m4-pickup:'+ride.quoteId):null,simulationOnly:true,operationalServicesEnabled:false};
  }
  async current(c:Context){await this.scope(c);const [row]=await c.tx.execute(sql`SELECT simulation.current_ride() AS id`);return {ride:row?.id?await this.snapshot(c,String(row.id)):null,simulationOnly:true};}
- async recent(c:Context,raw:unknown){await this.scope(c);const b=object(raw,['after']),after=b.after===undefined?null:uuid(b.after),scope=await this.scope(c),t=s.simulatedRides;
-  const rows=await c.tx.select({id:t.id,state:t.state,version:t.version,createdAt:t.createdAt}).from(t).where(and(scope.purpose==='PASSENGER'?eq(t.passengerId,c.userId):eq(t.driverId,c.userId),after?lt(t.id,after):undefined)).orderBy(desc(t.id)).limit(21);return {items:rows.slice(0,20),nextCursor:rows.length>20?rows[19]!.id:null,simulationOnly:true};
+ async recent(c:Context,raw:unknown){const scope=await this.scope(c),b=object(raw,['after']),after=b.after===undefined?null:uuid(b.after),t=s.simulatedRides;
+  const owned=scope.purpose==='PASSENGER'?eq(t.passengerId,c.userId):eq(t.driverId,c.userId);
+  // Resolve the UUID cursor in PostgreSQL to preserve sub-millisecond timestamps.
+  // An unknown or unowned cursor cannot anchor this account's history.
+  const before=after?sql`(${t.createdAt},${t.id}) < (SELECT ${t.createdAt},${t.id} FROM ${t} WHERE ${and(eq(t.id,after),owned)})`:undefined;
+  const rows=await c.tx.select({id:t.id,state:t.state,version:t.version,createdAt:t.createdAt}).from(t).where(and(owned,before)).orderBy(desc(t.createdAt),desc(t.id)).limit(21);return {items:rows.slice(0,20),nextCursor:rows.length>20?rows[19]!.id:null,simulationOnly:true};
  }
  async offers(c:Context){await this.scope(c);const rows=await c.tx.select().from(s.simulatedOffers).where(and(eq(s.simulatedOffers.driverId,c.userId),eq(s.simulatedOffers.state,'PENDING'))).orderBy(s.simulatedOffers.id).limit(20);return {items:await Promise.all(rows.map(async offer=>({offer,ride:await this.snapshot(c,offer.rideId)}))),simulationOnly:true};}
  async command(c:Context,id:unknown,action:string,raw:unknown,key:unknown){const rideId=uuid(id),b=object(raw,['expectedVersion','offerId','pickupCode']);const expectedVersion=integer(b.expectedVersion,1),offerId=b.offerId===undefined?null:uuid(b.offerId),code=b.pickupCode;
