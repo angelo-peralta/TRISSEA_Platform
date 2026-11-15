@@ -26,6 +26,7 @@ jobs:
       - run: pnpm test:m2:integration
       - run: pnpm test:m2:browser
       - run: pnpm test:m3:integration
+      - run: pnpm test:m4:integration
       - uses: actions/upload-artifact@v4
         if: always()
         with:

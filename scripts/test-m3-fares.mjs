@@ -36,11 +36,11 @@ before(async()=>{
 after(async()=>{await app?.close();await Promise.allSettled([runtime?.end(),owner?.end(),control?.end()]);await mkdir(new URL('../.cache/m3/',import.meta.url),{recursive:true});await writeFile(new URL('../.cache/m3/results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');});
 test('0009 fresh up, failed-commit rollback, repeated/concurrent up, down/reapply preserve M2 ledger and sentinel',async()=>{
  const ledger=await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`;
- await assert.rejects(runMigrations({begin:callback=>owner.begin(async tx=>{await callback(tx);await tx`SELECT 1/0`;})},'up',{allowIdentity:true,report:()=>{}}),e=>e.code==='22012');
+ await assert.rejects(runMigrations({begin:callback=>owner.begin(async tx=>{await callback(tx);await tx`SELECT 1/0`;})},'up',{through:'0009_fare_governance',allowIdentity:true,report:()=>{}}),e=>e.code==='22012');
  assert.equal((await owner`SELECT to_regnamespace('fare') AS n`)[0].n,null);
- await Promise.all([runMigrations(owner,'up',{allowIdentity:true,report:()=>{}}),runMigrations(owner,'up',{allowIdentity:true,report:()=>{}})]);
+ await Promise.all([runMigrations(owner,'up',{through:'0009_fare_governance',allowIdentity:true,report:()=>{}}),runMigrations(owner,'up',{through:'0009_fare_governance',allowIdentity:true,report:()=>{}})]);
  await runMigrations(owner,'down',{allowIdentity:true,report:()=>{}});assert.deepEqual(await owner`SELECT id,checksum,applied_at::text FROM trissea_migrations ORDER BY id`,ledger);
- await runMigrations(owner,'up',{allowIdentity:true,report:()=>{}});assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'m3-preserve');
+ await runMigrations(owner,'up',{through:'0009_fare_governance',allowIdentity:true,report:()=>{}});assert.equal((await owner`SELECT value FROM unrelated_preservation`)[0].value,'m3-preserve');
  assert.equal((await owner`SELECT count(*)::int AS n FROM identity.role_permissions WHERE permission_code='fare.activate'`)[0].n,0);
  note('0009 migration transaction/repeat/concurrency/down/reapply; prior checksums and sentinel preserved; no fare.activate edge');
 });

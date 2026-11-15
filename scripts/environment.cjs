@@ -18,6 +18,7 @@ function parseFile(file, optional = false) {
   }
 }
 function validate(values, production = false) {
+  if(production&&values.M4_SIMULATION_ENABLED!==undefined&&values.M4_SIMULATION_ENABLED!=='false')throw invalid('M4_SIMULATION_ENABLED');
   if (!['development', 'test', 'production'].includes(values.NODE_ENV)) throw invalid('NODE_ENV');
   if (production !== (values.NODE_ENV === 'production')) throw invalid('NODE_ENV');
   for (const key of closedFlags) if (values[key] !== undefined && values[key] !== 'false') throw invalid(key);

@@ -72,6 +72,19 @@ test('secure-store failures block network enrollment and compensate an unpersist
  const f=fixture();f.store.failAt=1;const s=f.create();await s.requestCode('+639980000001');assert.equal(s.getSnapshot().phase,'STORAGE_UNAVAILABLE');assert.equal(f.calls.length,0);
  const rotated=fixture();await signIn(rotated);rotated.store.failAt=rotated.store.writes+2;const r=rotated.create();await r.restore();assert.equal(r.getSnapshot().phase,'STORAGE_UNAVAILABLE');assert.equal(r.getSnapshot().profile,null);assert.equal(rotated.active(),false);assert.equal(rotated.calls.filter(c=>c.operation==='logout').length,1);
 });
+for(const purpose of ['PASSENGER','DRIVER'] as const)test(purpose+' protected calls publish expired refresh recovery without replaying an uncertain credential',async()=>{
+ const f=fixture(purpose),s=await signIn(f);await s.consent(true,true);f.advance(600001);f.loseRefresh();let protectedCalls=0;
+ const work=async()=>{protectedCalls++;};await assert.rejects(s.authorized(work));f.advance(10001);await assert.rejects(s.authorized(work));
+ assert.equal(s.getSnapshot().phase,'EXPIRED');assert.equal(s.getSnapshot().profile,null);assert.equal(protectedCalls,0);assert.equal(f.calls.filter(c=>c.operation==='refresh').length,1);assert.equal(f.store.value,null);
+});
+test('protected calls clear unreadable credentials and require sign-in without issuing a feature request',async()=>{
+ const f=fixture();await signIn(f);f.store.unreadable=true;const s=f.create();let called=false;
+ await assert.rejects(s.authorized(async()=>{called=true;}));assert.equal(s.getSnapshot().phase,'EXPIRED');assert.equal(called,false);assert.equal(s.getSnapshot().profile,null);assert.equal(f.store.value,null);
+});
+test('protected calls expose refresh-journal write failures before any network operation',async()=>{
+ const f=fixture(),s=await signIn(f);await s.consent(true,true);f.advance(600001);f.store.failAt=f.store.writes+1;let called=false;
+ await assert.rejects(s.authorized(async()=>{called=true;}));assert.equal(s.getSnapshot().phase,'STORAGE_UNAVAILABLE');assert.equal(called,false);assert.equal(s.getSnapshot().profile,null);assert.equal(f.calls.filter(c=>c.operation==='refresh').length,0);
+});
 test('a lost request-code response retries the same request instead of sending a second mutation',async()=>{
  const f=fixture(),s=f.create(),request=f.transport.request;let lost=true;f.transport.request=async(...args)=>{const value=await request(...args);if(lost){lost=false;throw new Error('lost response');}return value;};await s.requestCode('+639980000001');assert.equal(s.getSnapshot().phase,'SIGNED_OUT');await s.requestCode('+639980000001');assert.equal(s.getSnapshot().phase,'CODE_REQUIRED');const keys=f.calls.filter(c=>c.operation==='request').map(c=>c.key);assert.equal(keys[0],keys[1]);
 });

@@ -219,3 +219,15 @@ policy questions still needed. Maker-checker approval leaves activation CLOSED;
 `fare.activate` remains unassigned and every payable request is unavailable.
 M4–M7 and external Gates A–E remain outside this implementation. M3 push/PR
 publication requires new explicit authorization; merge/deployment are prohibited.
+
+## M4 owner implementation directive — 13 November 2026
+
+The owner authorizes the Regular ride vertical slice exclusively for explicitly
+enrolled synthetic/local participants. This supersedes the previous M4 engineering
+stop, without opening any real-operation gate. M3 simulation pricing is reused;
+quotes, dispatch, pickup verification and cash receipts never imply payable fares,
+driver eligibility, field-tested safety or received/settled money. The simulator
+requires a manifest-verified disposable database and rejects production mode.
+The [implementation and acceptance record](68-M4-REGULAR-RIDE-SIMULATION.md)
+records evidence and limitations. M4 commit/push/draft PR need separate explicit
+publication approval. M5, merge, deployment and external Gates A–E remain closed.
